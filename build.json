@@ -9,7 +9,7 @@
   "targets": {
     "quicktheatre": {
       "builder": "closure-compiler",
-      "compilationLevel": "WHITESPACE_ONLY",
+      "compilationLevel": "SIMPLE_OPTIMIZATIONS",
       "outputs": "${binDir}/quicktheatre.js",
       "resources": [
         {

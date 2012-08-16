@@ -48,7 +48,6 @@
      */
     a: function() {
       if (this.bbl !== 0) {
-        //this.i += ((this.bbl + 7) >>> 3) | 0;
         this.bb = 0;
         this.bbl = 0;
       }
@@ -60,6 +59,9 @@
      */
     seek: function(pOffset) {
       this.a();
+      if (this.i + pOffset > this.fileSize) {
+        throw new Error('Index out of bounds');
+      }
       this.i += pOffset;
     },
 
@@ -69,6 +71,9 @@
      */
     seekTo: function(pIndex) {
       this.a();
+      if (pIndex > this.fileSize) {
+        throw new Error('Index out of bounds');
+      }
       this.i = pIndex;
     },
 
@@ -78,6 +83,36 @@
      */
     tell: function() {
       return this.i;
+    },
+
+    /**
+     * Peeks a bits, not modifying the state of this Reader.
+     * @param {Number} pNumber The number of bits to peek at.
+     * @return {Number} The bits.
+     */
+    peekBits: function(pNumber) {
+      var tBuffer = this.b,
+          tByteIndex = this.i,
+          tBitBuffer = this.bb,
+          tBitBufferLength = this.bbl;
+
+      var tTmp = 0;
+
+      while (tBitBufferLength < pNumber) {
+        tTmp = tBuffer[tByteIndex++];
+        if (tTmp === void 0) {
+          throw new Error('Index out of bounds');
+        }
+        tBitBuffer = (tBitBuffer << 8) | tTmp;
+        tBitBufferLength += 8;
+      }
+
+      tTmp = tBitBuffer >>> (tBitBufferLength - pNumber);
+      tBitBuffer &= (((1 << tBitBufferLength) - 1) & ((1 << (tBitBufferLength - pNumber)) - 1));
+      tBitBuffer << pNumber;
+      tBitBufferLength -= pNumber;
+
+      return tTmp;
     },
 
     /**
@@ -95,6 +130,9 @@
 
       while (tBitBufferLength < pNumber) {
         tTmp = tBuffer[tByteIndex++];
+        if (tTmp === void 0) {
+          throw new Error('Index out of bounds');
+        }
         tBitBuffer = (tBitBuffer << 8) | tTmp;
         tBitBufferLength += 8;
       }
@@ -112,12 +150,21 @@
     },
 
     /**
-     * Reads a fixed point from bits.
+     * Reads a fixed point from bits with a precision of 16.
      * @param {Number} pNumber The number of bits to read.
      * @return {Number} The fixed point.
      */
-    fpbp: function(pNumber) {
+    fpb16p: function(pNumber) {
       return this.bsp(pNumber) * 0.0000152587890625;
+    },
+
+    /**
+     * Reads a fixed point from bits with a precision of 8.
+     * @param {Number} pNumber The number of bits to read.
+     * @return {Number} The fixed point.
+     */
+    fpb8p: function(pNumber) {
+      return this.bsp(pNumber) * 0.00390625;
     },
 
     /**
@@ -138,7 +185,12 @@
      * @return {Number} The byte.
      */
     B: function() {
-      return this.b[this.i++];
+      var tResult = this.b[this.i];
+      if (tResult === void 0) {
+        throw new Error('Index out of bounds.');
+      }
+      this.i++
+      return tResult;
     },
 
     /**
@@ -148,6 +200,9 @@
     I16: function() {
       var tBuffer = this.b,
           tIndex = this.i;
+      if (tIndex + 2 > this.fileSize) {
+        throw new Error('Index out of bounds.');
+      }
       var tResult = (tBuffer[tIndex]) | (tBuffer[tIndex + 1] << 8);
       this.i += 2;
       return tResult;
@@ -167,6 +222,10 @@
        * @type {Number}
        */
       var tIndex = this.i;
+
+      if (tIndex + 4 > this.fileSize) {
+        throw new Error('Index out of bounds.');
+      }
 
       /**
        * @type {Number}
@@ -194,6 +253,10 @@
        * @type {Number}
        */
       var tIndex = this.i;
+      
+      if (tIndex + 4 > this.fileSize) {
+        throw new Error('Index out of bounds.');
+      }
 
       /**
        * @type {Number}
@@ -212,7 +275,12 @@
      * @return {String} The character.
      */
     c: function() {
-      return String.fromCharCode(this.b[this.i++]);
+      var tResult = this.b[this.i];
+      if (tResult === void 0) {
+        throw new Error('Index out of bounds.');
+      }
+      this.i++;
+      return String.fromCharCode(tResult);
     },
 
     /**
@@ -227,7 +295,10 @@
       for (; ; i++) {
         tChar = tBuffer[i];
         if (tChar === 0) {
+          i++;
           break;
+        } else if (tChar === void 0) {
+          throw new Error('Index out of bounds.');
         }
         tString += String.fromCharCode(tChar);
       }
@@ -245,6 +316,9 @@
       var tBuffer = this.b;
       var i = this.i;
       pLength += i;
+      if (pLength > this.fileSize) {
+        throw new Error('Index out of bounds.');
+      }
       for (; i < pLength; i++) {
         tString += String.fromCharCode(tBuffer[i]);
       }

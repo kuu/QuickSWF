@@ -25,15 +25,15 @@
     // Check to see if we have scale.
     if (pReader.bp(1) === 1) {
       tNumberOfBits = pReader.bp(5);
-      tMatrix[0] = pReader.fpbp(tNumberOfBits);
-      tMatrix[3] = pReader.fpbp(tNumberOfBits);
+      tMatrix[0] = pReader.fpb16p(tNumberOfBits);
+      tMatrix[3] = pReader.fpb16p(tNumberOfBits);
     }
 
     // Check to see if we have skew.
     if (pReader.bp(1) === 1) {
       tNumberOfBits = pReader.bp(5);
-      tMatrix[1] = pReader.fpbp(tNumberOfBits);
-      tMatrix[2] = pReader.fpbp(tNumberOfBits);
+      tMatrix[1] = pReader.fpb16p(tNumberOfBits);
+      tMatrix[2] = pReader.fpb16p(tNumberOfBits);
     }
 
     // Grab the translation.
