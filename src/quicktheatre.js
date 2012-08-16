@@ -1,0 +1,8 @@
+var quicktheatre = {
+  structs: {
+
+  },
+  tags: {
+
+  }
+};

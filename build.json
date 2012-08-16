@@ -1,0 +1,40 @@
+{
+  "properties": {
+    "docsDir": "docs",
+    "vendorDir": "vendor",
+    "binDir": "bin",
+    "closure-compiler-jar": "${vendorDir}/google-closure-compiler/compiler.jar"
+  },
+
+  "targets": {
+    "quicktheatre": {
+      "builder": "closure-compiler",
+      "compilationLevel": "WHITESPACE_ONLY",
+      "outputs": "${binDir}/quicktheatre.js",
+      "resources": [
+        {
+          "type": "files",
+          "root": "src",
+          "files": [
+            "quicktheatre.js",
+            "reader.js",
+            "parser.js"
+          ],
+          "include": "^.+\\.js$"
+        },
+
+        {
+          "type": "files",
+          "root": "src/structs",
+          "include": "^.+\\.js$"
+        },
+
+        {
+          "type": "files",
+          "root": "src/tags",
+          "include": "^.+\\.js$"
+        }
+      ]
+    }
+  }
+}
