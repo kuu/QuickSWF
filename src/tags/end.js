@@ -3,7 +3,8 @@
   global.quicktheatre.Parser.prototype['0'] = end;
 
   function end(pLength) {
-    // do nothing for now.
+    this.currentSprite = this.spriteStack.pop();
+    this.currentFrame = this.frameStack.pop();
   }
 
 }(this));

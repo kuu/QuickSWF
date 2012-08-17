@@ -25,8 +25,8 @@
    * @return {quicktheatre.structs.ColorTransform} The loaded ColorTransform.
    */
   ColorTransform.load = function(pReader, pWithAlpha) {
-    var tHasAdditive = pReader.b();
-    var tHasMultiplitive = pReader.b();
+    var tHasAdditive = pReader.bp(1);
+    var tHasMultiplitive = pReader.bp(1);
     var tNumberOfBits = pReader.bp(4);
 
     var tTransform = new ColorTransform();

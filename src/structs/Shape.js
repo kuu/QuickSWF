@@ -8,6 +8,8 @@
    * @class {quicktheatre.structs.Shape}
    */
   function Shape() {
+    this.id = -1;
+    this.bounds = null;
     this.fillStyles = new Array();
     this.lineStyles = new Array();
     this.numberOfFillBits = 0;

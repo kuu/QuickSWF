@@ -108,9 +108,6 @@
       }
 
       tTmp = tBitBuffer >>> (tBitBufferLength - pNumber);
-      tBitBuffer &= (((1 << tBitBufferLength) - 1) & ((1 << (tBitBufferLength - pNumber)) - 1));
-      tBitBuffer << pNumber;
-      tBitBufferLength -= pNumber;
 
       return tTmp;
     },

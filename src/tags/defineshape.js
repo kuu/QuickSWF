@@ -8,27 +8,28 @@
   var Shape = global.quicktheatre.structs.Shape;
 
   function defineShape(pLength) {
-    parseShape(this.r, false, false);
+    parseShape(this, false, false);
   }
 
   function defineShape2(pLength) {
-    parseShape(this.r, false, true);
+    parseShape(this, false, true);
   }
 
   function defineShape3(pLength) {
-    parseShape(this.r, true, true);
+    parseShape(this, true, true);
   }
 
 
-  function parseShape(pReader, pWithAlpha, pHasLargeFillCount) {
-    var tId = pReader.I16();
-    var tBounds = Rect.load(pReader);
+  function parseShape(pParser, pWithAlpha, pHasLargeFillCount) {
+    var tReader = pParser.r;
+    var tId = tReader.I16();
+    var tBounds = Rect.load(tReader);
+    var tShape = Shape.load(tReader, true, pWithAlpha, pHasLargeFillCount);
 
-    var tWidth = tBounds.right - tBounds.left;
-    var tHeight = tBounds.bottom - tBounds.top;
+    tShape.id = tId;
+    tShape.bounds = tBounds;
 
-    var tShape = Shape.load(pReader, true, pWithAlpha, pHasLargeFillCount);
-    console.log('DEFINESHAPE', tId, tBounds, tShape);
+    pParser.swf.dictionary[tId + ''] = tShape;
   }
 
 

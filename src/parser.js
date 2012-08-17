@@ -3,16 +3,74 @@
   global.quicktheatre.Parser = Parser;
 
   var mStructs = global.quicktheatre.structs;
+  var SWF = global.quicktheatre.SWF;
 
   /**
    * @constructor
    */
   function Parser(pBuffer) {
+    /**
+     * The Reader object for this parser.
+     * @type {quicktheatre.Reader}
+     */
     this.r = new global.quicktheatre.Reader(pBuffer);
 
+    /**
+     * The SWF object that gets created after parsing.
+     * @type {quicktheatre.SWF}
+     */
+    this.swf = null;
+
+    /**
+     * The currently being parsed frame index.
+     * @type {Number}
+     */
+    this.currentFrame = 0;
+
+    /**
+     * A stack of frame indices to keep track of while parsing.
+     * @type {Array.<Number>}
+     */
+    this.frameStack = new Array();
+
+    /**
+     * A stack of Sprites to keep track of while parsing.
+     * @type {Array.<quicktheatre.structs.Sprite>}
+     */
+    this.spriteStack = new Array();
+
+    /**
+     * The currently being parsed Sprite.
+     * @type {quicktheatre.structs.Sprite}
+     */
+    this.currentSprite = null;
   }
 
   Parser.prototype = /** @lends {quicktheatre.Parser#} */ {
+
+    /**
+     * Adds a new action to the current frame
+     * of the current sprite.
+     * @param {Object} pData The data. Make sure it has a type property of type String.
+     */
+    add: function(pData) {
+      var tFrames = this.currentSprite.frames;
+      var tIndex = this.currentFrame;
+      var tRealData = new Object();
+      for (var k in pData) {
+        tRealData[k] = pData[k];
+      }
+
+      if (tFrames[tIndex] === void 0) {
+        tFrames[tIndex] = [tRealData];
+      } else {
+        tFrames[tIndex].push(tRealData);
+      }
+    },
+
+    /**
+     * Parses the current buffer.
+     */
     parse: function() {
       var tTimer = Date.now();
       var tReader = this.r;
@@ -52,44 +110,51 @@
       var tFrameRate = tReader.I16() / 256;
       var tFrameCount = tReader.I16();
 
-      console.log('Read header', tVersion, tFileSize, tWidth, tHeight, tFrameRate, tFrameCount);
+      var tSWF = this.swf = new SWF(tVersion, tWidth, tHeight, tFrameRate, tFrameCount);
+
+      this.currentSprite = tSWF.rootSprite;
+      this.currentSprite.frameCount = tFrameCount;
+      this.currentSprite.frames.length = tFrameCount;
 
       var self = this;
 
       function parseTag() {
         var tLocalReader = tReader;
-        var tTypeAndLength = tLocalReader.I16();
-        var tType = (tTypeAndLength >>> 6) + '';
-        var tLength = tTypeAndLength & 0x3F;
 
-        if (tLength === 0x3F) {
-          tLength = tLocalReader.SI32();
-        }
+        for (;;) {
+          var tTypeAndLength = tLocalReader.I16();
+          var tType = (tTypeAndLength >>> 6) + '';
+          var tLength = tTypeAndLength & 0x3F;
 
-        var tExpectedFinalIndex = tLocalReader.tell() + tLength;
+          if (tLength === 0x3F) {
+            tLength = tLocalReader.SI32();
+          }
 
-        if (!(tType in self)) {
-          console.warn('Unknown tag: ' + tType);
-          tLocalReader.seek(tLength);
-        } else {
-          self[tType + ''](tLength);
-        }
+          var tExpectedFinalIndex = tLocalReader.tell() + tLength;
 
-        if (tLocalReader.tell() !== tExpectedFinalIndex) {
-          console.error('Expected final index incorrect for tag ' + tType);
-          tLocalReader.seekTo(tExpectedFinalIndex);
-        }
+          if (!(tType in self)) {
+            console.warn('Unknown tag: ' + tType);
+            tLocalReader.seek(tLength);
+          } else {
+            self[tType + ''](tLength);
+          }
 
-        if (tLocalReader.tell() >= tFileSize) {
-          console.log('Done parsing.');
-          return;
-        }
+          // Forgive the hack for DefineSprite (39). It's length is for all the tags inside of it.
+          if (tType !== '39' && tLocalReader.tell() !== tExpectedFinalIndex) {
+            console.error('Expected final index incorrect for tag ' + tType);
+            tLocalReader.seekTo(tExpectedFinalIndex);
+          }
 
-        if (Date.now() - tTimer >= 4500) {
-          tTimer = 0;
-          setTimeout(parseTag, 10);
-        } else {
-          parseTag();
+          if (tLocalReader.tell() >= tFileSize) {
+            console.log('Done parsing.');
+            return;
+          }
+
+          if (Date.now() - tTimer >= 4500) {
+            tTimer = 0;
+            setTimeout(parseTag, 10);
+            return;
+          }
         }
       }
 

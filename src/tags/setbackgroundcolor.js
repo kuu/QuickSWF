@@ -7,8 +7,7 @@
   function setBackgroundColor(pLength) {
     // TODO: support wmmode transparent.
     var tRGBA = RGBA.load(this.r, false);
-
-    console.log('Background colour', tRGBA.toString());
+    this.add({type: 'background', color: tRGBA});
   }
 
 }(this));

@@ -12,7 +12,6 @@
     var tDepth = tReader.I16();
     var tMatrix = Matrix.load(tReader);
 
-    console.log('PlaceObject', tId, tDepth, tMatrix);
   }
 
   function placeObject2(pLength) {
@@ -20,65 +19,67 @@
 
     var tFlags = tReader.B();
     var tDepth = tReader.I16();
-    var tId;
 
+    var tPackage = {
+      type: '',
+      id: -1,
+      matrix: null,
+      colorTransform: null,
+      depth: tDepth,
+      ratio: 0,
+      name: null,
+      clipDepth: 0
+    };
+
+    var tId;
     if (tFlags & (1 << 1)) { // hasCharacter
-      tId = tReader.I16();
+      tId = tPackage.id = tReader.I16();
     }
 
-    var tMatrix;
     if (tFlags & (1 << 2)) { // hasMatrix
-      tMatrix = Matrix.load(tReader);
+      tPackage.matrix = Matrix.load(tReader);
     } else {
-      tMatrix = new Matrix();
+      tPackage.matrix = new Matrix();
     }
 
     // THERE MIGHT NEED TO HACK ADJUSTX FOR DEFINETEXT HERE.
     
-    var tColorTransform;
     if (tFlags & (1 << 3)) { // hasColorTransform
-      tColorTransform = ColorTransform.load(tReader);
+      tPackage.colorTransform = ColorTransform.load(tReader, true);
     } else {
-      tColorTransform = new ColorTransform();
+      tPackage.colorTransform = new ColorTransform();
     }
 
-    var tRatio = 0;
     if (tFlags & (1 << 4)) { // hasRatio
-      tRatio = tReader.I16();
+      tPackage.ratio = tReader.I16();
     }
 
-    var tName = null;
     if (tFlags & (1 << 5)) { // hasName
-      tName = tReader.s().toLowerCase();
+      tPackage.name = tReader.s().toLowerCase();
     } else {
       // TODO: Might need to make fake names here like '_unnamedNUMBER'
     }
 
-    var tClipDepth = 0;
     if (tFlags & (1 << 6)) {
-      tClipDepth = tReader.I16();
+      tPackage.clipDepth = tReader.I16();
     }
 
     var tMove = tFlags & (1);
 
     if (tMove && tId !== void 0) {
-      // TODO: replace the Object
+      tPackage.type = 'replace';
+      this.add(tPackage);
       if (tFlags & (1 << 5)) { // hasMatrix
-        // TODO: move the object.
+        tPackage.type = 'move';
+        this.add(tPackage);
       }
     } else if (!tMove && tId !== void 0) {
-      // TODO: add new object.
+      tPackage.type = 'add';
+      this.add(tPackage);
     } else if (tMove && tId === void 0) {
-      // TODO: move object only.
+      tPackage.type = 'move';
+      this.add(tPackage);
     }
-
-    // TODO: apply the colortransform
-    
-    if (tRatio !== 0) {
-      // TODO: apply the ratio.
-    }
-
-    console.log('PlaceObject2', tId, tDepth, tMatrix.toString(), tColorTransform, tRatio, tName, tClipDepth, tMove);
   }
 
 }(this));

@@ -28,7 +28,9 @@
           fr.onload = function(e) {
             var tData = new Uint8Array(e.target.result);
             parser = new quicktheatre.Parser(tData);
+            console.time('Parse');
             parser.parse();
+            console.timeEnd('Parse');
           };
           fr.readAsArrayBuffer(file);
         } else {
