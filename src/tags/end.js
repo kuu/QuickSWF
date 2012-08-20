@@ -1,6 +1,6 @@
 (function(global) {
   
-  global.quicktheatre.Parser.prototype['0'] = end;
+  global.quickswf.Parser.prototype['0'] = end;
 
   function end(pLength) {
     this.currentSprite = this.spriteStack.pop();

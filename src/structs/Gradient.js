@@ -1,10 +1,10 @@
 (function(global) {
 
-  global.quicktheatre.structs.Gradient = Gradient;
+  global.quickswf.structs.Gradient = Gradient;
 
   /**
    * @constructor
-   * @class {quicktheatre.structs.Gradient}
+   * @class {quickswf.structs.Gradient}
    */
   function Gradient() {
     this.spreadMode = 0;
@@ -24,12 +24,12 @@
 
   /**
    * Loads a Gradient type.
-   * @param {quicktheatre.Reader} pReader The reader to use.
+   * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithAlpha True if we need to parse colour.
-   * @return {quicktheatre.structs.Gradient} The loaded Gradient.
+   * @return {quickswf.structs.Gradient} The loaded Gradient.
    */
   Gradient.load = function(pReader, pWithAlpha) {
-    var RGBA = global.quicktheatre.structs.RGBA;
+    var RGBA = global.quickswf.structs.RGBA;
     var tGradient = new Gradient();
 
     tGradient.spreadMode = pReader.bp(2);

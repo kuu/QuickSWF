@@ -1,10 +1,10 @@
 (function(global) {
 
-  global.quicktheatre.structs.FillStyle = FillStyle;
+  global.quickswf.structs.FillStyle = FillStyle;
 
   /**
    * @constructor
-   * @class {quicktheatre.structs.FillStyle}
+   * @class {quickswf.structs.FillStyle}
    */
   function FillStyle() {
     this.type = 0;
@@ -13,14 +13,14 @@
 
   /**
    * Loads a FillStyle type.
-   * @param {quicktheatre.Reader} pReader The reader to use.
+   * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithAlpha True if alpha needs to be parsed.
-   * @return {quicktheatre.structs.FillStyle} The loaded FillStyle.
+   * @return {quickswf.structs.FillStyle} The loaded FillStyle.
    */
   FillStyle.load = function(pReader, pWithAlpha) {
-    var RGBA = global.quicktheatre.structs.RGBA;
-    var Matrix = global.quicktheatre.structs.Matrix;
-    var Gradient = global.quicktheatre.structs.Gradient;
+    var RGBA = global.quickswf.structs.RGBA;
+    var Matrix = global.quickswf.structs.Matrix;
+    var Gradient = global.quickswf.structs.Gradient;
 
     var tFillStyle = new FillStyle();
     var tType = tFillStyle.type = pReader.B();
@@ -60,10 +60,10 @@
 
   /**
    * Loads an array of FillStyle types.
-   * @param {quicktheatre.Reader} pReader The reader to use.
+   * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithAlpha True if alpha needs to be parsed.
    * @param {bool} pHasLargeFillCount True if this struct can have more than 256 styles.
-   * @return {Array.<quicktheatre.structs.FillStyle>} The loaded FillStyle array.
+   * @return {Array.<quickswf.structs.FillStyle>} The loaded FillStyle array.
    */
   FillStyle.loadMultiple = function(pReader, pWithAlpha, pHasLargeFillCount) {
     var tCount = pReader.B();

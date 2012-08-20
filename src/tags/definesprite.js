@@ -1,7 +1,7 @@
 (function(global) {
 
-  global.quicktheatre.Parser.prototype['39'] = defineSprite;
-  var mStructs = global.quicktheatre.structs;
+  global.quickswf.Parser.prototype['39'] = defineSprite;
+  var mStructs = global.quickswf.structs;
 
   function defineSprite(pLength) {
     var tSprite = mStructs.Sprite.load(this.r);

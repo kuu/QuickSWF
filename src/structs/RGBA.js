@@ -1,10 +1,10 @@
 (function(global) {
 
-  global.quicktheatre.structs.RGBA = RGBA;
+  global.quickswf.structs.RGBA = RGBA;
 
   /**
    * @constructor
-   * @class {quicktheatre.structs.RGBA}
+   * @class {quickswf.structs.RGBA}
    */
   function RGBA(pRed, pGreen, pBlue, pAlpha) {
     this.red = pRed;
@@ -27,9 +27,9 @@
 
   /**
    * Loads a colour RGBA type.
-   * @param {quicktheatre.Reader} pReader The reader to use.
+   * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithAlpha If this structure has alpha or not.
-   * @return {quicktheatre.structs.RGBA} The loaded RGBA.
+   * @return {quickswf.structs.RGBA} The loaded RGBA.
    */
   RGBA.load = function(pReader, pWithAlpha) {
     return new RGBA(

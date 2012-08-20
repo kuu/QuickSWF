@@ -1,6 +1,6 @@
 (function(global) {
 
-  global.quicktheatre.Reader = Reader;
+  global.quickswf.Reader = Reader;
 
   /**
    * @constructor
@@ -41,7 +41,7 @@
     this.fileSize = pBuffer.length;
   }
 
-  Reader.prototype = /** @lends {quicktheatre.Reader#} */ {
+  Reader.prototype = /** @lends {quickswf.Reader#} */ {
 
     /**
      * Align the current bits to the nearest large byte.

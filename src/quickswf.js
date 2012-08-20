@@ -1,4 +1,4 @@
-var quicktheatre = {
+var quickswf = {
   structs: {
 
   },

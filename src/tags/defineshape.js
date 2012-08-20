@@ -1,11 +1,11 @@
 (function(global) {
   
-  global.quicktheatre.Parser.prototype['2'] = defineShape;
-  global.quicktheatre.Parser.prototype['22'] = defineShape2;
-  global.quicktheatre.Parser.prototype['32'] = defineShape3;
+  global.quickswf.Parser.prototype['2'] = defineShape;
+  global.quickswf.Parser.prototype['22'] = defineShape2;
+  global.quickswf.Parser.prototype['32'] = defineShape3;
 
-  var Rect = global.quicktheatre.structs.Rect;
-  var Shape = global.quicktheatre.structs.Shape;
+  var Rect = global.quickswf.structs.Rect;
+  var Shape = global.quickswf.structs.Shape;
 
   function defineShape(pLength) {
     parseShape(this, false, false);

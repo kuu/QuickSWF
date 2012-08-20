@@ -1,11 +1,11 @@
 (function(global) {
 
-  var mStructs = global.quicktheatre.structs;
+  var mStructs = global.quickswf.structs;
   mStructs.Shape = Shape;
 
   /**
    * @constructor
-   * @class {quicktheatre.structs.Shape}
+   * @class {quickswf.structs.Shape}
    */
   function Shape() {
     this.id = -1;
@@ -19,11 +19,11 @@
 
   /**
    * Loads a Shape type.
-   * @param {quicktheatre.Reader} pReader The reader to use.
+   * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithStyles True if styles need to parsed.
    * @param {bool} pWithAlpha True if alpha needs to be parsed.
    * @param {bool} pHasLargeFillCount True if this struct can have more than 256 styles.
-   * @return {quicktheatre.structs.Shape} The loaded Shape.
+   * @return {quickswf.structs.Shape} The loaded Shape.
    */
   Shape.load = function(pReader, pWithStyles, pWithAlpha, pHasLargeFillCount) {
     var tShape = new Shape();

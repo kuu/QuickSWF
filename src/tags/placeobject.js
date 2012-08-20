@@ -1,10 +1,10 @@
 (function(global) {
   
-  global.quicktheatre.Parser.prototype['4'] = placeObject
-  global.quicktheatre.Parser.prototype['26'] = placeObject2;
+  global.quickswf.Parser.prototype['4'] = placeObject
+  global.quickswf.Parser.prototype['26'] = placeObject2;
 
-  var Matrix = global.quicktheatre.structs.Matrix;
-  var ColorTransform = global.quicktheatre.structs.ColorTransform;
+  var Matrix = global.quickswf.structs.Matrix;
+  var ColorTransform = global.quickswf.structs.ColorTransform;
 
   function placeObject(pLength) {
     var tReader = this.r;

@@ -1,10 +1,10 @@
 (function(global) {
 
-  global.quicktheatre.structs.ColorTransform = ColorTransform;
+  global.quickswf.structs.ColorTransform = ColorTransform;
 
   /**
    * @constructor
-   * @class {quicktheatre.structs.Transform}
+   * @class {quickswf.structs.Transform}
    */
   function ColorTransform() {
     this.rm = 1;
@@ -20,9 +20,9 @@
 
   /**
    * Loads a ColorTransform type.
-   * @param {quicktheatre.Reader} pReader The reader to use.
+   * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithAlpha If this struct has alpha to load.
-   * @return {quicktheatre.structs.ColorTransform} The loaded ColorTransform.
+   * @return {quickswf.structs.ColorTransform} The loaded ColorTransform.
    */
   ColorTransform.load = function(pReader, pWithAlpha) {
     var tHasAdditive = pReader.bp(1);

@@ -1,9 +1,9 @@
-(function(global) {
+function(global) {
 
-  global.quicktheatre.Parser = Parser;
+  global.quickswf.Parser = Parser;
 
-  var mStructs = global.quicktheatre.structs;
-  var SWF = global.quicktheatre.SWF;
+  var mStructs = global.quickswf.structs;
+  var SWF = global.quickswf.SWF;
 
   /**
    * @constructor
@@ -11,13 +11,13 @@
   function Parser(pBuffer) {
     /**
      * The Reader object for this parser.
-     * @type {quicktheatre.Reader}
+     * @type {quickswf.Reader}
      */
-    this.r = new global.quicktheatre.Reader(pBuffer);
+    this.r = new global.quickswf.Reader(pBuffer);
 
     /**
      * The SWF object that gets created after parsing.
-     * @type {quicktheatre.SWF}
+     * @type {quickswf.SWF}
      */
     this.swf = null;
 
@@ -35,18 +35,18 @@
 
     /**
      * A stack of Sprites to keep track of while parsing.
-     * @type {Array.<quicktheatre.structs.Sprite>}
+     * @type {Array.<quickswf.structs.Sprite>}
      */
     this.spriteStack = new Array();
 
     /**
      * The currently being parsed Sprite.
-     * @type {quicktheatre.structs.Sprite}
+     * @type {quickswf.structs.Sprite}
      */
     this.currentSprite = null;
   }
 
-  Parser.prototype = /** @lends {quicktheatre.Parser#} */ {
+  Parser.prototype = /** @lends {quickswf.Parser#} */ {
 
     /**
      * Adds a new action to the current frame

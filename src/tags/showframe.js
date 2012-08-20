@@ -1,6 +1,6 @@
 (function(global) {
   
-  global.quicktheatre.Parser.prototype['1'] = showFrame;
+  global.quickswf.Parser.prototype['1'] = showFrame;
 
   function showFrame(pLength) {
     this.currentFrame++;

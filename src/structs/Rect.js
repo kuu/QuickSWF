@@ -1,10 +1,10 @@
 (function(global) {
 
-  global.quicktheatre.structs.Rect = Rect;
+  global.quickswf.structs.Rect = Rect;
 
   /**
    * @constructor
-   * @class {quicktheatre.structs.Rect}
+   * @class {quickswf.structs.Rect}
    */
   function Rect(pLeft, pRight, pTop, pBottom) {
     this.left = pLeft;
@@ -15,8 +15,8 @@
 
   /**
    * Loads a Rect type.
-   * @param {quicktheatre.Reader} pReader The reader to use.
-   * @return {quicktheatre.structs.Rect} The loaded Rect.
+   * @param {quickswf.Reader} pReader The reader to use.
+   * @return {quickswf.structs.Rect} The loaded Rect.
    */
   Rect.load = function(pReader) {
     var tNumberOfBits = pReader.bp(5);

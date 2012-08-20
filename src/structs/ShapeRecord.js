@@ -1,11 +1,11 @@
 (function(global) {
 
-  var mStructs = global.quicktheatre.structs;
+  var mStructs = global.quickswf.structs;
   mStructs.ShapeRecord = ShapeRecord;
 
   /**
    * @constructor
-   * @class {quicktheatre.structs.ShapeRecord}
+   * @class {quickswf.structs.ShapeRecord}
    */
   function ShapeRecord() {
 
@@ -13,8 +13,8 @@
 
   /**
    * Loads a ShapeRecord type.
-   * @param {quicktheatre.Reader} pReader The reader to use.
-   * @return {quicktheatre.structs.ShapeRecord} The loaded ShapeRecord.
+   * @param {quickswf.Reader} pReader The reader to use.
+   * @return {quickswf.structs.ShapeRecord} The loaded ShapeRecord.
    */
   ShapeRecord.load = function(pReader) {
     var tShapeRecord = new ShapeRecord();
@@ -24,10 +24,10 @@
 
   /**
    * Loads multple ShapeRecords.
-   * @param {quicktheatre.Reader} pReader The reader to use.
-   * @param {quicktheatre.Shape} pShape The Shape these ShapeRecords belong to.
+   * @param {quickswf.Reader} pReader The reader to use.
+   * @param {quickswf.Shape} pShape The Shape these ShapeRecords belong to.
    * @param {bool} pWithAlpha True if parsing alpha is needed.
-   * @return {Array.<quicktheatre.structs.ShapeRecord>} The loaded ShapeRecords.
+   * @return {Array.<quickswf.structs.ShapeRecord>} The loaded ShapeRecords.
    */
   ShapeRecord.loadMultiple = function(pReader, pShape, pWithAlpha) {
     var tRecords = new Array();

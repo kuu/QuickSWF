@@ -1,11 +1,11 @@
 (function(global) {
 
-  global.quicktheatre.structs.Matrix = Matrix;
+  global.quickswf.structs.Matrix = Matrix;
 
   /**
    * @constructor
    * @extends {Array}
-   * @class {quicktheatre.structs.Matrix}
+   * @class {quickswf.structs.Matrix}
    */
   function Matrix() {
 
@@ -15,8 +15,8 @@
 
   /**
    * Loads a Rect type.
-   * @param {quicktheatre.Reader} pReader The reader to use.
-   * @return {quicktheatre.structs.Matrix} The loaded Matrix.
+   * @param {quickswf.Reader} pReader The reader to use.
+   * @return {quickswf.structs.Matrix} The loaded Matrix.
    */
   Matrix.load = function(pReader) {
     var tMatrix = new Matrix();

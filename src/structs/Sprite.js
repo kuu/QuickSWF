@@ -1,11 +1,11 @@
 (function(global) {
 
-  var mStructs = global.quicktheatre.structs;
+  var mStructs = global.quickswf.structs;
   mStructs.Sprite = Sprite;
 
   /**
    * @constructor
-   * @class {quicktheatre.structs.Sprite}
+   * @class {quickswf.structs.Sprite}
    */
   function Sprite() {
     this.id = -1;
@@ -15,8 +15,8 @@
 
   /**
    * Loads a Sprite.
-   * @param {quicktheatre.Reader} pReader The reader to read from.
-   * @return {quicktheatre.structs.Sprite} The parsed Sprite.
+   * @param {quickswf.Reader} pReader The reader to read from.
+   * @return {quickswf.structs.Sprite} The parsed Sprite.
    */
   Sprite.load = function(pReader) {
     var tSprite = new Sprite();
