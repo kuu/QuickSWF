@@ -1,4 +1,4 @@
-function(global) {
+(function(global) {
 
   global.quickswf.Parser = Parser;
 
@@ -70,30 +70,33 @@ function(global) {
 
     /**
      * Parses the current buffer.
+     * @param {Function=} pSuccessCallback The callback to call on success.
+     * @param {Function=} pFailureCallback The callback to call on failure.
      */
-    parse: function() {
+    parse: function(pSuccessCallback, pFailureCallback) {
       var tTimer = Date.now();
       var tReader = this.r;
       
       var tCompressedFlag = tReader.c();
 
       if (tCompressedFlag === 'C') {
-        console.error('Currently compressed format is unsupported.');
+        pFailureCallback && pFailureCallback('Currently compressed format is unsupported.');
         return false;
       } else if (tCompressedFlag !== 'F') {
-        console.error('Invalid SWF format.');
+        pFailureCallback && pFailureCallback('Invalid SWF format.');
         return false;
       }
 
       if (tReader.sp(2) !== 'WS') {
-        console.error('Invalid SWF format.');
+        pFailureCallback && pFailureCallback('Invalid SWF format.');
         return false;
       }
 
       var tVersion = tReader.B();
 
       if (tVersion > 4) {
-        console.error('SWF version greater than 4 is not supported yet.');
+        pFailureCallback && pFailureCallback('SWF version greater than 4 is not yet supported.');
+        return false;
       }
 
       var tFileSize = tReader.fileSize = tReader.I32();
@@ -121,40 +124,44 @@ function(global) {
       function parseTag() {
         var tLocalReader = tReader;
 
-        for (;;) {
-          var tTypeAndLength = tLocalReader.I16();
-          var tType = (tTypeAndLength >>> 6) + '';
-          var tLength = tTypeAndLength & 0x3F;
+        try {
+          for (;;) {
+            var tTypeAndLength = tLocalReader.I16();
+            var tType = (tTypeAndLength >>> 6) + '';
+            var tLength = tTypeAndLength & 0x3F;
 
-          if (tLength === 0x3F) {
-            tLength = tLocalReader.SI32();
+            if (tLength === 0x3F) {
+              tLength = tLocalReader.SI32();
+            }
+
+            var tExpectedFinalIndex = tLocalReader.tell() + tLength;
+
+            if (!(tType in self)) {
+              console.warn('Unknown tag: ' + tType);
+              tLocalReader.seek(tLength);
+            } else {
+              self[tType + ''](tLength);
+            }
+
+            // Forgive the hack for DefineSprite (39). It's length is for all the tags inside of it.
+            if (tType !== '39' && tLocalReader.tell() !== tExpectedFinalIndex) {
+              console.error('Expected final index incorrect for tag ' + tType);
+              tLocalReader.seekTo(tExpectedFinalIndex);
+            }
+
+            if (tLocalReader.tell() >= tFileSize) {
+              pSuccessCallback && pSuccessCallback(tSWF);
+              return;
+            }
+
+            if (Date.now() - tTimer >= 4500) {
+              tTimer = 0;
+              setTimeout(parseTag, 10);
+              return;
+            }
           }
-
-          var tExpectedFinalIndex = tLocalReader.tell() + tLength;
-
-          if (!(tType in self)) {
-            console.warn('Unknown tag: ' + tType);
-            tLocalReader.seek(tLength);
-          } else {
-            self[tType + ''](tLength);
-          }
-
-          // Forgive the hack for DefineSprite (39). It's length is for all the tags inside of it.
-          if (tType !== '39' && tLocalReader.tell() !== tExpectedFinalIndex) {
-            console.error('Expected final index incorrect for tag ' + tType);
-            tLocalReader.seekTo(tExpectedFinalIndex);
-          }
-
-          if (tLocalReader.tell() >= tFileSize) {
-            console.log('Done parsing.');
-            return;
-          }
-
-          if (Date.now() - tTimer >= 4500) {
-            tTimer = 0;
-            setTimeout(parseTag, 10);
-            return;
-          }
+        } catch (e) {
+          pFailureCallback && pFailureCallback(e);
         }
       }
 

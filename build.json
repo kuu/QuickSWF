@@ -10,13 +10,13 @@
     "quicktheatre": {
       "builder": "closure-compiler",
       "compilationLevel": "WHITESPACE_ONLY",
-      "outputs": "${binDir}/quicktheatre.js",
+      "outputs": "${binDir}/quickswf.js",
       "resources": [
         {
           "type": "files",
           "root": "src",
           "files": [
-            "quicktheatre.js",
+            "quickswf.js",
             "reader.js",
             "swf.js",
             "parser.js"
