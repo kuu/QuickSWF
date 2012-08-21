@@ -116,6 +116,7 @@
       var tSWF = this.swf = new SWF(tVersion, tWidth, tHeight, tFrameRate, tFrameCount);
 
       this.currentSprite = tSWF.rootSprite;
+      this.currentSprite.id = 0;
       this.currentSprite.frameCount = tFrameCount;
       this.currentSprite.frames.length = tFrameCount;
 
@@ -124,44 +125,40 @@
       function parseTag() {
         var tLocalReader = tReader;
 
-        try {
-          for (;;) {
-            var tTypeAndLength = tLocalReader.I16();
-            var tType = (tTypeAndLength >>> 6) + '';
-            var tLength = tTypeAndLength & 0x3F;
+        for (;;) {
+          var tTypeAndLength = tLocalReader.I16();
+          var tType = (tTypeAndLength >>> 6) + '';
+          var tLength = tTypeAndLength & 0x3F;
 
-            if (tLength === 0x3F) {
-              tLength = tLocalReader.SI32();
-            }
-
-            var tExpectedFinalIndex = tLocalReader.tell() + tLength;
-
-            if (!(tType in self)) {
-              console.warn('Unknown tag: ' + tType);
-              tLocalReader.seek(tLength);
-            } else {
-              self[tType + ''](tLength);
-            }
-
-            // Forgive the hack for DefineSprite (39). It's length is for all the tags inside of it.
-            if (tType !== '39' && tLocalReader.tell() !== tExpectedFinalIndex) {
-              console.error('Expected final index incorrect for tag ' + tType);
-              tLocalReader.seekTo(tExpectedFinalIndex);
-            }
-
-            if (tLocalReader.tell() >= tFileSize) {
-              pSuccessCallback && pSuccessCallback(tSWF);
-              return;
-            }
-
-            if (Date.now() - tTimer >= 4500) {
-              tTimer = 0;
-              setTimeout(parseTag, 10);
-              return;
-            }
+          if (tLength === 0x3F) {
+            tLength = tLocalReader.SI32();
           }
-        } catch (e) {
-          pFailureCallback && pFailureCallback(e);
+
+          var tExpectedFinalIndex = tLocalReader.tell() + tLength;
+
+          if (!(tType in self)) {
+            console.warn('Unknown tag: ' + tType);
+            tLocalReader.seek(tLength);
+          } else {
+            self[tType + ''](tLength);
+          }
+
+          // Forgive the hack for DefineSprite (39). It's length is for all the tags inside of it.
+          if (tType !== '39' && tLocalReader.tell() !== tExpectedFinalIndex) {
+            console.error('Expected final index incorrect for tag ' + tType);
+            tLocalReader.seekTo(tExpectedFinalIndex);
+          }
+
+          if (tLocalReader.tell() >= tFileSize) {
+            pSuccessCallback && pSuccessCallback(tSWF);
+            return;
+          }
+
+          if (Date.now() - tTimer >= 4500) {
+            tTimer = 0;
+            setTimeout(parseTag, 10);
+            return;
+          }
         }
       }
 

@@ -7,7 +7,7 @@
   },
 
   "targets": {
-    "quicktheatre": {
+    "quickswf": {
       "builder": "closure-compiler",
       "compilationLevel": "WHITESPACE_ONLY",
       "outputs": "${binDir}/quickswf.js",
@@ -27,6 +27,12 @@
         {
           "type": "files",
           "root": "src/structs",
+          "include": "^.+\\.js$"
+        },
+
+        {
+          "type": "files",
+          "root": "src/displaylist-structs",
           "include": "^.+\\.js$"
         },
 

@@ -13,6 +13,8 @@
     this.frames = new Array(0);
   }
 
+  Sprite.prototype.displayListType = 1;
+
   /**
    * Loads a Sprite.
    * @param {quickswf.Reader} pReader The reader to read from.

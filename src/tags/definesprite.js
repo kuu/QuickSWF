@@ -5,7 +5,7 @@
 
   function defineSprite(pLength) {
     var tSprite = mStructs.Sprite.load(this.r);
-    this.spriteStack.push(tSprite);
+    this.spriteStack.push(this.currentSprite);
     this.currentSprite = tSprite;
     this.frameStack.push(this.currentFrame);
     this.currentFrame = 0;

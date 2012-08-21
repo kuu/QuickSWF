@@ -17,6 +17,8 @@
     this.records = new Array();
   }
 
+  Shape.prototype.displayListType = 2;
+
   /**
    * Loads a Shape type.
    * @param {quickswf.Reader} pReader The reader to use.
