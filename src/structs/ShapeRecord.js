@@ -91,10 +91,10 @@
 
   function parseCurvedEdge(pReader) {
     var tNumberOfBits = pReader.bp(4) + 2;
-    var tDeltaX = pReader.bsp(tNumberOfBits);
-    var tDeltaY = pReader.bsp(tNumberOfBits);
     var tDeltaControlX = pReader.bsp(tNumberOfBits);
     var tDeltaControlY = pReader.bsp(tNumberOfBits);
+    var tDeltaX = pReader.bsp(tNumberOfBits);
+    var tDeltaY = pReader.bsp(tNumberOfBits);
     return new Edge(2, tDeltaX, tDeltaY, tDeltaControlX, tDeltaControlY);
   }
 
@@ -106,6 +106,7 @@
     var tNewMoveTo = pReader.bp(1);
 
     var tResult = {
+      type: 1,
       moveDeltaX: 0,
       moveDeltaY: 0,
       fillStyle0: -1,

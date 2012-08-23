@@ -56,15 +56,15 @@
 
     if (tFlags & (1 << 5)) { // hasName
       tPackage.name = tReader.s().toLowerCase();
-    } else {
-      // TODO: Might need to make fake names here like '_unnamedNUMBER'
     }
+    // TODO: Might need to make fake names here like '_unnamedNUMBER' on else
+    
 
     if (tFlags & (1 << 6)) {
       tPackage.clipDepth = tReader.I16();
     }
 
-    var tMove = tFlags & (1);
+    var tMove = tFlags & 1;
 
     if (tMove && tId !== void 0) {
       tPackage.type = 'replace';

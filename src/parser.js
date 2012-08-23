@@ -94,10 +94,10 @@
 
       var tVersion = tReader.B();
 
-      if (tVersion > 4) {
+      /*if (tVersion > 4) {
         pFailureCallback && pFailureCallback('SWF version greater than 4 is not yet supported.');
         return false;
-      }
+      }*/
 
       var tFileSize = tReader.fileSize = tReader.I32();
 

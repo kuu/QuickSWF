@@ -136,7 +136,7 @@
 
       tTmp = tBitBuffer >>> (tBitBufferLength - pNumber);
       tBitBuffer &= (((1 << tBitBufferLength) - 1) & ((1 << (tBitBufferLength - pNumber)) - 1));
-      tBitBuffer << pNumber;
+      //tBitBuffer <<= pNumber;
       tBitBufferLength -= pNumber;
 
       this.bb = tBitBuffer;
