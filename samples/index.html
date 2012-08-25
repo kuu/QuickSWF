@@ -10,8 +10,7 @@
       #container2{margin:0 auto;}
       #c{position:absolute;bottom:0;left:0;z-index:9999999}
     </style>
-    <script type="text/javascript" src="../../TheatreScript/bin/theatrescript.js" charset="UTF-8"></script>
-    <script type="text/javascript" src="../bin/quicktheatre.js" charset="UTF-8"></script>
+    <script type="text/javascript" src="../bin/quickswf.js" charset="UTF-8"></script>
     <script type="text/javascript">
 
       var parser = null;
@@ -27,7 +26,7 @@
           var file = document.getElementById("file").files[0];
           fr.onload = function(e) {
             var tData = new Uint8Array(e.target.result);
-            parser = new quicktheatre.Parser(tData);
+            parser = new quickswf.Parser(tData);
             console.time('Parse');
             parser.parse();
             console.timeEnd('Parse');

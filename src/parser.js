@@ -10,10 +10,10 @@
    */
   function Parser(pBuffer) {
     /**
-     * The Reader object for this parser.
-     * @type {quickswf.Reader}
+     * The Breader object for this parser.
+     * @type {Breader}
      */
-    this.r = new global.quickswf.Reader(pBuffer);
+    this.r = new global.Breader(pBuffer);
 
     /**
      * The SWF object that gets created after parsing.
