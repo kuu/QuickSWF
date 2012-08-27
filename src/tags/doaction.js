@@ -4,9 +4,9 @@
 
 
   function doAction(pLength) {
-    var tAtoJ = global.AtoJ;
+    //var tAtoJ = global.AtoJ;
     var tReader = this.r;
-    tAtoJ.toJavaScript(tReader.sub(tReader.tell(), pLength));
+    //tAtoJ.toJavaScript(tReader.sub(tReader.tell(), pLength));
     tReader.seek(pLength);
   }
 

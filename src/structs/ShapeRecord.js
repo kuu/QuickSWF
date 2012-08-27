@@ -107,6 +107,7 @@
 
     var tResult = {
       type: 1,
+      hasMove: false,
       moveDeltaX: 0,
       moveDeltaY: 0,
       fillStyle0: -1,
@@ -120,6 +121,7 @@
 
     if (tNewMoveTo === 1) {
       var tMoveBits = pReader.bp(5);
+      tResult.hasMove = true;
       tResult.moveDeltaX = pReader.bsp(tMoveBits);
       tResult.moveDeltaY = pReader.bsp(tMoveBits);
     }

@@ -20,10 +20,10 @@
    */
   Rect.load = function(pReader) {
     var tNumberOfBits = pReader.bp(5);
-    var tLeft = pReader.bp(tNumberOfBits);
-    var tRight = pReader.bp(tNumberOfBits);
-    var tTop = pReader.bp(tNumberOfBits);
-    var tBottom = pReader.bp(tNumberOfBits);
+    var tLeft = pReader.bsp(tNumberOfBits);
+    var tRight = pReader.bsp(tNumberOfBits);
+    var tTop = pReader.bsp(tNumberOfBits);
+    var tBottom = pReader.bsp(tNumberOfBits);
 
     pReader.a();
 
