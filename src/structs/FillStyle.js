@@ -9,6 +9,8 @@
   function FillStyle() {
     this.type = 0;
     this.color = null;
+    this.matrix = null;
+    this.gradient = null;
   }
 
   /**
@@ -43,7 +45,10 @@
       case 0x41: // Clipped bitmap fill
         tFillStyle.bitmapId = pReader.I16();
         tFillStyle.matrix = Matrix.load(pReader);
-        // TODO: Abort if bitmap id is 0xFFFF???
+        if (tFillStyle.bitmapId === 0xFFFF) {
+          tFillStyle.color = 'rgba(255, 0, 0, 1)';
+          break;
+        }
         // TODO: Abort if bitmap doesn't exist
         break;
       case 0x42: // Non-smoothed repeating bitmap
