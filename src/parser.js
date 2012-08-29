@@ -150,7 +150,27 @@
           }
 
           if (tLocalReader.tell() >= tFileSize) {
-            pSuccessCallback && pSuccessCallback(tSWF);
+            var tImagesToWaitFor = 0;
+            var tImages = tSWF.images;
+
+            for (var i in tImages) {
+              if (!tImages[i].complete) {
+                tImagesToWaitFor++;
+                tImages[i].addEventListener('load', function() {
+                  tImagesToWaitFor--;
+                  if (tImagesToWaitFor === 0) {
+                    pSuccessCallback && pSuccessCallback(tSWF);
+                  }
+                }, false);
+                tImages[i].addEventListener('error', function(e) {
+                  tImagesToWaitFor--;
+                  console.error(e);
+                  if (tImagesToWaitFor === 0) {
+                    pSuccessCallback && pSuccessCallback(tSWF);
+                  }
+                }, false);
+              }
+            }
             return;
           }
 

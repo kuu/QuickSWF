@@ -11,6 +11,7 @@
     this.color = null;
     this.matrix = null;
     this.gradient = null;
+    this.bitmapId = null;
   }
 
   /**
@@ -47,9 +48,11 @@
         tFillStyle.matrix = Matrix.load(pReader);
         if (tFillStyle.bitmapId === 0xFFFF) {
           tFillStyle.color = 'rgba(255, 0, 0, 1)';
+          tFillStyle.type = 0;
+          tFillStyle.matrix = null;
+          tFillStyle.bitmapId = null;
           break;
         }
-        // TODO: Abort if bitmap doesn't exist
         break;
       case 0x42: // Non-smoothed repeating bitmap
       case 0x43: // Non-smoothed clipped bitmap

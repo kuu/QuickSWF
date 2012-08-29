@@ -17,7 +17,24 @@
     this.frameCount = pFrameCount;
     this.rootSprite = new mStructs.Sprite();
     this.dictionary = new Object();
+    this.jpegTableDQT = null;
+    this.jpegTableDHT = null;
+    this.images = new Object();
   }
+
+  SWF.prototype.destroy = function() {
+    for (var i in this.images) {
+      var tImage = this.images[i];
+      if (tImage.src.substring(0, 5) === 'blob:') {
+        global.webkitURL.revokeObjectURL(tImage.src);
+      }
+    }
+    this.images = null;
+    this.rootSprite = null;
+    this.jpegTableDQT = null;
+    this.jpegTableDHT = null;
+    this.dictionary = null;
+  };
 
 
 }(this));
