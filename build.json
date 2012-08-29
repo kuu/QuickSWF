@@ -7,6 +7,17 @@
   },
 
   "resources": {
+    "ZLib": {
+      "type": "remote",
+      "location": "git",
+      "url": "git://github.com/imaya/zlib.js.git",
+      "branch": "develop",
+      "root": "bin",
+      "files": [
+        "inflate.min.js"
+      ]
+    },
+
     "Breader": {
       "type": "package",
       "location": "git",
@@ -28,6 +39,11 @@
       "compilationLevel": "WHITESPACE_ONLY",
       "outputs": "${binDir}/quickswf.js",
       "resources": [
+        {
+          "type": "reference",
+          "name": "ZLib"
+        },
+
         {
           "type": "reference",
           "name": "Breader"

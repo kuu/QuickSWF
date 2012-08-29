@@ -79,10 +79,7 @@
       
       var tCompressedFlag = tReader.c();
 
-      if (tCompressedFlag === 'C') {
-        pFailureCallback && pFailureCallback('Currently compressed format is unsupported.');
-        return false;
-      } else if (tCompressedFlag !== 'F') {
+      if (tCompressedFlag !== 'C' && tCompressedFlag !== 'F') {
         pFailureCallback && pFailureCallback('Invalid SWF format.');
         return false;
       }
@@ -93,13 +90,14 @@
       }
 
       var tVersion = tReader.B();
+      var tFileSize = tReader.I32();
 
-      /*if (tVersion > 4) {
-        pFailureCallback && pFailureCallback('SWF version greater than 4 is not yet supported.');
-        return false;
-      }*/
-
-      var tFileSize = tReader.fileSize = tReader.I32();
+      if (tCompressedFlag === 'C') {
+        //tReader = this.r = new Breader();
+        var tInflater = new Zlib.Inflate(tReader.sub(tReader.tell(), tReader.fileSize - tReader.tell()));
+        tReader = this.r = new Breader(tInflater.decompress());
+      }
+      tReader.fileSize = tFileSize;
 
       var tFrameSize = mStructs.Rect.load(tReader);
       tFrameSize.left /= 20;
@@ -170,6 +168,10 @@
                   }
                 }, false);
               }
+            }
+
+            if (tImagesToWaitFor === 0) {
+              pSuccessCallback && pSuccessCallback(tSWF);
             }
             return;
           }
