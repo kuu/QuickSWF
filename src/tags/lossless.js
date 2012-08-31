@@ -1,3 +1,9 @@
+/**
+ * @author Yuta Imai
+ *
+ * Copyright (C) 2012 Yuta Imai.
+ * This code is licensed under the zlib license. See LICENSE for details.
+ */
 (function(global) {
   // TODO: canvas#toDataURL と素の PNG 生成どちらが速いか比較する
 
@@ -586,7 +592,8 @@
   };
 
 //-----------------------------------------------------------------------------
-// copy from zlib.js
+// Code copied from zlib.js at https://github.com/imaya/zlib.js
+// with permission from author.
 //-----------------------------------------------------------------------------
 
 /**

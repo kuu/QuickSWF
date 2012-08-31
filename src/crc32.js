@@ -1,3 +1,9 @@
+/**
+ * @author Yuta Imai
+ *
+ * Copyright (C) 2012 Yuta Imai.
+ * This code is licensed under the zlib license. See LICENSE for details.
+ */
 (function(global) {
 
 Zlib.CRC32 = {};
