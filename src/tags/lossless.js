@@ -1,7 +1,7 @@
 /**
- * @author Yuta Imai
+ * @author Yuta Imaya
  *
- * Copyright (C) 2012 Yuta Imai.
+ * Copyright (C) 2012 Yuta Imaya.
  * This code is licensed under the zlib license. See LICENSE for details.
  */
 (function(global) {
