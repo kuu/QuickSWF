@@ -5,6 +5,7 @@
   global.quickswf.Parser.prototype['36'] = defineBitsLossless2;
 
   /**
+   * @this {quickswf.Parser}
    * @param {number} pLength tag length.
    */
   function defineBitsLossless(pLength) {
@@ -53,6 +54,10 @@
   };
 
   /**
+   * lossless image parser.
+   * @param {quickswf.Parser} parser swf parser object.
+   * @param {number} pLength tag length.
+   * @param {boolean=} withAlpha alpha channel support flag.
    * @constructor
    */
   function Lossless(parser, pLength, withAlpha) {
@@ -108,6 +113,7 @@
     this.width = tReader.I16();
     this.height = tReader.I16();
 
+    // indexed-color
     if (tFormat === LosslessFormat.COLOR_MAPPED) {
       this.colourType = PngColourType.INDEXED_COLOR;
 
@@ -118,11 +124,13 @@
       }
       tPaletteSize *= (3 + this.withAlpha);
       --this.size;
+    // truecolor
     } else {
       this.colourType = (!this.withAlpha) ?
         PngColourType.TRUECOLOR : PngColourType.TRUECOLOR_WITH_ALPHA;
     }
 
+    // compressed image data
     this.plain = new Zlib.Inflate(tReader.sub(tReader.tell(), this.size)).decompress(); // XXX: 出力バッファのサイズ指定
     tReader.seek(this.size);
 
@@ -137,7 +145,7 @@
         tPalette = this.palette = new Uint8Array(tPaletteSize * 3 / 4);
 
         for (var i = 0, il = tTmpPalette.length; i < il; ++i) {
-          if (i & 0x03 === 0) {
+          if ((i & 0x03) === 0) {
             tTrns[tTp++] = tTmpPalette[i];
           } else {
             tPalette[tPp++] = tTmpPalette[i];
@@ -153,8 +161,11 @@
    * @return {HTMLImageElement} img element.
    */
   Lossless.prototype.getImage = function() {
+    /** @type {HTMLImageElement} */
     var tImage = new Image();
+    /** @type {Uint8Array} */
     var tPng = this.getPNG();
+    /** @type {Blob} */
     var tBlob = new Blob([tPng], {type: 'image/png'});
 
     tImage.src = global.webkitURL.createObjectURL(tBlob);
@@ -244,7 +255,7 @@
     var tPng = this.png;
     var tPp = this.pp;
 
-    // enpand buffer
+    // expand buffer
     if (tPp + pData.length + 12 > tPng.length) {
       tPng = this.expandBuffer(tPp + pData.length + 12);
     }
@@ -343,6 +354,7 @@
     var tHeight = this.height;
     var tFormat = this.format;
 
+    // calculate buffer size
     switch (this.colourType) {
       case PngColourType.INDEXED_COLOR:
         tLength = tWidth;
@@ -357,6 +369,7 @@
 
     // create png idat data
     tImage = new Uint8Array(tSize);
+    // indexed-color png
     if (tFormat === LosslessFormat.COLOR_MAPPED) {
       tWidthWithPadding = (tWidth + 3) & -4;
       while (tOp < tSize) {
@@ -370,6 +383,7 @@
         // next
         tIp += tWidthWithPadding;
       }
+    // truecolor png
     } else {
       while (tOp < tSize) {
         // read RGB
@@ -431,6 +445,7 @@
     var tHeight = this.height;
     var tFormat = this.format;
 
+    // calculate buffer size
     switch (this.colourType) {
       case PngColourType.INDEXED_COLOR:
         tLength = tWidth;
@@ -445,6 +460,7 @@
 
     // create png idat data
     tImage = new Uint8Array(tSize);
+    // indexed-color png
     if (tFormat === LosslessFormat.COLOR_MAPPED) {
       while (tOp < tSize) {
         // write color-map index
@@ -456,6 +472,7 @@
           tX = 0;
         }
       }
+    // truecolor png
     } else {
       while (tOp < tSize) {
         // read RGB
@@ -490,7 +507,7 @@
    * wrtie PNG IEND chunk.
    */
   Lossless.prototype.writeIEND = function() {
-    return this.writeChunk('IEND', []);
+    this.writeChunk('IEND', []);
   };
 
   /**
@@ -536,7 +553,7 @@
     tOutput[tOp++] = 0x01; // FCHECK: 1, FDICT, FLEVEL: 0
 
     // zlib body
-    for (;;) {
+    do {
       tBlock = pData.subarray(tIp, tIp += tBlockSize);
       tBfinal = (tBlock.length < tBlockSize || tIp + tBlock.length === pData.length) ? 1 : 0;
 
@@ -545,22 +562,18 @@
 
       // len
       tLen = tBlock.length;
-      tOutput[tOp++] = tLen >>> 0;
+      tOutput[tOp++] = tLen;
       tOutput[tOp++] = tLen >>> 8;
 
       // nlen
       tNlen = 0xffff - tLen;
-      tOutput[tOp++] = tNlen >>> 0;
+      tOutput[tOp++] = tNlen;
       tOutput[tOp++] = tNlen >>> 8;
 
       // data
       tOutput.set(tBlock, tOp);
       tOp += tBlock.length;
-
-      if (tBfinal) {
-        break;
-      }
-    }
+    } while (!tBfinal);
 
     // adler-32
     tAdler32 = Zlib.Adler32(pData);
