@@ -60,7 +60,8 @@
           "files": [
             "quickswf.js",
             "swf.js",
-            "parser.js"
+            "parser.js",
+            "crc32.js"
           ],
           "include": "^.+\\.js$"
         },
