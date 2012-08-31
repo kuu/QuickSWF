@@ -115,6 +115,8 @@
     var tTmpPalette;
     /** @type {Uint8Array} */
     var tTrns;
+    /** @type {number} */
+    var alpha;
 
     this.width = tReader.I16();
     this.height = tReader.I16();
@@ -150,12 +152,11 @@
         tTmpPalette = this.plain.subarray(0, tPaletteSize);
         tPalette = this.palette = new Uint8Array(tPaletteSize * 3 / 4);
 
-        for (var i = 0, il = tTmpPalette.length; i < il; ++i) {
-          if ((i & 0x03) === 0) {
-            tTrns[tTp++] = tTmpPalette[i];
-          } else {
-            tPalette[tPp++] = tTmpPalette[i];
-          }
+        for (var i = 0; tTp < tPaletteSize; ++i) {
+          alpha = tTrns[tTp++] = tTmpPalette[i + 3];
+          tPalette[tPp++] = tTmpPalette[i++] * 255 / alpha | 0; // red
+          tPalette[tPp++] = tTmpPalette[i++] * 255 / alpha | 0; // green
+          tPalette[tPp++] = tTmpPalette[i++] * 255 / alpha | 0; // blue
         }
       }
       this.plain = new Uint8Array(this.plain.buffer, tPaletteSize, this.plain.length - tPaletteSize);
@@ -392,6 +393,11 @@
     // truecolor png
     } else {
       while (tOp < tSize) {
+        // scanline filter
+        if (tX++ % tWidth === 0) {
+          tImage[tOp++] = 0;
+        }
+
         // read RGB
         if (tFormat === LosslessFormat.RGB24) {
           tReserved = tPlain[tIp++];
@@ -409,12 +415,6 @@
         tImage[tOp++] = tRed;
         tImage[tOp++] = tGreen;
         tImage[tOp++] = tBlue;
-
-        // scanline filter
-        if (++tX === tWidth) {
-          tImage[tOp++] = 0;
-          tX = 0;
-        }
       }
     }
 
@@ -469,40 +469,33 @@
     // indexed-color png
     if (tFormat === LosslessFormat.COLOR_MAPPED) {
       while (tOp < tSize) {
+        // scanline filter
+        if (tX++ % tWidth === 0) {
+          tImage[tOp++] = 0;
+        }
+
         // write color-map index
         tImage[tOp++] = tPlain[tIp++];
-
-        // scanline filter
-        if (++tX === tWidth) {
-          tImage[tOp++] = 0;
-          tX = 0;
-        }
       }
     // truecolor png
     } else {
       while (tOp < tSize) {
+        // scanline filter
+        if (tX++ % tWidth === 0) {
+          tImage[tOp++] = 0;
+        }
+
         // read RGB
         tAlpha = tPlain[tIp++];
-        if (tAlpha === 0) {
-          tRed = tGreen = tBlue = 0;
-          tIp += 3;
-        } else {
-          tRed   = tPlain[tIp++] * 255 / tAlpha | 0;
-          tGreen = tPlain[tIp++] * 255 / tAlpha | 0;
-          tBlue  = tPlain[tIp++] * 255 / tAlpha | 0;
-        }
+        tRed   = tPlain[tIp++] * 255 / tAlpha | 0;
+        tGreen = tPlain[tIp++] * 255 / tAlpha | 0;
+        tBlue  = tPlain[tIp++] * 255 / tAlpha | 0;
 
         // write RGB
         tImage[tOp++] = tRed;
         tImage[tOp++] = tGreen;
         tImage[tOp++] = tBlue;
         tImage[tOp++] = tAlpha;
-
-        // scanline filter
-        if (++tX === tWidth) {
-          tImage[tOp++] = 0;
-          tX = 0;
-        }
       }
     }
 
