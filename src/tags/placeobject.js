@@ -6,7 +6,7 @@
  */
 (function(global) {
   
-  global.quickswf.Parser.prototype['4'] = placeObject
+  global.quickswf.Parser.prototype['4'] = placeObject;
   global.quickswf.Parser.prototype['26'] = placeObject2;
 
   var Matrix = global.quickswf.structs.Matrix;
@@ -48,8 +48,6 @@
       tPackage.matrix = new Matrix();
     }
 
-    // THERE MIGHT NEED TO HACK ADJUSTX FOR DEFINETEXT HERE.
-    
     if (tFlags & (1 << 3)) { // hasColorTransform
       tPackage.colorTransform = ColorTransform.load(tReader, true);
     } else {
