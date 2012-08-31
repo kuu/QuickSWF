@@ -5,7 +5,6 @@
   global.quickswf.Parser.prototype['36'] = defineBitsLossless2;
 
   /**
-   * @constructor
    * @param {number} pLength tag length.
    */
   function defineBitsLossless(pLength) {
@@ -20,7 +19,6 @@
   }
 
   /**
-   * @constructor
    * @param {number} pLength tag length.
    */
   function defineBitsLossless2(pLength) {
