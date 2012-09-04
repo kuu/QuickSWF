@@ -29,12 +29,6 @@
   }
 
   SWF.prototype.destroy = function() {
-    for (var i in this.images) {
-      var tImage = this.images[i];
-      if (tImage.src.substring(0, 5) === 'blob:') {
-        global.webkitURL.revokeObjectURL(tImage.src);
-      }
-    }
     this.images = null;
     this.rootSprite = null;
     this.jpegTableDQT = null;

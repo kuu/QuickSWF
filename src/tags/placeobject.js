@@ -11,6 +11,7 @@
 
   var Matrix = global.quickswf.structs.Matrix;
   var ColorTransform = global.quickswf.structs.ColorTransform;
+  var ClipActions = global.quickswf.structs.ClipActions;
 
   function placeObject(pLength) {
     var tReader = this.r;
@@ -30,12 +31,13 @@
       type: '',
       id: -1,
       matrix: null,
-      colorTransform: null,
       depth: tDepth,
       ratio: 0,
-      name: null,
-      clipDepth: 0
+      name: null
     };
+
+    var tColorTransform = null;
+    var tClipDepth = 0;
 
     var tId;
     if (tFlags & (1 << 1)) { // hasCharacter
@@ -44,14 +46,10 @@
 
     if (tFlags & (1 << 2)) { // hasMatrix
       tPackage.matrix = Matrix.load(tReader);
-    } else {
-      tPackage.matrix = new Matrix();
     }
 
     if (tFlags & (1 << 3)) { // hasColorTransform
-      tPackage.colorTransform = ColorTransform.load(tReader, true);
-    } else {
-      tPackage.colorTransform = new ColorTransform();
+      tColorTransform = ColorTransform.load(tReader, true);
     }
 
     if (tFlags & (1 << 4)) { // hasRatio
@@ -62,10 +60,15 @@
       tPackage.name = tReader.s().toLowerCase();
     }
     // TODO: Might need to make fake names here like '_unnamedNUMBER' on else
-    
 
     if (tFlags & (1 << 6)) {
-      tPackage.clipDepth = tReader.I16();
+      tClipDepth = tReader.I16();
+    }
+
+    var tClipActions = null;
+    if (tFlags & 1) {
+      //tClipActions = ClipActions.load(tReader, this.swf.version);
+      // It's not following the spec....
     }
 
     var tMove = tFlags & 1;
@@ -83,6 +86,23 @@
     } else if (tMove && tId === void 0) {
       tPackage.type = 'move';
       this.add(tPackage);
+    }
+
+    if (tClipDepth > 0) {
+      this.add({
+        type: 'clip',
+        depth: tDepth,
+        clipDepth: tClipDepth,
+        clipActions: tClipActions
+      });
+    }
+
+    if (tColorTransform !== null) {
+      this.add({
+         type: 'colorTransform',
+         depth: tDepth,
+         colorTransform: tColorTransform
+       });
     }
   }
 

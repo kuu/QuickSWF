@@ -10,7 +10,7 @@
 
   /**
    * @constructor
-   * @class {quickswf.structs.Transform}
+   * @class {quickswf.structs.ColorTransform}
    */
   function ColorTransform() {
     this.rm = 1;

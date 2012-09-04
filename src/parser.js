@@ -158,9 +158,12 @@
             var tImages = tSWF.images;
 
             for (var i in tImages) {
-              if (!tImages[i].complete) {
+              if (tImages[i] instanceof HTMLImageElement && !tImages[i].complete) {
                 tImagesToWaitFor++;
                 tImages[i].addEventListener('load', function() {
+                  if (this.src.indexOf('blob:') === 0) {
+                    global.webkitURL.revokeObjectURL(this.src);
+                  }
                   tImagesToWaitFor--;
                   if (tImagesToWaitFor === 0) {
                     pSuccessCallback && pSuccessCallback(tSWF);
@@ -168,11 +171,19 @@
                 }, false);
                 tImages[i].addEventListener('error', function(e) {
                   tImagesToWaitFor--;
+                  if (this.src.indexOf('blob:') === 0) {
+                    global.webkitURL.revokeObjectURL(this.src);
+                  }
                   console.error(e);
                   if (tImagesToWaitFor === 0) {
                     pSuccessCallback && pSuccessCallback(tSWF);
                   }
                 }, false);
+              } else {
+                var tImageSource = tImages[i].src;
+                if (tImageSource && tImageSource.indexOf('blob:') === 0) {
+                  global.webkitURL.revokeObjectURL(tImageSource);
+                }
               }
             }
 
