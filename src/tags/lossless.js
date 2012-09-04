@@ -10,6 +10,9 @@
   global.quickswf.Parser.prototype['20'] = defineBitsLossless;
   global.quickswf.Parser.prototype['36'] = defineBitsLossless2;
 
+  /** @const @type {number} */
+  var mBlockSize = 0xffff;
+
   /**
    * @this {quickswf.Parser}
    * @param {number} pLength tag length.
@@ -95,6 +98,55 @@
     }
   }
 
+  Lossless.prototype.calcBufferSize = function() {
+    /** @type {number} */
+    var size = 0;
+    /** @type {number} */
+    var pixelWidth;
+    /** @type {number} */
+    var imageSize;
+
+    // PNG Signature
+    size += 8;
+
+    // IHDR
+    size += /* IHDR data */ 13 + /* chunk */ 12;
+
+    // PLTE
+    if (this.colourType === PngColourType.INDEXED_COLOR) {
+      size += /* PLTE data */ this.palette.length + /* chunk */ 12;
+
+      // tRNS
+      if (this.withAlpha) {
+        size += /* tRNS data */ this.trns.length + /* chunk */ 12;
+      }
+
+      pixelWidth = 1;
+    } else {
+      pixelWidth = this.withAlpha ? 4 : 3;
+    }
+
+    // IDAT
+    imageSize = (this.width * pixelWidth + /* filter */ 1) * this.height;
+    size += ( /* ZLIB non-compressed */
+      /* cmf    */ 1 +
+      /* flg    */ 1 +
+      /* data   */ imageSize +
+      /* header */ (
+      (/* bfinal, btype */ 1 +
+        /* len           */ 2 +
+        /* nlen          */ 2) *
+        /* number of blocks */ (1 + (imageSize / mBlockSize | 0))
+      ) +
+      /* adler  */ 4
+    ) + 12;
+
+    // IEND
+    size += /* chunk*/ 12;
+
+    return size;
+  };
+
   /**
    * parse lossless image.
    */
@@ -117,6 +169,8 @@
     var tTrns;
     /** @type {number} */
     var alpha;
+    /** @type {number} */
+    var bufferSize;
 
     this.width = tReader.I16();
     this.height = tReader.I16();
@@ -132,14 +186,30 @@
       }
       tPaletteSize *= (3 + this.withAlpha);
       --this.size;
+
+      // buffer size
+      bufferSize = tPaletteSize +
+        /* width with padding * height */((this.width + 3) & -4) * this.height;
     // truecolor
     } else {
       this.colourType = (!this.withAlpha) ?
         PngColourType.TRUECOLOR : PngColourType.TRUECOLOR_WITH_ALPHA;
+
+      // buffer size
+      if (tFormat === LosslessFormat.RGB24) {
+        bufferSize = 4 * this.width * this.height;
+      } else if (tFormat === LosslessFormat.RGB15) {
+        bufferSize = 2 * this.width * this.height;
+      }
     }
 
     // compressed image data
-    this.plain = new Zlib.Inflate(tReader.sub(tReader.tell(), this.size)).decompress(); // XXX: 出力バッファのサイズ指定
+    this.plain = new Zlib.Inflate(
+      tReader.sub(tReader.tell(), this.size),
+      {
+        bufferSize: bufferSize
+      }
+    ).decompress();
     tReader.seek(this.size);
 
     // palette
@@ -186,7 +256,7 @@
    */
   Lossless.prototype.getPNG = function() {
     /** @type {Uint8Array} */
-    this.png = new Uint8Array(0xffff); // XXX: magic number
+    this.png = new Uint8Array(this.calcBufferSize());
 
     this.writeSignature();
     this.writeIHDR();
@@ -464,7 +534,7 @@
       default:
         console.warn('invalid png colour type');
     }
-    tSize = tLength * tHeight + tHeight;
+    tSize = (tLength + 1) * tHeight;
 
     // create png idat data
     tImage = new Uint8Array(tSize);
@@ -536,8 +606,6 @@
     var tIp = 0;
     /** @type {number} */
     var tOp = 0;
-    /** @type {number} */
-    var tBlockSize = 0xffff;
     /** @type {Uint8Array} */
     var tOutput = new Uint8Array(
       /* cmf    */ 1 +
@@ -547,19 +615,18 @@
         (/* bfinal, btype */ 1 +
          /* len           */ 2 +
          /* nlen          */ 2) *
-         /* number of blocks */ ((pData.length + tBlockSize - 1) / tBlockSize | 0)
+         /* number of blocks */ (1 + (pData.length / mBlockSize | 0))
       ) +
       /* adler  */ 4
     );
-
     // zlib header
     tOutput[tOp++] = 0x78; // CINFO: 7, CMF: 8
     tOutput[tOp++] = 0x01; // FCHECK: 1, FDICT, FLEVEL: 0
 
     // zlib body
     do {
-      tBlock = pData.subarray(tIp, tIp += tBlockSize);
-      tBfinal = (tBlock.length < tBlockSize || tIp + tBlock.length === pData.length) ? 1 : 0;
+      tBlock = pData.subarray(tIp, tIp += mBlockSize);
+      tBfinal = (tBlock.length < mBlockSize || tIp + tBlock.length === pData.length) ? 1 : 0;
 
       // block header
       tOutput[tOp++] = tBfinal;
