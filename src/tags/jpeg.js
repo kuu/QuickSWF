@@ -31,16 +31,50 @@
   function defineBitsJpeg3(pLength) {
     var tId = this.r.I16();
     var tAlphaOffset = this.r.I32();
+    var tJpeg;
+    var tAlphaData;
+    var tImages = this.swf.images;
+
     if (this.r.peekBits(64) === 0x89504E47) { // PNG file
       var tImage = new Image();
       var tBlob = new Blob([this.r.sub(this.r.tell(), tAlphaOffset)], {type: 'image/png'});
       tImage.src = global.webkitURL.createObjectURL(tBlob);
-      this.swf.images[tId] = tImage;
-    } else { // JPEG file
-      this.swf.images[tId] = getJPEG(this, pLength - 2);
-      // TODO: Support alpha.
-      console.warn('Alpha JPEG');
+      tImages[tId] = tImage;
+    } else {
+      // JPEG file
+      tJpeg = tImages[tId] = getJPEG(this, tAlphaOffset);
+
+      // alpha table
+      tAlphaData = new Zlib.Inflate(
+        this.r.sub(this.r.tell(), pLength - 6 - tAlphaOffset)
+      ).decompress();
       this.r.seek(pLength - 6 - tAlphaOffset);
+
+      // replace
+      tJpeg.addEventListener('load', function onLoad() {
+        var tCanvas = document.createElement('canvas');
+        var tCtx = tCanvas.getContext('2d');
+        var tImageData, tPixelArray;
+        var tWidth = tJpeg.width;
+        var tHeight = tJpeg.height;
+        var tIndex, tLength;
+
+        tJpeg.removeEventListener('load', onLoad);
+
+        tCanvas.width = tWidth;
+        tCanvas.height = tHeight;
+        tCtx.drawImage(tJpeg, 0, 0);
+
+        tImageData = tCtx.getImageData(0, 0, tWidth, tHeight);
+        tPixelArray = tImageData.data;
+
+        for (tIndex = 0, tLength = tAlphaData.length; tIndex < tLength; ++tIndex) {
+          tPixelArray[tIndex * 4 + 3] = tAlphaData[tIndex];
+        }
+        tCtx.putImageData(tImageData, 0, 0);
+
+        tImages[tId] = tCanvas;
+      }, false);
     }
   }
 
