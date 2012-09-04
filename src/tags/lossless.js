@@ -445,6 +445,8 @@
     var tAlpha;
     /** @type {number} */
     var tX = 0;
+    /** @type {number} */
+    var tWidthWithPadding;
 
     var tPlain = this.plain;
     var tWidth = this.width;
@@ -468,14 +470,17 @@
     tImage = new Uint8Array(tSize);
     // indexed-color png
     if (tFormat === LosslessFormat.COLOR_MAPPED) {
+      tWidthWithPadding = (tWidth + 3) & -4;
       while (tOp < tSize) {
         // scanline filter
-        if (tX++ % tWidth === 0) {
-          tImage[tOp++] = 0;
-        }
+        tImage[tOp++] = 0;
 
         // write color-map index
-        tImage[tOp++] = tPlain[tIp++];
+        tImage.set(tPlain.subarray(tIp, tIp + tWidth), tOp);
+        tOp += tWidth;
+
+        // next
+        tIp += tWidthWithPadding;
       }
     // truecolor png
     } else {
