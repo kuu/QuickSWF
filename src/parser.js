@@ -151,6 +151,7 @@
           if (tType !== '39' && tLocalReader.tell() !== tExpectedFinalIndex) {
             console.error('Expected final index incorrect for tag ' + tType);
             tLocalReader.seekTo(tExpectedFinalIndex);
+
           }
 
           if (tLocalReader.tell() >= tFileSize) {
