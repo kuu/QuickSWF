@@ -6,25 +6,13 @@
  */
 (function(global) {
 
-  var AtoJ = global.AtoJ;
-
-  global.quickswf.Parser.prototype['12'] = (AtoJ !== void 0 ? doAction : function() {});
-
-  var mFunctionMap = {
-    findTarget: 'tTarget.findActor(${TARGET});',
-    nextFrame: 'tTarget.nextStep();',
-    previousFrame: 'tTarget.previousStep();',
-    play: 'tTarget.startActing();',
-    stop: 'tTarget.stopActing();',
-    gotoFrame: 'tTarget.gotoStep(${FRAME_INDEX});',
-    gotoLabel: 'tTarget.gotoLabel(${FRAME_LABEL});'
-  };
+  global.quickswf.Parser.prototype['12'] = doAction;
 
   function doAction(pLength) {
     var tReader = this.r;
     this.add({
       type: 'script',
-      script: AtoJ.compileActionScript2(tReader.sub(tReader.tell(), pLength), mFunctionMap)
+      script: tReader.sub(tReader.tell(), pLength)
     });
     tReader.seek(pLength);
   }

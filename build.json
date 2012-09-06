@@ -23,13 +23,6 @@
       "location": "git",
       "url": "git@github.com:Moncader/Breader.git",
       "targets": ["all"]
-    },
-
-    "AtoJ": {
-      "type": "package",
-      "location": "git",
-      "url": "git@github.com:Moncader/AtoJ.git",
-      "targets": ["atoj"]
     }
   },
 
@@ -47,11 +40,6 @@
         {
           "type": "reference",
           "name": "Breader"
-        },
-
-        {
-          "type": "reference",
-          "name": "AtoJ"
         },
 
         {
