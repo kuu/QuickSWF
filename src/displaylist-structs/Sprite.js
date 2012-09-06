@@ -17,6 +17,7 @@
     this.id = -1;
     this.frameCount = 0;
     this.frames = new Array(0);
+    this.frameLabels = new Object();
   }
 
   Sprite.prototype.displayListType = 1;
