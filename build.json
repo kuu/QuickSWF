@@ -21,7 +21,7 @@
     "Breader": {
       "type": "package",
       "location": "git",
-      "url": "git@github.com:Moncader/Breader.git",
+      "url": "git://github.com/Moncader/Breader.git",
       "targets": ["all"]
     }
   },
