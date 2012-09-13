@@ -10,6 +10,9 @@
   global.quickswf.Parser.prototype['20'] = defineBitsLossless;
   global.quickswf.Parser.prototype['36'] = defineBitsLossless2;
 
+  var mNewBlob = global.quickswf.polyfills.newBlob;
+  var mCreateImage = global.quickswf.polyfills.createImage;
+
   /** @const @type {number} */
   var mBlockSize = 0xffff;
 
@@ -25,7 +28,7 @@
 
     tLossless.parse();
 
-    this.swf.images[tId] = tLossless.getImage();
+    this.swf.images[tId] = tLossless.getImage(tId);
   }
 
   /**
@@ -39,7 +42,7 @@
 
     tLossless.parse();
 
-    this.swf.images[tId] = tLossless.getImage();
+    this.swf.images[tId] = tLossless.getImage(tId);
   }
 
   /**
@@ -235,19 +238,16 @@
 
   /**
    * create new Image element.
-   * @return {HTMLImageElement} img element.
+   * @param {number} pId The ID of this image.
+   * @return {Object} Image information.
    */
-  Lossless.prototype.getImage = function() {
-    /** @type {HTMLImageElement} */
-    var tImage = new Image();
+  Lossless.prototype.getImage = function(pId) {
     /** @type {Uint8Array} */
     var tPng = this.getPNG();
     /** @type {Blob} */
-    var tBlob = new Blob([tPng], {type: 'image/png'});
+    var tBlob = mNewBlob([tPng], {type: 'image/png'});
 
-    tImage.src = global.webkitURL.createObjectURL(tBlob);
-
-    return tImage;
+    return mCreateImage(pId, tBlob);
   };
 
   /**

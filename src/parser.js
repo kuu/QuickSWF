@@ -82,7 +82,7 @@
     parse: function(pSuccessCallback, pFailureCallback) {
       var tTimer = Date.now();
       var tReader = this.r;
-      
+
       var tCompressedFlag = tReader.c();
 
       if (tCompressedFlag !== 'C' && tCompressedFlag !== 'F') {
@@ -99,7 +99,6 @@
       var tFileSize = tReader.I32();
 
       if (tCompressedFlag === 'C') {
-        //tReader = this.r = new Breader();
         var tInflater = new Zlib.Inflate(tReader.sub(tReader.tell(), tReader.fileSize - tReader.tell()));
         tReader = this.r = new Breader(tInflater.decompress());
       }
@@ -151,45 +150,39 @@
           if (tType !== '39' && tLocalReader.tell() !== tExpectedFinalIndex) {
             console.error('Expected final index incorrect for tag ' + tType);
             tLocalReader.seekTo(tExpectedFinalIndex);
-
           }
 
           if (tLocalReader.tell() >= tFileSize) {
-            var tImagesToWaitFor = 0;
+            var tImagesToWaitFor = [];
             var tImages = tSWF.images;
 
             for (var i in tImages) {
-              if (tImages[i] instanceof HTMLImageElement && !tImages[i].complete) {
-                tImagesToWaitFor++;
-                tImages[i].addEventListener('load', function() {
-                  if (this.src.indexOf('blob:') === 0) {
-                    global.webkitURL.revokeObjectURL(this.src);
-                  }
-                  tImagesToWaitFor--;
-                  if (tImagesToWaitFor === 0) {
-                    pSuccessCallback && pSuccessCallback(tSWF);
-                  }
-                }, false);
-                tImages[i].addEventListener('error', function(e) {
-                  tImagesToWaitFor--;
-                  if (this.src.indexOf('blob:') === 0) {
-                    global.webkitURL.revokeObjectURL(this.src);
-                  }
-                  console.error(e);
-                  if (tImagesToWaitFor === 0) {
-                    pSuccessCallback && pSuccessCallback(tSWF);
-                  }
-                }, false);
+              if (tImages[i].complete === true) {
+                tImages[i] = tImages[i].data;
               } else {
-                var tImageSource = tImages[i].src;
-                if (tImageSource && tImageSource.indexOf('blob:') === 0) {
-                  global.webkitURL.revokeObjectURL(tImageSource);
-                }
+                tImagesToWaitFor.push(tImages[i]);
               }
             }
 
-            if (tImagesToWaitFor === 0) {
+            if (tImagesToWaitFor.length === 0) {
               pSuccessCallback && pSuccessCallback(tSWF);
+            } else {
+              setTimeout(function wait() {
+                var tWaitingFor = tImagesToWaitFor;
+
+                for (var i = tWaitingFor.length - 1; i >= 0; i--) {
+                  if (tWaitingFor[i].complete === true) {
+                    tImages[tWaitingFor[i].id] = tWaitingFor[i].data;
+                    tWaitingFor.splice(i, 1);
+                  }
+                }
+
+                if (tWaitingFor.length === 0) {
+                  pSuccessCallback && pSuccessCallback(tSWF);
+                } else {
+                  setTimeout(wait, 10);
+                }
+              }, 10);
             }
             return;
           }

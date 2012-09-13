@@ -11,20 +11,23 @@
   global.quickswf.Parser.prototype['21'] = defineBitsJpeg2;
   global.quickswf.Parser.prototype['35'] = defineBitsJpeg3;
 
+  var mNewBlob = global.quickswf.polyfills.newBlob;
+  var mCreateImage = global.quickswf.polyfills.createImage;
+
   function defineBits(pLength) {
     var tId = this.r.I16();
-    this.swf.images[tId] = getJPEG(this, pLength - 2);
+    var tData = this.swf.images[tId] = getJPEG(this, pLength - 2);
+    tData.id = tId;
   }
 
   function defineBitsJpeg2(pLength) {
     var tId = this.r.I16();
     if (this.r.peekBits(64) === 0x89504E47) { // PNG file
-      var tImage = new Image();
-      var tBlob = new Blob([this.r.sub(this.r.tell(), pLength - 2)], {type: 'image/png'});
-      tImage.src = global.webkitURL.createObjectURL(tBlob);
-      this.swf.images[tId] = tImage;
+      var tBlob = mNewBlob([this.r.sub(this.r.tell(), pLength - 2)], {type: 'image/png'});
+      this.swf.images[tId] = mCreateImage(tId, tBlob);
     } else { // JPEG file
-      this.swf.images[tId] = getJPEG(this, pLength - 2);
+      var tData = this.swf.images[tId] = getJPEG(this, pLength - 2);
+      tData.id = tId;
     }
   }
 
@@ -36,14 +39,17 @@
     var tImages = this.swf.images;
 
     if (this.r.peekBits(64) === 0x89504E47) { // PNG file
-      var tImage = new Image();
-      var tBlob = new Blob([this.r.sub(this.r.tell(), tAlphaOffset)], {type: 'image/png'});
-      tImage.src = global.webkitURL.createObjectURL(tBlob);
-      tImages[tId] = tImage;
+      var tBlob = mNewBlob([this.r.sub(this.r.tell(), tAlphaOffset)], {type: 'image/png'});
+      tImages[tId] = mCreateImage(tId, tBlob);
     } else {
       // JPEG file
-      tJpeg = tImages[tId] = getJPEG(this, tAlphaOffset);
+      tJpeg = getJPEG(this, tAlphaOffset).data;
 
+      tImages[tId] = {
+        id: tId,
+        complete: false,
+        data: null
+      };
       // alpha table
       tAlphaData = new Zlib.Inflate(
         this.r.sub(this.r.tell(), pLength - 6 - tAlphaOffset)
@@ -73,7 +79,8 @@
         }
         tCtx.putImageData(tImageData, 0, 0);
 
-        tImages[tId] = tCanvas;
+        tImages[tId].data = tCanvas;
+        tImages[tId].complete = true;
       }, false);
     }
   }
@@ -148,7 +155,7 @@
     if (tDQT === null) tDQT = pParser.swf.jpegTableDQT;
     if (tDHT === null) tDHT = pParser.swf.jpegTableDHT;
     var tSOF = tSOF0 !== null ? tSOF0 : tSOF2;
-    var tData = new Blob(
+    var tData = mNewBlob(
       [
         new Uint8Array([0xFF, 0xD8]),
         tAPP0,
@@ -162,10 +169,7 @@
       }
     );
 
-    var tImage = new Image();
-    tImage.src = global.webkitURL.createObjectURL(tData);
-
-    return tImage;
+    return mCreateImage(0, tData);
   }
 
   function defineJpegTable(pLength) {
