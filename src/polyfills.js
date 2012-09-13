@@ -21,16 +21,18 @@
     if (mHaveBlobConstructor) {
       return new Blob(pData, pOptions);
     } else {
-      var tNewData = '';
+      var tNewData = new Array(65536);
+      var tIndex = 0;
       for (var i = 0, il = pData.length; i < il; i++) {
         var tDataI = pData[i];
         for (var k = 0, kl = tDataI.length; k < kl; k++) {
-          tNewData += String.fromCharCode(tDataI[k]);
+          tNewData[tIndex + k] = String.fromCharCode(tDataI[k]);
         }
+        tIndex += kl;
       }
       var tResult = {
         length: tNewData.length,
-        data: tNewData,
+        data: tNewData.join(''),
         type: pOptions.type
       };
       return tResult;
