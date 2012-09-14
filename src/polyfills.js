@@ -39,16 +39,17 @@
     }
   };
 
-  var mCreateObjectURL = null;
+  var mHaveCreateObjectURL = false;
   if (global.URL) {
-    mCreateObjectURL = global.URL.createObjectURL;
+    mHaveCreateObjectURL = true;
   } else if (global.webkitURL) {
-    mCreateObjectURL = global.webkitURL.createObjectURL;
     try {
-      var tURL = mCreateObjectURL(mPolyFills.newBlob());
+      var tURL = global.webkitURL.createObjectURL(mPolyFills.newBlob());
       global.webkitURL.revokeObjectURL(tURL);
+      global.URL = global.webkitURL;
+      mHaveCreateObjectURL = true;
     } catch (e) {
-      mCreateObjectURL = null; // Android bug.
+      mHaveCreateObjectURL = false;
     }
   }
 
@@ -63,21 +64,21 @@
 
     tImage.addEventListener('load', function() {
       if (this.src.indexOf('blob:') === 0) {
-        global.webkitURL.revokeObjectURL(this.src);
+        global.URL.revokeObjectURL(this.src);
       }
       tData.complete = true;
     }, false);
 
     tImage.addEventListener('error', function(e) {
       if (this.src.indexOf('blob:') === 0) {
-        global.webkitURL.revokeObjectURL(this.src);
+        global.URL.revokeObjectURL(this.src);
       }
       console.error(e);
       tData.complete = true;
     }, false);
 
-    if (mCreateObjectURL !== null) {
-      tImage.src = mCreateObjectURL(pBlob);
+    if (mHaveCreateObjectURL === true) {
+      tImage.src = global.URL.createObjectURL(pBlob);
     } else {
       // Hopefully this is the special object we made in newBlob()
       tImage.src = 'data:' + pBlob.type + ';base64,' + global.btoa(pBlob.data);
