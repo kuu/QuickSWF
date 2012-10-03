@@ -63,15 +63,19 @@
     };
 
     tImage.addEventListener('load', function() {
-      if (this.src.indexOf('blob:') === 0) {
-        global.URL.revokeObjectURL(this.src);
+      var src = this.src;
+
+      if (src[0] === 'b' && src[1] === 'l' && src[2] === 'o' && src[3] === 'b' && src[4] === ':') {
+        global.URL.revokeObjectURL(src);
       }
       tData.complete = true;
     }, false);
 
     tImage.addEventListener('error', function(e) {
-      if (this.src.indexOf('blob:') === 0) {
-        global.URL.revokeObjectURL(this.src);
+      var src = this.src;
+
+      if (src[0] === 'b' && src[1] === 'l' && src[2] === 'o' && src[3] === 'b' && src[4] === ':') {
+        global.URL.revokeObjectURL(src);
       }
       console.error(e);
       tData.complete = true;
