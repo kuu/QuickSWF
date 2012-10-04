@@ -2,7 +2,7 @@
 
   var mPolyFills = global.quickswf.polyfills = {};
 
-  var mHaveBlob = global.Blob !== void 0 ? true: false;
+  var mHaveBlob = global.Blob !== void 0;
   var mHaveBlobConstructor = false;
 
   if (mHaveBlob) {
@@ -13,7 +13,7 @@
       mHaveBlobConstructor = false;
     }
   }
-  var mHaveBlobBuilder = global.WebKitBlobBuilder !== void 0 ? true: false;
+  var mHaveBlobBuilder = global.WebKitBlobBuilder !== void 0;
 
   mPolyFills.newBlob = function(pData, pOptions) {
     pData = pData || [''];
