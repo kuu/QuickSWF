@@ -19,8 +19,6 @@
 
   }
 
-  Font.prototype = [];
-
   /**
    * Loads a Rect type.
    * @param {quickswf.Reader} pReader The reader to use.
@@ -31,11 +29,11 @@
     var tNumGlyphs = pOffsetTable.length;
     var tGlyphShapeTable = new Array(tNumGlyphs);
     for (var i = 0 ; i < tNumGlyphs ; i++) {
-        tReader.seekTo(pOffsetOfOffsetTable + pOffsetTable[i]);
+        pReader.seekTo(pOffsetOfOffsetTable + pOffsetTable[i]);
         var tShape = Shape.load(pReader, true, false, false);
         tGlyphShapeTable[i] = tShape;
     }
-    this.shapes = tGlyphShapeTable[i];
+    tFont.shapes = tGlyphShapeTable;
     return tFont;
   };
 
