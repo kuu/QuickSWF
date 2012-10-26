@@ -23,6 +23,7 @@
     this.frameCount = pFrameCount;
     this.rootSprite = new mStructs.Sprite();
     this.dictionary = new Object();
+    this.fonts = new Object();
     this.jpegTableDQT = null;
     this.jpegTableDHT = null;
     this.images = new Object();
@@ -34,6 +35,7 @@
     this.jpegTableDQT = null;
     this.jpegTableDHT = null;
     this.dictionary = null;
+    this.fonts = null;
   };
 
 
