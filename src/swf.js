@@ -27,6 +27,8 @@
     this.jpegTableDQT = null;
     this.jpegTableDHT = null;
     this.images = new Object();
+    this.eventSounds = new Object();
+    this.streamSoundMetadata = null;
   }
 
   SWF.prototype.destroy = function() {
