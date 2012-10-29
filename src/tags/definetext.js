@@ -18,7 +18,7 @@
   }
 
   function defineText2(pLength) {
-    parseText2(this, true);
+    parseText(this, true);
   }
 
   function parseText(pParser, withAlpha) {
