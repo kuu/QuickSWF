@@ -54,9 +54,9 @@
       tLeading = tReader.I16();
     }
     var tVariableName = tReader.s();
-    var InitialText = null;
+    var tInitialText = null;
     if (tFlags & 0x8000) { // HasText
-       InitialText = tReader.s();
+       tInitialText = tReader.s();
     }
     
     var tEditText = EditText.load(tReader);
@@ -74,7 +74,7 @@
     tEditText.indent = tIndent;
     tEditText.leading = tLeading;
     tEditText.variablename = tVariableName;
-    tEditText.initialtext = InitialText;
+    tEditText.initialtext = tInitialText;
 
     pParser.swf.dictionary[tId+ ""] = tEditText;
   }
