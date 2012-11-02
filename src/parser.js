@@ -155,29 +155,45 @@
           if (tLocalReader.tell() >= tFileSize) {
             var tImagesToWaitFor = [];
             var tImages = tSWF.images;
+            // It's ugly to have the same code for each media type.
+            // Let's clean up later.
+            var tSounds = tSWF.eventSounds;
+            var tSoundsToWaitFor = [];
+            var i;
 
-            for (var i in tImages) {
+            for (i in tImages) {
               if (tImages[i].complete === true) {
                 tImages[i] = tImages[i].data;
               } else {
                 tImagesToWaitFor.push(tImages[i]);
               }
             }
+            for (i in tSounds) {
+              if (tSounds[i].complete === true) {
+                tSounds[i] = tSounds[i].data;
+              } else {
+                tSoundsToWaitFor.push(tSounds[i]);
+              }
+            }
 
-            if (tImagesToWaitFor.length === 0) {
+            if (tImagesToWaitFor.length === 0 && tSoundsToWaitFor.length === 0) {
               pSuccessCallback && pSuccessCallback(tSWF);
             } else {
               setTimeout(function wait() {
-                var tWaitingFor = tImagesToWaitFor;
-
-                for (var i = tWaitingFor.length - 1; i >= 0; i--) {
-                  if (tWaitingFor[i].complete === true) {
-                    tImages[tWaitingFor[i].id] = tWaitingFor[i].data;
-                    tWaitingFor.splice(i, 1);
+                for (i = tImagesToWaitFor.length - 1; i >= 0; i--) {
+                  if (tImagesToWaitFor[i].complete === true) {
+                    tImages[tImagesToWaitFor[i].id] = tImagesToWaitFor[i].data;
+                    tImagesToWaitFor.splice(i, 1);
+                  }
+                }
+                for (i = tSoundsToWaitFor.length - 1; i >= 0; i--) {
+                  if (tSoundsToWaitFor[i].complete === true) {
+                    tSounds[tSoundsToWaitFor[i].id] = tSoundsToWaitFor[i].data;
+                    tSoundsToWaitFor.splice(i, 1);
                   }
                 }
 
-                if (tWaitingFor.length === 0) {
+                if (tImagesToWaitFor.length === 0 && tSoundsToWaitFor.length === 0) {
                   pSuccessCallback && pSuccessCallback(tSWF);
                 } else {
                   setTimeout(wait, 10);
