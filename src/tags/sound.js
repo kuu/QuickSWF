@@ -17,12 +17,17 @@
   var SoundStreamHead = global.quickswf.structs.SoundStreamHead;
   var SoundData = global.quickswf.structs.SoundData;
 
+  var mNewBlob = global.quickswf.polyfills.newBlob;
+  var mCreateMedia = global.quickswf.polyfills.createMedia;
+
   function defineSound(pLength) {
     var tReader = this.r, tBounds = tReader.tell() + pLength;
     var tId = tReader.I16();
     var tSound = EventSound.load(tReader, tBounds);
     tSound.id = tId;
-    this.swf.eventSounds[tId + ''] = tSound;
+    var tBlob = mNewBlob([tSound.soundData.raw], {type: tSound.soundData.mimeType});
+    var tData = mCreateMedia(tId, tBlob);
+    this.swf.eventSounds[tId + ''] = tData;
   }
 
   function startSound(pLength) {

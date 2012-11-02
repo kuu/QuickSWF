@@ -9,7 +9,7 @@
   global.quickswf.Parser.prototype['36'] = defineBitsLossless2;
 
   var mNewBlob = global.quickswf.polyfills.newBlob;
-  var mCreateImage = global.quickswf.polyfills.createImage;
+  var mCreateImage = global.quickswf.polyfills.createMedia;
   var mHaveTypedArray = global.quickswf.browser.HaveTypedArray;
   var mHaveAndroidAlphaBug = global.quickswf.browser.HavePutImageDataAlphaBug;
   var mHaveCreateObjectURL = global.quickswf.browser.HaveCreateObjectURL;

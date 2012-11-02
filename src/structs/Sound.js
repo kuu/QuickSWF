@@ -45,8 +45,18 @@
    * @constructor
    * @class {quickswf.structs.SoundData}
    */
-  function SoundData(pData) {
-    this.raw = pData; // Byte array
+  function SoundData(pData, pRaw, pType) {
+    if (!pRaw || pRaw === pData) {
+      this.raw = pData;
+    } else {
+      this.raw = pRaw;
+      for (var k in pData) {
+        if (pData[k] !== pRaw) {
+          this[k] = pData[k];
+        }
+      }
+    }
+    this.mimeType = pType;
   }
 
   /**
@@ -56,13 +66,14 @@
    * @return {quickswf.structs.EventSound} The loaded SoundData.
    */
   SoundData.load = function(pReader, pFmt, pBounds) {
-    var tData, tOffset;
+    var tData, tOffset, tRaw, tType;
 
     if (pFmt === 0 || pFmt === 3) {
 console.log('+++ PCM');
       // PCM
       tOffset = pReader.tell();
       tData = pReader.sub(tOffset, pBounds - tOffset);
+      tType = 'audio/i-dont-know-the-mimetype-for-this';
     } else if (pFmt === 1) {
 console.log('+++ ADPCM');
       // ADPCM
@@ -70,6 +81,8 @@ console.log('+++ ADPCM');
       tData.adpcmCodeSize = pReader.bsp(2); 
       tOffset = pReader.tell();
       tData.adpcmPackets = pReader.sub(tOffset, pBounds - tOffset);
+      tRaw = tData.adpcmPackets;
+      tType = 'audio/i-dont-know-the-mimetype-for-this';
     } else if (pFmt === 2) {
 console.log('+++ MP3');
       // MP3
@@ -77,10 +90,12 @@ console.log('+++ MP3');
       tData.seekSamples = pReader.SI16();
       tOffset = pReader.tell();
       tData.mp3Frames = pReader.sub(tOffset, pBounds - tOffset);
+      tRaw = tData.mp3Frames;
+      tType = 'audio/mp3';
     }
     pReader.seekTo(pBounds);
 
-    return new SoundData(tData);
+    return new SoundData(tData, tRaw, tType);
   };
   /**
    * @constructor

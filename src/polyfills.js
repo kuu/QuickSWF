@@ -53,16 +53,30 @@
     }
   }
 
-  mPolyFills.createImage = function(pId, pBlob) {
-    var tImage = new Image();
+  mPolyFills.createMedia = function(pId, pBlob) {
+    var tMedia, tIdx;
+    if (!pBlob.type || (tIdx = pBlob.type.indexOf('/')) === -1) {
+      return;
+    }
+
+    var tTopLevelMediaType = pBlob.type.slice(0, tIdx);
+    var tLoadEvent = 'loadeddata';
+    if (tTopLevelMediaType === 'image') {
+      tMedia = new Image();
+      tLoadEvent = 'load';
+    } else if (tTopLevelMediaType === 'audio') {
+      tMedia = global.document.createElement('audio');
+    } else if (tTopLevelMediaType === 'video') {
+      tMedia = global.document.createElement('video');
+    }
 
     var tData = {
       id: pId,
-      data: tImage,
+      data: tMedia,
       complete: false
     };
 
-    tImage.addEventListener('load', function() {
+    tMedia.addEventListener(tLoadEvent, function() {
       var src = this.src;
 
       if (src[0] === 'b' && src[1] === 'l' && src[2] === 'o' && src[3] === 'b' && src[4] === ':') {
@@ -71,7 +85,7 @@
       tData.complete = true;
     }, false);
 
-    tImage.addEventListener('error', function(e) {
+    tMedia.addEventListener('error', function(e) {
       var src = this.src;
 
       if (src[0] === 'b' && src[1] === 'l' && src[2] === 'o' && src[3] === 'b' && src[4] === ':') {
@@ -82,10 +96,10 @@
     }, false);
 
     if (mHaveCreateObjectURL === true) {
-      tImage.src = global.URL.createObjectURL(pBlob);
+      tMedia.src = global.URL.createObjectURL(pBlob);
     } else {
       // Hopefully this is the special object we made in newBlob()
-      tImage.src = 'data:' + pBlob.type + ';base64,' + global.btoa(pBlob.data);
+      tMedia.src = 'data:' + pBlob.type + ';base64,' + global.btoa(pBlob.data);
     }
 
     return tData;
