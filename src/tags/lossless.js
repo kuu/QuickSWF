@@ -5,13 +5,14 @@
  * This code is licensed under the zlib license. See LICENSE for details.
  */
 (function(global) {
-  // TODO: canvas#toDataURL と素の PNG 生成どちらが速いか比較する
-
   global.quickswf.Parser.prototype['20'] = defineBitsLossless;
   global.quickswf.Parser.prototype['36'] = defineBitsLossless2;
 
   var mNewBlob = global.quickswf.polyfills.newBlob;
-  var mCreateImage = global.quickswf.polyfills.createImage;
+  var mCreateImage = global.quickswf.polyfills.createMedia;
+  var mHaveTypedArray = global.quickswf.browser.HaveTypedArray;
+  var mHaveAndroidAlphaBug = global.quickswf.browser.HavePutImageDataAlphaBug;
+  var mHaveCreateObjectURL = global.quickswf.browser.HaveCreateObjectURL;
 
   /** @const @type {number} */
   var mBlockSize = 0xffff;
@@ -28,7 +29,11 @@
 
     tLossless.parse();
 
-    this.swf.images[tId] = tLossless.getImage(tId);
+    if (tLossless.format === LosslessFormat.COLOR_MAPPED && mHaveCreateObjectURL) {
+      this.swf.images[tId] = tLossless.getImage();
+    } else {
+      this.swf.images[tId] = tLossless.getCanvas();
+    }
   }
 
   /**
@@ -42,7 +47,11 @@
 
     tLossless.parse();
 
-    this.swf.images[tId] = tLossless.getImage(tId);
+    if (tLossless.format === LosslessFormat.COLOR_MAPPED && mHaveCreateObjectURL) {
+      this.swf.images[tId] = tLossless.getImage();
+    } else {
+      this.swf.images[tId] = tLossless.getCanvas();
+    }
   }
 
   /**
@@ -101,6 +110,9 @@
     }
   }
 
+  /**
+   * @return {number}
+   */
   Lossless.prototype.calcBufferSize = function() {
     /** @type {number} */
     var size = 0;
@@ -160,20 +172,22 @@
     var tFormat = this.format = tReader.B();
     /** @type {number} */
     var tPaletteSize;
-    /** @type {Uint8Array} */
+    /** @type {!(Array.<number>|Uint8Array)} */
     var tPalette;
     /** @type {number} */
     var tPp = 0;
     /** @type {number} */
     var tTp = 0;
-    /** @type {Uint8Array} */
+    /** @type {!(Array.<number>|Uint8Array)} */
     var tTmpPalette;
-    /** @type {Uint8Array} */
+    /** @type {!(Array.<number>|Uint8Array)} */
     var tTrns;
     /** @type {number} */
     var alpha;
     /** @type {number} */
     var bufferSize;
+    /** @type {number} */
+    var i;
 
     this.width = tReader.I16();
     this.height = tReader.I16();
@@ -185,7 +199,7 @@
       // palette
       tPaletteSize = (tReader.B() + 1);
       if (this.withAlpha) {
-        tTrns = this.trns = new Uint8Array(tPaletteSize);
+        tTrns = this.trns = new (mHaveTypedArray ? Uint8Array : Array)(tPaletteSize);
       }
       tPaletteSize *= (3 + this.withAlpha);
       --this.size;
@@ -219,20 +233,41 @@
     if (tFormat === LosslessFormat.COLOR_MAPPED) {
       // RGB palette
       if (!this.withAlpha) {
-        this.palette = this.plain.subarray(0, tPaletteSize);
+        this.palette = (
+          this.plain instanceof Array ?
+          this.plain.slice(0, tPaletteSize) :
+          this.plain.subarray(0, tPaletteSize)
+        );
       // RGBA palette
       } else {
-        tTmpPalette = this.plain.subarray(0, tPaletteSize);
-        tPalette = this.palette = new Uint8Array(tPaletteSize * 3 / 4);
+        tTmpPalette = (
+          this.plain instanceof Array ?
+          this.plain.slice(0, tPaletteSize) :
+          this.plain.subarray(0, tPaletteSize)
+        );
+        tPalette = this.palette = new (mHaveTypedArray ? Uint8Array : Array)(tPaletteSize * 3 / 4);
 
-        for (var i = 0; tTp < tPaletteSize; ++i) {
-          alpha = tTrns[tTp++] = tTmpPalette[i + 3];
-          tPalette[tPp++] = tTmpPalette[i++] * 255 / alpha | 0; // red
-          tPalette[tPp++] = tTmpPalette[i++] * 255 / alpha | 0; // green
-          tPalette[tPp++] = tTmpPalette[i++] * 255 / alpha | 0; // blue
+        if (mHaveAndroidAlphaBug) {
+          for (i = 0; tTp < tPaletteSize; i += 4) {
+            alpha = tTrns[tTp++] = tTmpPalette[i + 3];
+            tPalette[tPp++] = tTmpPalette[i    ]; // red
+            tPalette[tPp++] = tTmpPalette[i + 1]; // green
+            tPalette[tPp++] = tTmpPalette[i + 2]; // blue
+          }
+        } else {
+          for (i = 0; tTp < tPaletteSize; i += 4) {
+            alpha = tTrns[tTp++] = tTmpPalette[i + 3];
+            tPalette[tPp++] = tTmpPalette[i    ] * 255 / alpha | 0; // red
+            tPalette[tPp++] = tTmpPalette[i + 1] * 255 / alpha | 0; // green
+            tPalette[tPp++] = tTmpPalette[i + 2] * 255 / alpha | 0; // blue
+          }
         }
       }
-      this.plain = new Uint8Array(this.plain.buffer, tPaletteSize, this.plain.length - tPaletteSize);
+      this.plain = (
+        mHaveTypedArray ?
+        new Uint8Array(this.plain.buffer, tPaletteSize, this.plain.length - tPaletteSize) :
+        this.plain.slice(tPaletteSize, this.plain.length)
+      );
     }
   };
 
@@ -242,21 +277,143 @@
    * @return {Object} Image information.
    */
   Lossless.prototype.getImage = function(pId) {
-    /** @type {Uint8Array} */
+    /** @type {HTMLImageElement} */
+    var tImage = new Image();
+    /** @type {!(Array.<number>|Uint8Array)} */
     var tPng = this.getPNG();
     /** @type {Blob} */
     var tBlob = mNewBlob([tPng], {type: 'image/png'});
 
-    return mCreateImage(pId, tBlob);
+    return mCreateImage(pId, tBlob).data;
+  };
+
+  /**
+   * create new Canvas element.
+   * @return {HTMLCanvasElement}
+   */
+  Lossless.prototype.getCanvas = function() {
+    /** @type {HTMLCanvasElement} */
+    var tCanvas = document.createElement('canvas');
+    /** @type {CanvasRenderingContext2D} */
+    var tContext = tCanvas.getContext('2d');
+    /** @type {ImageData} */
+    var tImageData;
+    /** @type {!(CanvasPixelArray|Uint8ClampedArray)} */
+    var tPixelArray;
+    /** @type {LosslessFormat} */
+    var tFormat = this.format;
+    /** @type {number} */
+    var tWidthWithPadding;
+    /** @type {number} */
+    var tOp = 0;
+    /** @type {number} */
+    var tIp = 0;
+    /** @type {number} */
+    var tPlain = this.plain;
+    /** @type {number} */
+    var tLength;
+    /** @type {number} */
+    var tX;
+    /** @type {number} */
+    var tWidth = this.width;
+    /** @type {number} */
+    var tIndex;
+    /** @type {number} */
+    var tAlpha;
+    /** @type {number} */
+    var tReserved;
+    /** @type {!(Array.<number>|Uint8Array)} */
+    var tPalette = this.palette;
+    /** @type {!(Array.<number>|Uint8Array)} */
+    var tTrns = this.trns;
+
+    tCanvas.width = this.width;
+    tCanvas.height = this.height;
+
+    tImageData = tContext.getImageData(0, 0, this.width, this.height);
+    tPixelArray = tImageData.data;
+    tLength = tPixelArray.length;
+
+    // Colormapped
+    if (tFormat === LosslessFormat.COLOR_MAPPED) {
+      // set RGBA
+      tWidthWithPadding = (tWidth + 3) & -4;
+      while (tOp < tLength) {
+        // write color-map index
+        for (tX = 0; tX < tWidth; ++tX) {
+          tIndex = tPlain[tIp + tX] * 3;
+          tPixelArray[tOp++] = tPalette[tIndex    ];
+          tPixelArray[tOp++] = tPalette[tIndex + 1];
+          tPixelArray[tOp++] = tPalette[tIndex + 2];
+          tPixelArray[tOp++] = this.withAlpha ? tTrns[tIndex / 3] : 255; // TODO
+        }
+
+        // next
+        tIp += tWidthWithPadding;
+      }
+    // Direct
+    } else {
+      // set RGBA
+      if (tFormat === LosslessFormat.RGB24) {
+        if (this.withAlpha) {
+          if (mHaveAndroidAlphaBug) {
+            while (tOp < tLength) {
+              tAlpha = tPlain[tIp++];
+              tPixelArray[tOp++] = tPlain[tIp++];
+              tPixelArray[tOp++] = tPlain[tIp++];
+              tPixelArray[tOp++] = tPlain[tIp++];
+              tPixelArray[tOp++] = tAlpha;
+            }
+          } else {
+            while (tOp < tLength) {
+              tAlpha = tPlain[tIp++];
+              tPixelArray[tOp++] = tPlain[tIp++] * 255 / tAlpha | 0;
+              tPixelArray[tOp++] = tPlain[tIp++] * 255 / tAlpha | 0;
+              tPixelArray[tOp++] = tPlain[tIp++] * 255 / tAlpha | 0;
+              tPixelArray[tOp++] = tAlpha;
+            }
+          }
+        } else {
+          while (tOp < tLength) {
+            tIp++;
+            tPixelArray[tOp++] = tPlain[tIp++];
+            tPixelArray[tOp++] = tPlain[tIp++];
+            tPixelArray[tOp++] = tPlain[tIp++];
+            tPixelArray[tOp++] = 255;
+          }
+        }
+      } else if (tFormat === LosslessFormat.RGB15) {
+        while (tOp < tLength) {
+          tReserved = (tPlain[tIp++] << 8) | tPlain[tIp++];
+          tPixelArray[tOp++] = (tReserved >> 7) & 0xf8; // >> 10 << 3, 0x1f << 3
+          tPixelArray[tOp++] = (tReserved >> 2) & 0xf8; // >> 5  << 3, 0x1f << 3
+          tPixelArray[tOp++] = (tReserved << 3) & 0xf8; //       << 3, 0x1f << 3
+          tPixelArray[tOp++] = 255;
+        }
+      } else {
+        throw new Error('unknown format: ' + tFormat);
+      }
+    }
+
+    tContext.putImageData(tImageData, 0, 0);
+
+    return tCanvas;
   };
 
   /**
    * create PNG buffer.
-   * @return {!Uint8Array} png bytearray.
+   * @return {!(Array.<number>|Uint8Array)} png bytearray.
    */
   Lossless.prototype.getPNG = function() {
-    /** @type {Uint8Array} */
-    this.png = new Uint8Array(this.calcBufferSize());
+    /** @type {number} */
+    var tBufferSize = this.calcBufferSize();
+
+    /** @type {!(Array.<number>|Uint8Array)} */
+    this.png = (
+      mHaveTypedArray ?
+      new Uint8Array(tBufferSize) :
+      new Array(tBufferSize > 0xffff ? 0xffff : tBufferSize)
+    );
 
     this.writeSignature();
     this.writeIHDR();
@@ -275,48 +432,57 @@
 
   /**
    * truncate output buffer.
-   * @return {Uint8Array} png bytearray.
+   * @return {!(Array.<number>|Uint8Array)} png bytearray.
    */
   Lossless.prototype.finish = function() {
-    return (this.png = this.png.subarray(0, this.pp));
+    if (mHaveTypedArray) {
+      this.png = this.png.subarray(0, this.pp);
+    } else {
+      this.png.length = this.pp;
+    }
+    return this.png;
   };
 
   /**
    * write png signature.
    */
   Lossless.prototype.writeSignature = function() {
-    this.png.set([137, 80, 78, 71, 13, 10, 26, 10], this.pp);
+    /** @const @type {Array.<number>} */
+    var signature = [137, 80, 78, 71, 13, 10, 26, 10];
+
+    if (mHaveTypedArray) {
+      this.png.set(signature, this.pp);
+    } else {
+      this.set(this.png, signature, this.pp);
+    }
+
     this.pp += 8;
   };
 
   /**
-   * expand buffer.
-   * @param {number} pRequestSize request buffer size.
-   * @return {Uint8Array} new buffer.
+   * @param {!(Array.<number>|Uint8Array)} dst
+   * @param {!(Array.<number>|Uint8Array)} src
+   * @param {number=} opt_pos
    */
-  Lossless.prototype.expandBuffer = function(pRequestSize) {
-    /** @type {Uint8Array} */
-    var tPng = this.png;
-    /** @type {string} */
-    var tSize = tPng.length * 2;
-    /** @type {Uint8Array} */
-    var tNewBuffer;
+  Lossless.prototype.set = function(dst, src, opt_pos) {
+    /** @type {number} */
+    var i;
+    /** @type {number} */
+    var il;
 
-    while (tSize < pRequestSize) {
-      tSize *= 2;
+    if (typeof opt_pos !== 'number') {
+      opt_pos = 0;
     }
 
-    tNewBuffer = new Uint8Array(tSize);
-    tNewBuffer.set(tPng);
-
-    return (this.png = tNewBuffer);
+    for (i = 0, il = src.length; i < il; ++i) {
+      dst[opt_pos + i] = src[i];
+    }
   };
 
   /**
    * write png chunk.
-   * @type {string} pType chunk type.
-   * @type {!(Array.<number>|Uint8Array)} pData chunk data.
-   * XXX: Uint8Array を前提にしているので 0xff は省略している
+   * @param {string} pType chunk type.
+   * @param {!(Array.<number>|Uint8Array)} pData chunk data.
    */
   Lossless.prototype.writeChunk = function(pType, pData) {
     /** @type {number} */
@@ -332,16 +498,11 @@
     var tPng = this.png;
     var tPp = this.pp;
 
-    // expand buffer
-    if (tPp + pData.length + 12 > tPng.length) {
-      tPng = this.expandBuffer(tPp + pData.length + 12);
-    }
-
     // length
-    tPng[tPp++] = tDataLength >> 24;
-    tPng[tPp++] = tDataLength >> 16;
-    tPng[tPp++] = tDataLength >>  8;
-    tPng[tPp++] = tDataLength;
+    tPng[tPp++] = (tDataLength >> 24) & 0xff;
+    tPng[tPp++] = (tDataLength >> 16) & 0xff;
+    tPng[tPp++] = (tDataLength >>  8) & 0xff;
+    tPng[tPp++] = (tDataLength      ) & 0xff;
 
     // type
     tPng[tPp++] = tTypeArray[0];
@@ -350,15 +511,19 @@
     tPng[tPp++] = tTypeArray[3];
 
     // data
-    tPng.set(pData, tPp);
+    if (mHaveTypedArray) {
+      tPng.set(pData, tPp);
+    } else {
+      this.set(tPng, pData, tPp);
+    }
     tPp += tDataLength;
 
     // crc32
     tCrc32 = Zlib.CRC32.update(pData, Zlib.CRC32.calc(tTypeArray));
-    tPng[tPp++] = tCrc32 >> 24;
-    tPng[tPp++] = tCrc32 >> 16;
-    tPng[tPp++] = tCrc32 >>  8;
-    tPng[tPp++] = tCrc32;
+    tPng[tPp++] = (tCrc32 >> 24) & 0xff;
+    tPng[tPp++] = (tCrc32 >> 16) & 0xff;
+    tPng[tPp++] = (tCrc32 >>  8) & 0xff;
+    tPng[tPp++] = (tCrc32      ) & 0xff;
 
     this.pp = tPp;
   };
@@ -375,8 +540,12 @@
     var tColourType = this.colourType;
 
     this.writeChunk('IHDR', [
-      /* width       */ tWidth  >> 24, tWidth  >> 16, tWidth  >> 8, tWidth,
-      /* height      */ tHeight >> 24, tHeight >> 16, tHeight >> 8, tHeight,
+      /* width       */
+      (tWidth  >> 24) & 0xff, (tWidth  >> 16) & 0xff,
+      (tWidth  >>  8) & 0xff, (tWidth       ) & 0xff,
+      /* height      */
+      (tHeight >> 24) & 0xff, (tHeight >> 16) & 0xff,
+      (tHeight >>  8) & 0xff, (tHeight      ) & 0xff,
       /* bit depth   */ 8,
       /* colour type */ tColourType,
       /* compression */ 0,
@@ -407,7 +576,7 @@
     var tSize;
     /** @type {number} */
     var tLength;
-    /** @type {Uint8Array} */
+    /** @type {!(Array.<number>|Uint8Array)} */
     var tImage;
     /** @type {number} */
     var tOp = 0;
@@ -445,7 +614,7 @@
     tSize = tLength * tHeight + tHeight;
 
     // create png idat data
-    tImage = new Uint8Array(tSize);
+    tImage = new (mHaveTypedArray ? Uint8Array : Array)(tSize);
     // indexed-color png
     if (tFormat === LosslessFormat.COLOR_MAPPED) {
       tWidthWithPadding = (tWidth + 3) & -4;
@@ -454,7 +623,11 @@
         tImage[tOp++] = 0;
 
         // write color-map index
-        tImage.set(tPlain.subarray(tIp, tIp + tWidth), tOp);
+        if (mHaveTypedArray) {
+          tImage.set(tPlain.subarray(tIp, tIp + tWidth), tOp);
+        } else {
+          this.set(tImage, tPlain.slice(tIp, tIp + tWidth), tOp);
+        }
         tOp += tWidth;
 
         // next
@@ -499,7 +672,7 @@
     var tSize;
     /** @type {number} */
     var tLength;
-    /** @type {Uint8Array} */
+    /** @type {!(Array.<number>|Uint8Array)} */
     var tImage;
     /** @type {number} */
     var tOp = 0;
@@ -537,7 +710,7 @@
     tSize = (tLength + 1) * tHeight;
 
     // create png idat data
-    tImage = new Uint8Array(tSize);
+    tImage = new (mHaveTypedArray ? Uint8Array : Array)(tSize);
     // indexed-color png
     if (tFormat === LosslessFormat.COLOR_MAPPED) {
       tWidthWithPadding = (tWidth + 3) & -4;
@@ -546,7 +719,11 @@
         tImage[tOp++] = 0;
 
         // write color-map index
-        tImage.set(tPlain.subarray(tIp, tIp + tWidth), tOp);
+        if (mHaveTypedArray) {
+          tImage.set(tPlain.subarray(tIp, tIp + tWidth), tOp);
+        } else {
+          this.set(tImage, tPlain.slice(tIp, tIp + tWidth), tOp);
+        }
         tOp += tWidth;
 
         // next
@@ -586,8 +763,8 @@
 
   /**
    * create non-compressed zlib buffer.
-   * @param {Uint8Array} pData plain data.
-   * @return {Uint8Array}
+   * @param {!(Array.<number>|Uint8Array)} pData plain data.
+   * @return {!(Array.<number>|Uint8Array)}
    */
   Lossless.prototype.fakeZlib = function(pData) {
     /** @type {number} */
@@ -598,7 +775,7 @@
     var tLen;
     /** @type {number} */
     var tNlen;
-    /** @type {Uint8Array} */
+    /** @type {!(Array.<number>|Uint8Array)} */
     var tBlock;
     /** @type {number} */
     var tAdler32;
@@ -606,8 +783,8 @@
     var tIp = 0;
     /** @type {number} */
     var tOp = 0;
-    /** @type {Uint8Array} */
-    var tOutput = new Uint8Array(
+    /** @type {number} */
+    var tSize = (
       /* cmf    */ 1 +
       /* flg    */ 1 +
       /* data   */ pData.length +
@@ -619,13 +796,18 @@
       ) +
       /* adler  */ 4
     );
+    /** @type {Uint8Array} */
+    var tOutput = mHaveTypedArray ?
+      new Uint8Array(tSize) : new Array(tSize > 0xffff ? 0xffff : tSize);
+
     // zlib header
     tOutput[tOp++] = 0x78; // CINFO: 7, CMF: 8
     tOutput[tOp++] = 0x01; // FCHECK: 1, FDICT, FLEVEL: 0
 
     // zlib body
     do {
-      tBlock = pData.subarray(tIp, tIp += mBlockSize);
+      tBlock = mHaveTypedArray ?
+        pData.subarray(tIp, tIp += mBlockSize) : pData.slice(tIp, tIp += mBlockSize);
       tBfinal = (tBlock.length < mBlockSize || tIp + tBlock.length === pData.length) ? 1 : 0;
 
       // block header
@@ -633,25 +815,29 @@
 
       // len
       tLen = tBlock.length;
-      tOutput[tOp++] = tLen;
-      tOutput[tOp++] = tLen >>> 8;
+      tOutput[tOp++] = (tLen      ) & 0xff;
+      tOutput[tOp++] = (tLen >>> 8) & 0xff;
 
       // nlen
       tNlen = 0xffff - tLen;
-      tOutput[tOp++] = tNlen;
-      tOutput[tOp++] = tNlen >>> 8;
+      tOutput[tOp++] = (tNlen      ) & 0xff;
+      tOutput[tOp++] = (tNlen >>> 8) & 0xff;
 
       // data
-      tOutput.set(tBlock, tOp);
+      if (mHaveTypedArray) {
+        tOutput.set(tBlock, tOp);
+      } else {
+        this.set(tOutput, tBlock, tOp);
+      }
       tOp += tBlock.length;
     } while (!tBfinal);
 
     // adler-32
     tAdler32 = Zlib.Adler32(pData);
-    tOutput[tOp++] = tAdler32 >> 24;
-    tOutput[tOp++] = tAdler32 >> 16;
-    tOutput[tOp++] = tAdler32 >>  8;
-    tOutput[tOp++] = tAdler32;
+    tOutput[tOp++] = (tAdler32 >> 24) & 0xff;
+    tOutput[tOp++] = (tAdler32 >> 16) & 0xff;
+    tOutput[tOp++] = (tAdler32 >>  8) & 0xff;
+    tOutput[tOp++] = (tAdler32      ) & 0xff;
 
     return tOutput;
   };

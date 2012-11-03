@@ -12,7 +12,7 @@
   global.quickswf.Parser.prototype['35'] = defineBitsJpeg3;
 
   var mNewBlob = global.quickswf.polyfills.newBlob;
-  var mCreateImage = global.quickswf.polyfills.createImage;
+  var mCreateImage = global.quickswf.polyfills.createMedia;
 
   function defineBits(pLength) {
     var tId = this.r.I16();
