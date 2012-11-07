@@ -109,6 +109,7 @@ console.log('+++ MP3');
       tData.seekSamples = pReader.SI16();
       tOffset = pReader.tell();
       tData.mp3Frames = pReader.sub(tOffset, pBounds - tOffset);
+      tData.offset = tOffset;
       tRaw = tData.mp3Frames;
       tType = 'audio/mpeg';
     }
@@ -128,7 +129,6 @@ console.log('+++ MP3');
    * @return {Uint8Array} RIFF chunk (i.e. WAVE file.)
    */
   function createRIFFChunk(pFmt, pCh, pFs, pDepth, pData, pLength) {
-console.log('pFmt=' + pFmt + ', pCh=' + pCh + ', pFs=' + pFs + ', pDepth=' + pDepth);
 
     var tRIFF = new Uint8Array(44 + pLength),
         tCurr = 0, tIntBuf = new ArrayBuffer(4),

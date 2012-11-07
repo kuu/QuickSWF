@@ -17,7 +17,6 @@
   var SoundStreamHead = global.quickswf.structs.SoundStreamHead;
   var SoundData = global.quickswf.structs.SoundData;
 
-  var mNewBlob = global.quickswf.polyfills.newBlob;
   var mCreateMedia = global.quickswf.polyfills.createMedia;
 
   function defineSound(pLength) {
@@ -25,8 +24,13 @@
     var tId = tReader.I16();
     var tSound = EventSound.load(tReader, tBounds);
     tSound.id = tId;
-    var tBlob = mNewBlob([tSound.soundData.raw], {type: tSound.soundData.mimeType});
-    var tData = mCreateMedia(tId, tBlob);
+    var tObj = tSound.soundData, tRaw;
+    if (tObj.offset === void 0) {
+      tRaw = tObj.raw.buffer;
+    } else {
+      tRaw = tObj.raw.buffer.slice(tObj.offset);
+    }
+    var tData = mCreateMedia(tId, tRaw, tObj.mimeType);
     this.swf.eventSounds[tId + ''] = tData;
   }
 
