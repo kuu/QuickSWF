@@ -53,56 +53,90 @@
     }
   }
 
-  mPolyFills.createMedia = function(pId, pBlob) {
-    var tMedia, tIdx;
-    if (!pBlob.type || (tIdx = pBlob.type.indexOf('/')) === -1) {
+  var mAudioContext;
+  if (webkitAudioContext) {
+    mAudioContext = new webkitAudioContext();
+  }
+
+  mPolyFills.createMedia = function(pId, pData, pType) {
+
+    var tType = (pType || pData.type),
+        tIdx, tTopLevelMediaType, tElem, tLoadEvent,
+        tRet = {
+          id: pId,
+          data: null,
+          complete: false
+        },
+        src, tBlob;
+
+    if (!tType || (tIdx = tType.indexOf('/')) === -1) {
       return;
     }
 
-    var tTopLevelMediaType = pBlob.type.slice(0, tIdx);
-    var tLoadEvent = 'loadeddata';
+    tTopLevelMediaType = tType.slice(0, tIdx);
+
     if (tTopLevelMediaType === 'image') {
-      tMedia = new Image();
+      tElem = new Image();
       tLoadEvent = 'load';
     } else if (tTopLevelMediaType === 'audio') {
-      tMedia = global.document.createElement('audio');
+      if (mAudioContext) {
+        // Web Audio API
+        mAudioContext.decodeAudioData(
+          pData,
+          function (buffer) {
+            tRet.data = buffer;
+            tRet.complete = true;
+          },
+          function (e) {
+            console.error('decodeAudioData failed:', e);
+            tRet.complete = true;
+          });
+        return tRet;
+        
+      } else {
+        // HTML Audio Element
+        tElem = global.document.createElement('audio');
+        tLoadEvent = 'loadeddata';
+      }
     } else if (tTopLevelMediaType === 'video') {
-      tMedia = global.document.createElement('video');
+      tElem = global.document.createElement('video');
+      tLoadEvent = 'loadeddata';
     }
+    tRet.data = tElem;
 
-    var tData = {
-      id: pId,
-      data: tMedia,
-      complete: false
-    };
-
-    tMedia.addEventListener(tLoadEvent, function() {
-      var src = this.src;
+    tElem.addEventListener(tLoadEvent, function() {
+      src = this.src;
 
       if (src[0] === 'b' && src[1] === 'l' && src[2] === 'o' && src[3] === 'b' && src[4] === ':') {
         global.URL.revokeObjectURL(src);
       }
-      tData.complete = true;
+      tRet.complete = true;
     }, false);
 
-    tMedia.addEventListener('error', function(e) {
-      var src = this.src;
+    tElem.addEventListener('error', function(e) {
+      src = this.src;
 
       if (src[0] === 'b' && src[1] === 'l' && src[2] === 'o' && src[3] === 'b' && src[4] === ':') {
         global.URL.revokeObjectURL(src);
       }
       console.error(e);
-      tData.complete = true;
+      tRet.complete = true;
     }, false);
 
-    if (mHaveCreateObjectURL === true) {
-      tMedia.src = global.URL.createObjectURL(pBlob);
+    if (pData instanceof Uint8Array) {
+      tBlob = mPolyFills.newBlob([pData], {type: tType});
     } else {
-      // Hopefully this is the special object we made in newBlob()
-      tMedia.src = 'data:' + pBlob.type + ';base64,' + global.btoa(pBlob.data);
+      tBlob = pData;
     }
 
-    return tData;
+    if (mHaveCreateObjectURL === true) {
+      tElem.src = global.URL.createObjectURL(tBlob);
+    } else {
+      // Hopefully this is the special object we made in newBlob()
+      tElem.src = 'data:' + pBlob.type + ';base64,' + global.btoa(tBlob.data);
+    }
+
+    return tRet;
   };
 
 }(this));

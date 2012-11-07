@@ -9,7 +9,7 @@
   global.quickswf.structs.EventSound = EventSound;
   global.quickswf.structs.SoundData = SoundData;
   global.quickswf.structs.SoundInfo = SoundInfo;
-  global.quickswf.structs.SoundStreamHead = SoundStreamHead;
+  global.quickswf.structs.SoundStreamHead = SoundMetadata;
 
   /**
    * @constructor
@@ -32,11 +32,12 @@
    */
   EventSound.load = function(pReader, pBounds) {
     var tFmt = pReader.bp(4);
-    var tFs = pReader.bsp(2);
-    var tDepth = pReader.bsp(1);
-    var tCh = pReader.bsp(1);
+    var tFs = pReader.bp(2);
+    var tDepth = pReader.bp(1);
+    var tCh = pReader.bp(1);
     var tLen = pReader.I32();
-    var tData = SoundData.load(pReader, tFmt, pBounds);
+    var tMetaData = new SoundMetadata(tFmt, tFs, tDepth, tCh, tLen, 0);
+    var tData = SoundData.load(pReader, tMetaData, pBounds);
     return new EventSound(tFmt, tFs, tDepth, tCh, tLen, tData);
   };
 
@@ -65,38 +66,111 @@
    * @param {quickswf.Reader} pBounds Start of the next tag.
    * @return {quickswf.structs.EventSound} The loaded SoundData.
    */
-  SoundData.load = function(pReader, pFmt, pBounds) {
-    var tData, tOffset, tRaw, tType;
+  SoundData.load = function(pReader, pMeta, pBounds) {
+    var tFmt = pMeta.soundCompression, 
+        tData, tLength, tOffset, tRaw, tType;
 
-    if (pFmt === 0 || pFmt === 3) {
+    if (tFmt === 0 || tFmt === 3) {
 console.log('+++ PCM');
       // PCM
       tOffset = pReader.tell();
-      tData = pReader.sub(tOffset, pBounds - tOffset);
-      tType = 'audio/i-dont-know-the-mimetype-for-this';
-    } else if (pFmt === 1) {
+      tLength = pBounds - tOffset;
+      tData = pReader.sub(tOffset, tLength);
+      /* 
+       * Need some conversion:
+       *  - Number of channels: 
+       *        flag ('0'=mono, '1'=stereo)
+       *                => Number (channel num)
+       *  - Sampling rate: 
+       *        flag ('0'=5.5kHz, '1'=11kHz, '2'=22kHz, '3'=44kHz)
+       *                => Number (Hz)
+       *  - Bit depth: 
+       *        flag ('0'=8bit, '1'=16bit)
+       *                => Number (bits)
+       */
+      tRaw = createRIFFChunk(1/*PCM*/, pMeta.soundType + 1, 5500 << pMeta.soundRate, 
+              (pMeta.soundSize + 1) * 8, tData, tLength);
+      tType = 'audio/wave';
+    } else if (tFmt === 1) {
 console.log('+++ ADPCM');
       // ADPCM
       tData = {};
-      tData.adpcmCodeSize = pReader.bsp(2); 
+      tData.adpcmCodeSize = pReader.bp(2); 
       tOffset = pReader.tell();
-      tData.adpcmPackets = pReader.sub(tOffset, pBounds - tOffset);
-      tRaw = tData.adpcmPackets;
-      tType = 'audio/i-dont-know-the-mimetype-for-this';
-    } else if (pFmt === 2) {
+      tLength = pBounds - tOffset;
+      tData.adpcmPackets = pReader.sub(tOffset, tLength);
+      tRaw = createRIFFChunk(2/*ADPCM*/, pMeta.soundType + 1, 5500 << pMeta.soundRate, 
+              (pMeta.soundSize + 1) * 8, tData.adpcmPackets, tLength);
+      tType = 'audio/wave';
+    } else if (tFmt === 2) {
 console.log('+++ MP3');
       // MP3
       tData = {};
       tData.seekSamples = pReader.SI16();
       tOffset = pReader.tell();
       tData.mp3Frames = pReader.sub(tOffset, pBounds - tOffset);
+      tData.offset = tOffset;
       tRaw = tData.mp3Frames;
-      tType = 'audio/mp3';
+      tType = 'audio/mpeg';
     }
     pReader.seekTo(pBounds);
 
     return new SoundData(tData, tRaw, tType);
   };
+
+  /**
+   * Wraps up the PCM data in RIFF chunk (i.e. WAVE file.)
+   * @param {Number}  pFmt Format type (PCM=1, ADPCM=2)
+   * @param {Number}  pCh Number of channels.
+   * @param {Number}  pFs Sampling rate (n samples per sec.)
+   * @param {Number}  pDepth Length of a single sample in bits.
+   * @param {Uint8Array}  pData Sound data.
+   * @param {Number}  pLength Length of the sound data in bytes.
+   * @return {Uint8Array} RIFF chunk (i.e. WAVE file.)
+   */
+  function createRIFFChunk(pFmt, pCh, pFs, pDepth, pData, pLength) {
+
+    var tRIFF = new Uint8Array(44 + pLength),
+        tCurr = 0, tIntBuf = new ArrayBuffer(4),
+        tView = new DataView(tIntBuf, 0, 4),
+        tBlockSize = pDepth / 8 * pCh,
+        tBytesPerSec = tBlockSize * pFs,
+        appendChars = function (pStr) {
+            for (var i = 0, il = pStr.length; i < il; i++) {
+              tRIFF[tCurr++] = pStr.charCodeAt(i);
+            }},
+        appendInt32 = function (pInt) {
+            tView.setInt32(0, pInt, true);
+            for (var i = 0; i < 4; i++) {
+              tRIFF[tCurr++] = tView.getInt8(i);
+            }},
+        appendInt16 = function (pInt) {
+            tView.setInt16(0, pInt, true);
+            for (var i = 0; i < 2; i++) {
+              tRIFF[tCurr++] = tView.getInt8(i);
+            }};
+
+    // RIFF chunk
+    appendChars('RIFF');
+    appendInt32(36 + pLength); // total size
+    appendChars('WAVE');
+    // format chunk
+    appendChars('fmt ');
+    appendInt32(16); // chunk size
+    appendInt16(pFmt); // wave format type (PCM=1)
+    appendInt16(pCh);  // number of channels (mono=1, streo=2)
+    appendInt32(pFs);  // samples per sec
+    appendInt32(tBytesPerSec); // bytes per sec (block size * samples per sec)
+    appendInt16(tBlockSize); // block size (bits per sample / 8 * number of channels)
+    appendInt16(pDepth); // bits per sample (8bit or 16bit)
+    // data chunk
+    appendChars('data');
+    appendInt32(pLength); // chunk size
+    tRIFF.set(pData, 44);
+
+    return tRIFF;
+  }
+
   /**
    * @constructor
    * @class {quickswf.structs.SoundInfo}
@@ -148,7 +222,7 @@ console.log('+++ MP3');
    * @constructor
    * @class {quickswf.structs.SoundStreamHead}
    */
-  function SoundStreamHead(pFmt, pFs, pDepth, pCh, pLen, pLatency) {
+  function SoundMetadata(pFmt, pFs, pDepth, pCh, pLen, pLatency) {
     this.soundCompression = pFmt; // Coding format ('0'=PCM, '1'=ADPCM, '2'=MP3, '3'=PCM(LSB first))
     this.soundRate = pFs; // Sampling rate ('0'=5.5kHz, '1'=11kHz, '2'=22kHz, '3'=44kHz)
     this.soundSize = pDepth; // Bit depth ('0'=8bit, '1'=16bit)
@@ -158,20 +232,20 @@ console.log('+++ MP3');
   }
 
   /**
-   * Loads a SoundStreamHead type.
+   * Loads a SoundMetadata type.
    * @param {quickswf.Reader} pReader The reader to use.
-   * @return {quickswf.structs.EventSound} The loaded SoundStreamHead.
+   * @return {quickswf.structs.EventSound} The loaded SoundMetadata.
    */
-  SoundStreamHead.load = function(pReader) {
+  SoundMetadata.load = function(pReader) {
     pReader.bp(4); // Skip reserved bits
     pReader.bp(4); // Skip advisory bits (PlaybackSoundXxx)
     var tFmt = pReader.bp(4);
-    var tFs = pReader.bsp(2);
-    var tDepth = pReader.bsp(1);
-    var tCh = pReader.bsp(1);
+    var tFs = pReader.bp(2);
+    var tDepth = pReader.bp(1);
+    var tCh = pReader.bp(1);
     var tLen = pReader.I16();
     var tLatency = (tFmt !== 2 ? void 0 : pReader.SI16());
 
-    return new SoundStreamHead(tFmt, tFs, tDepth, tCh, tLen, tLatency);
+    return new SoundMetadata(tFmt, tFs, tDepth, tCh, tLen, tLatency);
   };
 }(this));
