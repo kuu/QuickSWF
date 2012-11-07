@@ -32,9 +32,9 @@
    */
   EventSound.load = function(pReader, pBounds) {
     var tFmt = pReader.bp(4);
-    var tFs = pReader.bsp(2);
-    var tDepth = pReader.bsp(1);
-    var tCh = pReader.bsp(1);
+    var tFs = pReader.bp(2);
+    var tDepth = pReader.bp(1);
+    var tCh = pReader.bp(1);
     var tLen = pReader.I32();
     var tMetaData = new SoundMetadata(tFmt, tFs, tDepth, tCh, tLen, 0);
     var tData = SoundData.load(pReader, tMetaData, pBounds);
@@ -95,7 +95,7 @@ console.log('+++ PCM');
 console.log('+++ ADPCM');
       // ADPCM
       tData = {};
-      tData.adpcmCodeSize = pReader.bsp(2); 
+      tData.adpcmCodeSize = pReader.bp(2); 
       tOffset = pReader.tell();
       tLength = pBounds - tOffset;
       tData.adpcmPackets = pReader.sub(tOffset, tLength);
@@ -240,9 +240,9 @@ console.log('pFmt=' + pFmt + ', pCh=' + pCh + ', pFs=' + pFs + ', pDepth=' + pDe
     pReader.bp(4); // Skip reserved bits
     pReader.bp(4); // Skip advisory bits (PlaybackSoundXxx)
     var tFmt = pReader.bp(4);
-    var tFs = pReader.bsp(2);
-    var tDepth = pReader.bsp(1);
-    var tCh = pReader.bsp(1);
+    var tFs = pReader.bp(2);
+    var tDepth = pReader.bp(1);
+    var tCh = pReader.bp(1);
     var tLen = pReader.I16();
     var tLatency = (tFmt !== 2 ? void 0 : pReader.SI16());
 
