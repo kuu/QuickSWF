@@ -58,7 +58,7 @@
         // MP3
         tSampleCount = pReader.I16();
       }
-      tSound = SoundData.load(tReader, tFmt, tBounds);
+      tSound = SoundData.load(tReader, tMetaData, tBounds);
       tSound.sampleCount = tSampleCount;
 
       this.add({
