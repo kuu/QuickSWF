@@ -123,7 +123,7 @@
       tRet.complete = true;
     }, false);
 
-    if (pData instanceof Uint8Array) {
+    if (pData instanceof ArrayBuffer) {
       tBlob = mPolyFills.newBlob([pData], {type: tType});
     } else {
       tBlob = pData;
