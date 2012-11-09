@@ -113,7 +113,7 @@
             tKerningCount = tReader.I16();
             tFontKerningTable = new Array(tKerningCount);
             for (var i = 0 ; i < tNumGlyphs ; i++) {
-                tFontKerningTable = KERNINGRECORD.load(tReader, tFontFlagWideCodes);
+                tFontKerningTable = KERNINGRECORD.load(tReader, tFontFlagsWideCodes);
             }
         }
         
