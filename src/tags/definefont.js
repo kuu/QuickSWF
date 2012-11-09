@@ -43,14 +43,35 @@
         var tReader = pParser.r;
         var tId = tReader.I16();
         var tFlags = tReader.B();
+        var tFontFlagsHasLayout   = (tFlags & 0x80)?true:false;
+        var tFontFlagsShiftJIS    = (tFlags & 0x40)?true:false;
+        var tFontFlagsSmallText   = (tFlags & 0x20)?true:false;
+        var tFontFlagsANSI        = (tFlags & 0x10)?true:false;
+        var tFontFlagsWideOffsets = (tFlags & 0x08)?true:false;
+        var tFontFlagsWideCodes   = (tFlags & 0x04)?true:false;
+        var tFontFlagsItalic      = (tFlags & 0x02)?true:false;
+        var tFontFlagsBold        = (tFlags & 0x01)?true:false;
         var tLangCode = tReader.B();
         var tFontNameLen = tReader.B();
         var tFontName = (tFontNameLen > 0)?tReader.sp(tFontNameLen):null;
         var tNumGlyphs = tReader.I16();
+        if (tNumGlyphs === 0) { // no Glyphs
+            var tFont = Font.load(tReader, null, null);
+            tFont.id = tId;
+            tFont.shiftJIS = tFontFlagsShiftJIS;
+            tFont.smalltext =tFontFlagsSmallText;
+            tFont.ansi = tFontFlagsANSI;
+            tFont.italic = tFontFlagsItalic;
+            tFont.bold = tFontFlagsBold;
+            tFont.langCode = tLangCode;
+            tFont.name = tFontName;
+            pParser.swf.fonts[tId] = tFont;
+            return ;
+        }
         var tOffsetTable = new Array(tNumGlyphs);
         var tCodeTableOffset = 0;
         var tOffsetOfOffsetTable = tReader.tell();
-        if (tFlags & 0x80) { // FontFlagsWideOffsets
+        if (tFontFlagsWideOffsets) {
             for (var i = 0 ; i < tNumGlyphs ; i++) {
                 tOffsetTable[i] = tReader.I32();
             }
@@ -64,7 +85,7 @@
         var tFont = Font.load(tReader, tOffsetOfOffsetTable, tOffsetTable);
         tReader.seekTo(tOffsetOfOffsetTable + tCodeTableOffset);
         var tCodeTable = new Array(tNumGlyphs);
-        if (tFlags & 0x40) { // FontFlagsWideCodes
+        if (tFontFlagsWideCodes) {
             for (var i = 0 ; i < tNumGlyphs ; i++) {
                 tCodeTable[i] = tReader.I16();
             }
@@ -81,7 +102,7 @@
         var tKerningCount = null;
         var tFontKerningTable = null;
         
-        if (tFlags & 0x80) { // FontFlagsHasLayout
+        if (tFontFlagsHasLayout) {
             tFontAscent = tReader.I16();
             tFontDescent = tReader.I16();
             tFontLeading = tReader.I16();
@@ -91,23 +112,27 @@
             }
             tKerningCount = tReader.I16();
             tFontKerningTable = new Array(tKerningCount);
-            var tFlagWideCodes = (tFlags & 0x40)?true:false;
             for (var i = 0 ; i < tNumGlyphs ; i++) {
-                tFontKerningTable = KERNINGRECORD.load(tReader, tFlagWideCodes);
+                tFontKerningTable = KERNINGRECORD.load(tReader, tFontFlagWideCodes);
             }
         }
         
         //
         tFont.id = tId;
-        tFont.flags = tFlags;
+        tFont.shiftJIS = tFontFlagsShiftJIS;
+        tFont.smalltext =tFontFlagsSmallText;
+        tFont.ansi = tFontFlagsANSI;
+        tFont.italic = tFontFlagsItalic;
+        tFont.bold = tFontFlagsBold;
+        tFont.langCode = tLangCode;
         tFont.name = tFontName;
-        tFont.codetable = tCodeTable;
+        tFont.codeTable = tCodeTable;
         tFont.ascent = tFontAscent;
         tFont.descent = tFontDescent;
         tFont.leading = tFontLeading;
-        tFont.advancetable = tFontAdvanceTable;
-        tFont.boundstable = tFontBoundsTable;
-        tFont.kerningtable = tFontKerningTable;
+        tFont.advanceTable = tFontAdvanceTable;
+        tFont.boundsTable = tFontBoundsTable;
+        tFont.kerningTable = tFontKerningTable;
         
         pParser.swf.fonts[tId] = tFont;
     }
