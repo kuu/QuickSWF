@@ -37,8 +37,8 @@
     var tShape = new Shape();
 
     if (pWithStyles) {
-      tShape.fillStyles = mStructs.FillStyle.loadMultiple(pReader, pWithAlpha, pHasLargeFillCount);
-      tShape.lineStyles = mStructs.LineStyle.loadMultiple(pReader, pWithAlpha);
+      tShape.fillStyles = mStructs.FillStyle.loadMultiple(pReader, pWithAlpha, pHasLargeFillCount, false);
+      tShape.lineStyles = mStructs.LineStyle.loadMultiple(pReader, pWithAlpha, pHasLargeFillCount, false);
     }
     tShape.numberOfFillBits = pReader.bp(4);
     tShape.numberOfLineBits = pReader.bp(4);

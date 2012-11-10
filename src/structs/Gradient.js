@@ -22,19 +22,28 @@
   /**
    * @constructor
    * @private
+   * @param {bool} pIsMorph True if morph shape.
    */
-  function Stop() {
-    this.ratio = 0;
-    this.color = null;
+  function Stop(pIsMorph) {
+    if (pIsMorph) {
+      this.startRatio = 0;
+      this.startColor = null;
+      this.endRatio = 0;
+      this.endColor = null;
+    } else {
+      this.ratio = 0;
+      this.color = null;
+    }
   }
 
   /**
    * Loads a Gradient type.
    * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithAlpha True if we need to parse colour.
+   * @param {bool} pIsMorph True if morph shape.
    * @return {quickswf.structs.Gradient} The loaded Gradient.
    */
-  Gradient.load = function(pReader, pWithAlpha) {
+  Gradient.load = function(pReader, pWithAlpha, pIsMorph) {
     var RGBA = global.quickswf.structs.RGBA;
     var tGradient = new Gradient();
 
@@ -45,9 +54,16 @@
     var tStop;
 
     for (var i = 0; i < tCount; i++) {
-      tStop = new Stop();
-      tStop.ratio = pReader.B();
-      tStop.color = RGBA.load(pReader, pWithAlpha);
+      tStop = new Stop(pIsMorph);
+      if (pIsMorph) {
+        tStop.startRatio = pReader.B();
+        tStop.startColor = RGBA.load(pReader, true);
+        tStop.endRatio = pReader.B();
+        tStop.endColor = RGBA.load(pReader, true);
+      } else {
+        tStop.ratio = pReader.B();
+        tStop.color = RGBA.load(pReader, pWithAlpha);
+      }
       tStops[i] = tStop;
     }
 
