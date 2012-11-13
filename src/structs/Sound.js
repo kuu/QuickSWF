@@ -85,8 +85,8 @@ console.log('+++ PCM');
        *        flag ('0'=5.5kHz, '1'=11kHz, '2'=22kHz, '3'=44kHz)
        *                => Number (Hz)
        *  - Bit depth: 
-       *        flag ('0'=8bit, '1'=16bit)
-       *                => Number (bits)
+       *        flag ('0'=8bits, '1'=16bits)
+       *                => Number (bits/sample)
        */
       tRaw = createRIFFChunk(1/*PCM*/, pMeta.soundType + 1, 5500 << pMeta.soundRate, 
               (pMeta.soundSize + 1) * 8, tData, tLength);
@@ -99,9 +99,14 @@ console.log('+++ ADPCM');
       tOffset = pReader.tell();
       tLength = pBounds - tOffset;
       tData.adpcmPackets = pReader.sub(tOffset, tLength);
+      /* 
+       *  - Bit depth: 
+       *        flag ('0'=2bits, '1'=3bits, '2'=4bits, '3'=5bits/sample)
+       *                => Number (bits/sample)
+       */
       tRaw = createRIFFChunk(2/*ADPCM*/, pMeta.soundType + 1, 5500 << pMeta.soundRate, 
-              (pMeta.soundSize + 1) * 8, tData.adpcmPackets, tLength);
-      tType = 'audio/wave';
+              tData.adpcmCodeSize + 2, tData.adpcmPackets, tLength);
+      tType = 'audio/x-wav';
     } else if (tFmt === 2) {
 console.log('+++ MP3');
       // MP3
