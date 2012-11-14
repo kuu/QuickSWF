@@ -24,14 +24,8 @@ console.log('defineButton');
     // Skip the button actions for now.   
     tReader.seekTo(tBounds);
 
-    // Store the button records.
-    this.swf.buttonRecords[tId + ''] = tButtonRecords;
-
-    // Add the button to Display Object.
-    this.add({
-      type: 'button',
-      id: tId
-    });
+    // Store the button records to the dictionary.
+    this.swf.dictionary[tId + ''] = tButtonRecords;
   }
 
   function defineButton2(pLength) {
@@ -50,15 +44,8 @@ console.log('defineButton2');
     // Skip the button actions for now.   
     tReader.seekTo(tBounds);
 
-    // Store the button records.
-    this.swf.buttonRecords[tId + ''] = tButtonRecords;
-
-    // Add the button to Display Object.
-    this.add({
-      type: 'button',
-      id: tId,
-      trackAsMenu: tTrackAsMenu
-    });
+    // Store the button records to the dictionary.
+    this.swf.dictionary[tId + ''] = tButtonRecords;
   }
 
 }(this));
