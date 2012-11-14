@@ -9,6 +9,7 @@
   global.quickswf.Parser.prototype['7'] = defineButton;
   global.quickswf.Parser.prototype['34'] = defineButton2;
 
+  var Button = global.quickswf.structs.Button;
   var ButtonRecord = global.quickswf.structs.ButtonRecord;
   var ActionRecord = global.quickswf.structs.ActionRecord;
   var ButtonCondAction = global.quickswf.structs.ButtonCondAction;
@@ -26,18 +27,14 @@ console.log('defineButton');
     } while (tReader.peekBits(8));
     tReader.B(); // Last one byte
 
+    // ActionScript
+    var tStart = tReader.tell();
+    var tButtonAction = tReader.sub(tStart, tBounds - tStart)
+    tReader.seekTo(tBounds);
+
     // Store the button records to the dictionary.
-    this.swf.dictionary[tId + ''] = tButtonRecords;
-
-    // Parse button actions. (n >= 0)
-    var tActionRecords = new Array();
-    while (tReader.peekBits(8)) {
-      tActionRecords.push(ActionRecord.load(tReader));
-    }
-    tReader.B(); // Last one byte
-
-    // Store the button actions.
-    this.swf.buttonActions[tId + ''] = new ButtonCondAction(null, tActionRecords);
+    var tCondAction = new ButtonCondAction(null, tButtonAction);
+    this.swf.dictionary[tId + ''] = new Button(tButtonRecords, [tCondAction], false);
   }
 
   function defineButton2(pLength) {
@@ -56,20 +53,18 @@ console.log('defineButton2');
     } while (tReader.peekBits(8));
     tReader.B(); // Last one byte
 
-    // Store the button records to the dictionary.
-    this.swf.dictionary[tId + ''] = tButtonRecords;
-
+    // Condition + ActionScript
+    var tButtonActions = new Array();
     if (tActionOffset > 0) {
-      // Parse button actions. (n >= 0)
-      var tActionRecords = new Array(), tLast;
+      var tLast, tCondAction;
       do {
         tLast = tReader.peekBits(16) === 0;
-        tActionRecords.push(ButtonCondAction.load(tReader));
+        tCondAction = ButtonCondAction.load(tReader, tBounds);
+        tButtonActions.push(tCondAction);
       } while (!tLast);
-
-      // Store the button actions.
-      this.swf.buttonActions[tId + ''] = tActionRecords;
     }
+    // Store the button records to the dictionary.
+    this.swf.dictionary[tId + ''] = new Button(tButtonRecords, tButtonActions, tTrackAsMenu);
   }
 
 }(this));

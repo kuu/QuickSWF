@@ -8,8 +8,19 @@
 
   var structs = global.quickswf.structs;
 
+  structs.Button = Button;
   structs.ButtonRecord = ButtonRecord;
   structs.ButtonCondAction = ButtonCondAction;
+
+  /**
+   * @constructor
+   * @class {quickswf.structs.Button}
+   */
+  function Button(pRecordList, pCondActionList, pTrackAsMenu) {
+    this.records = pRecordList;
+    this.condActions = pCondActionList;
+    this.isMenu = pTrackAsMenu;
+  }
 
   /**
    * @constructor
@@ -70,25 +81,34 @@
    * @constructor
    * @class {quickswf.structs.ButtonCondAction}
    */
-  function ButtonCondAction(pCond, pActionRecords) {
+  function ButtonCondAction(pCond, pAction) {
     this.cond = pCond;
-    this.actions = pActionRecords;
+    this.action = pAction;
   }
+
+  ButtonCondAction.prototype.condIdleToOverDown    = function () { return this.cond & (1 << 15); };
+  ButtonCondAction.prototype.condOutDownToIdle     = function () { return this.cond & (1 << 14); };
+  ButtonCondAction.prototype.condOutDownToOverDown = function () { return this.cond & (1 << 13); };
+  ButtonCondAction.prototype.condOverDownToOutDown = function () { return this.cond & (1 << 12); };
+  ButtonCondAction.prototype.condOverDownToOverUp  = function () { return this.cond & (1 << 11); };
+  ButtonCondAction.prototype.condOverUpToOverDown  = function () { return this.cond & (1 << 10); };
+  ButtonCondAction.prototype.condOverUpToIdle      = function () { return this.cond & (1 <<  9); };
+  ButtonCondAction.prototype.condIdleToOverUp      = function () { return this.cond & (1 <<  8); };
+  ButtonCondAction.prototype.condOverDownToIdle    = function () { return this.cond & (1 <<  0); };
+  ButtonCondAction.prototype.condKeyPress          = function () { return (this.cond >> 8) & 0x7f; };
 
   /**
    * Loads a ButtonCondAction type.
    * @param {quickswf.Reader} pReader The reader to use.
    * @return {quickswf.structs.ButtonCondAction} The loaded ButtonCondAction.
    */
-  ButtonCondAction.load = function(pReader) {
+  ButtonCondAction.load = function(pReader, pBounds) {
     var tSize = pReader.I16();
     var tCond = pReader.I16();
-    var tActionRecords = new Array();
-    while (pReader.peekBits(8)) {
-      tActionRecords.push(structs.ActionRecord.load(pReader));
-    }
-    pReader.B(); // Last one byte
-    return new ButtonCondAction(tCond, tActionRecords);
+    var tLength = tSize ? tSize - 4 : pBounds - pReader.tell();
+    var tButtonAction = pReader.sub(pReader.tell(), tLength);
+    pReader.seek(tLength);
+    return new ButtonCondAction(tCond, tButtonAction);
   };
 
 }(this));
