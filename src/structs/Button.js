@@ -9,6 +9,7 @@
   var structs = global.quickswf.structs;
 
   structs.ButtonRecord = ButtonRecord;
+  structs.ButtonCondAction = ButtonCondAction;
 
   /**
    * @constructor
@@ -63,6 +64,31 @@
     }
     return new ButtonRecord(tId, tDepth, tMatrix, tButtonStates,
                 tColorTransform, null, null);
+  };
+
+  /**
+   * @constructor
+   * @class {quickswf.structs.ButtonCondAction}
+   */
+  function ButtonCondAction(pCond, pActionRecords) {
+    this.cond = pCond;
+    this.actions = pActionRecords;
+  }
+
+  /**
+   * Loads a ButtonCondAction type.
+   * @param {quickswf.Reader} pReader The reader to use.
+   * @return {quickswf.structs.ButtonCondAction} The loaded ButtonCondAction.
+   */
+  ButtonCondAction.load = function(pReader) {
+    var tSize = pReader.I16();
+    var tCond = pReader.I16();
+    var tActionRecords = new Array();
+    while (pReader.peekBits(8)) {
+      tActionRecords.push(structs.ActionRecord.load(pReader));
+    }
+    pReader.B(); // Last one byte
+    return new ButtonCondAction(tCond, tActionRecords);
   };
 
 }(this));

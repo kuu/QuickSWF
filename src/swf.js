@@ -29,7 +29,7 @@
     this.images = new Object();
     this.eventSounds = new Object();
     this.streamSoundMetadata = null;
-    this.buttonRecords = new Object();
+    this.buttonActions = new Object();
   }
 
   SWF.prototype.destroy = function() {
