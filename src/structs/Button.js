@@ -16,11 +16,14 @@
    * @constructor
    * @class {quickswf.structs.Button}
    */
-  function Button(pRecordList, pCondActionList, pTrackAsMenu) {
+  function Button(pId, pRecordList, pCondActionList, pTrackAsMenu) {
+    this.id = pId;
     this.records = pRecordList;
     this.condActions = pCondActionList;
     this.isMenu = pTrackAsMenu;
   }
+
+  Button.prototype.displayListType = 3;
 
   /**
    * @constructor
