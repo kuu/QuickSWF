@@ -33,9 +33,10 @@
    * @param {quickswf.Reader} pReader The reader to use.
    * @param {quickswf.Shape} pShape The Shape these ShapeRecords belong to.
    * @param {bool} pWithAlpha True if parsing alpha is needed.
+   * @param {bool} pIsMorph True if morph shape.
    * @return {Array.<quickswf.structs.ShapeRecord>} The loaded ShapeRecords.
    */
-  ShapeRecord.loadMultiple = function(pReader, pShape, pWithAlpha) {
+  ShapeRecord.loadMultiple = function(pReader, pShape, pWithAlpha, pIsMorph) {
     var tRecords = new Array();
     var i = 0;
     var tStyleChanged;
@@ -46,7 +47,7 @@
           pReader.bp(5);
           break;
         } else {
-          tStyleChanged = tRecords[i++] = parseStyleChanged(pReader, pShape.numberOfFillBits, pShape.numberOfLineBits, pWithAlpha);
+          tStyleChanged = tRecords[i++] = parseStyleChanged(pReader, pShape.numberOfFillBits, pShape.numberOfLineBits, pWithAlpha, pIsMorph);
           pShape.numberOfFillBits = tStyleChanged.fillBits;
           pShape.numberOfLineBits = tStyleChanged.lineBits;
         }
@@ -104,7 +105,7 @@
     return new Edge(2, tDeltaX, tDeltaY, tDeltaControlX, tDeltaControlY);
   }
 
-  function parseStyleChanged(pReader, pNumberOfFillBits, pNumberOfLineBits, pWithAlpha) {
+  function parseStyleChanged(pReader, pNumberOfFillBits, pNumberOfLineBits, pWithAlpha, pIsMorph) {
     var tNewStyles = pReader.bp(1);
     var tNewLineStyle = pReader.bp(1);
     var tNewFillStyle1 = pReader.bp(1);
@@ -146,8 +147,8 @@
 
     if (tNewStyles === 1) {
       pReader.a();
-      tResult.fillStyles = mStructs.FillStyle.loadMultiple(pReader, pWithAlpha, true);
-      tResult.lineStyles = mStructs.LineStyle.loadMultiple(pReader, pWithAlpha);
+      tResult.fillStyles = mStructs.FillStyle.loadMultiple(pReader, pWithAlpha, true, pIsMorph);
+      tResult.lineStyles = mStructs.LineStyle.loadMultiple(pReader, pWithAlpha, true, pIsMorph);
       pReader.a();
       tResult.fillBits = pReader.bp(4);
       tResult.lineBits = pReader.bp(4);

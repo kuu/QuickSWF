@@ -16,17 +16,20 @@
    * @class {quickswf.structs.Font}
    */
   function Font() {
-
+    this.shapes = null;
   }
 
   /**
-   * Loads a Rect type.
+   * Loads a Font type.
    * @param {quickswf.Reader} pReader The reader to use.
    * @return {quickswf.structs.Font} The loaded Font.
    */
   Font.load = function(pReader, pOffsetOfOffsetTable, pOffsetTable) {
     var Shape = mStruct.Shape;
     var tFont = new Font();
+    if (pOffsetOfOffsetTable === null) {
+        return tFont;
+    }
     var tNumGlyphs = pOffsetTable.length;
     var tGlyphShapeTable = new Array(tNumGlyphs);
     for (var i = 0 ; i < tNumGlyphs ; i++) {
