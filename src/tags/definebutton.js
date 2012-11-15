@@ -34,7 +34,7 @@ console.log('defineButton');
 
     // Store the button records to the dictionary.
     var tCondAction = new ButtonCondAction(null, tButtonAction);
-    this.swf.dictionary[tId + ''] = new Button(tButtonRecords, [tCondAction], false);
+    this.swf.dictionary[tId + ''] = new Button(tId, tButtonRecords, [tCondAction], false);
   }
 
   function defineButton2(pLength) {
@@ -46,11 +46,13 @@ console.log('defineButton2');
     var tTrackAsMenu = tFlags & 1;
     var tActionOffset = tReader.I16();
 
-    // Parse button records. (n >= 1)
-    var tButtonRecords = new Array();
-    do {
-      tButtonRecords.push(ButtonRecord.load(tReader, true));
-    } while (tReader.peekBits(8));
+    if (tActionOffset > 3 || tActionOffset === 0) {
+      // Parse button records. (n >= 1)
+      var tButtonRecords = new Array();
+      do {
+        tButtonRecords.push(ButtonRecord.load(tReader, true));
+      } while (tReader.peekBits(8));
+    }
     tReader.B(); // Last one byte
 
     // Condition + ActionScript
@@ -64,7 +66,7 @@ console.log('defineButton2');
       } while (!tLast);
     }
     // Store the button records to the dictionary.
-    this.swf.dictionary[tId + ''] = new Button(tButtonRecords, tButtonActions, tTrackAsMenu);
+    this.swf.dictionary[tId + ''] = new Button(tId, tButtonRecords, tButtonActions, tTrackAsMenu);
   }
 
 }(this));
