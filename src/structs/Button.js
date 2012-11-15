@@ -30,16 +30,15 @@
     this.id = pId;
     this.depth = pDepth;
     this.matrix = pMatrix;
-    this.state = pStates;
     this.colorTransform = pCx;
     this.filterList = pFl;
     this.blendMode = pBm;
+    this.isHit  = (pStates >> 3) & 0x1;
+    this.isDown = (pStates >> 2) & 0x1;
+    this.isOver = (pStates >> 1) & 0x1;
+    this.isUp   = (pStates >> 0) & 0x1;
   }
 
-  ButtonRecord.prototype.isUp   = function () { return this.state & (1 << 0); };
-  ButtonRecord.prototype.isOver = function () { return this.state & (1 << 1); };
-  ButtonRecord.prototype.isDown = function () { return this.state & (1 << 2); };
-  ButtonRecord.prototype.isHit  = function () { return this.state & (1 << 3); };
 
   /**
    * Loads a ButtonRecord type.
@@ -53,8 +52,8 @@
     var tMatrix = structs.Matrix.load(pReader);
     var tButtonStates = tFlags & 0xf;
     var tColorTransform = null;
-    var tHasBlendMode  = tFlags & (1 << 4);
-    var tHasFilterList = tFlags & (1 << 5);
+    var tHasBlendMode  = (tFlags >> 5) & 0x1;
+    var tHasFilterList = (tFlags >> 4) & 0x1;
     var i, tFilterNum, tFilterId, tBytesToSkip;
 
     if (pWithinDB2) {
@@ -86,16 +85,6 @@
     this.action = pAction;
   }
 
-  ButtonCondAction.prototype.condIdleToOverDown    = function () { return this.cond & (1 << 15); };
-  ButtonCondAction.prototype.condOutDownToIdle     = function () { return this.cond & (1 << 14); };
-  ButtonCondAction.prototype.condOutDownToOverDown = function () { return this.cond & (1 << 13); };
-  ButtonCondAction.prototype.condOverDownToOutDown = function () { return this.cond & (1 << 12); };
-  ButtonCondAction.prototype.condOverDownToOverUp  = function () { return this.cond & (1 << 11); };
-  ButtonCondAction.prototype.condOverUpToOverDown  = function () { return this.cond & (1 << 10); };
-  ButtonCondAction.prototype.condOverUpToIdle      = function () { return this.cond & (1 <<  9); };
-  ButtonCondAction.prototype.condIdleToOverUp      = function () { return this.cond & (1 <<  8); };
-  ButtonCondAction.prototype.condOverDownToIdle    = function () { return this.cond & (1 <<  0); };
-  ButtonCondAction.prototype.condKeyPress          = function () { return (this.cond >> 8) & 0x7f; };
 
   /**
    * Loads a ButtonCondAction type.
@@ -104,10 +93,24 @@
    */
   ButtonCondAction.load = function(pReader, pBounds) {
     var tSize = pReader.I16();
-    var tCond = pReader.I16();
+    var tFlags = pReader.I16();
     var tLength = tSize ? tSize - 4 : pBounds - pReader.tell();
     var tButtonAction = pReader.sub(pReader.tell(), tLength);
     pReader.seek(tLength);
+
+    var tCond = {
+        idleToOverDown    : (tFlags >>  7) & 0x1,
+        outDownToIdle     : (tFlags >>  6) & 0x1,
+        outDownToOverDown : (tFlags >>  5) & 0x1,
+        overDownToOutDown : (tFlags >>  4) & 0x1,
+        overDownToOverUp  : (tFlags >>  3) & 0x1,
+        overUpToOverDown  : (tFlags >>  2) & 0x1,
+        overUpToIdle      : (tFlags >>  1) & 0x1,
+        idleToOverUp      : (tFlags >>  0) & 0x1,
+        keyPress          : (tFlags >>  9) & 0x7f,
+        overDownToIdle    : (tFlags >>  8) & 0x1
+      };
+
     return new ButtonCondAction(tCond, tButtonAction);
   };
 
