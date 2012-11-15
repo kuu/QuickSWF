@@ -30,9 +30,9 @@
     tLossless.parse();
 
     if (tLossless.format === LosslessFormat.COLOR_MAPPED && mHaveCreateObjectURL) {
-      this.swf.images[tId] = tLossless.getImage();
+      this.swf.images[tId] = tLossless.getImage(tId);
     } else {
-      this.swf.images[tId] = tLossless.getCanvas();
+      this.swf.images[tId] = tLossless.getCanvas(tId);
     }
   }
 
@@ -48,9 +48,9 @@
     tLossless.parse();
 
     if (tLossless.format === LosslessFormat.COLOR_MAPPED && mHaveCreateObjectURL) {
-      this.swf.images[tId] = tLossless.getImage();
+      this.swf.images[tId] = tLossless.getImage(tId);
     } else {
-      this.swf.images[tId] = tLossless.getCanvas();
+      this.swf.images[tId] = tLossless.getCanvas(tId);
     }
   }
 
@@ -277,21 +277,19 @@
    * @return {Object} Image information.
    */
   Lossless.prototype.getImage = function(pId) {
-    /** @type {HTMLImageElement} */
-    var tImage = new Image();
     /** @type {!(Array.<number>|Uint8Array)} */
     var tPng = this.getPNG();
     /** @type {Blob} */
     var tBlob = mNewBlob([tPng], {type: 'image/png'});
 
-    return mCreateImage(pId, tBlob).data;
+    return mCreateImage(pId, tBlob);
   };
 
   /**
    * create new Canvas element.
    * @return {HTMLCanvasElement}
    */
-  Lossless.prototype.getCanvas = function() {
+  Lossless.prototype.getCanvas = function(pId) {
     /** @type {HTMLCanvasElement} */
     var tCanvas = document.createElement('canvas');
     /** @type {CanvasRenderingContext2D} */
@@ -397,7 +395,11 @@
 
     tContext.putImageData(tImageData, 0, 0);
 
-    return tCanvas;
+    return {
+      complete: true,
+      data: tCanvas,
+      id: pId
+    };
   };
 
   /**
