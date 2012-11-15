@@ -46,7 +46,7 @@ console.log('defineButton2');
     var tTrackAsMenu = tFlags & 1;
     var tActionOffset = tReader.I16();
 
-    if (tActionOffset > 3) {
+    if (tActionOffset > 3 || tActionOffset === 0) {
       // Parse button records. (n >= 1)
       var tButtonRecords = new Array();
       do {
