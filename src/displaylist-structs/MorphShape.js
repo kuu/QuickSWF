@@ -25,7 +25,7 @@
     this.endEdges = new Array();
   }
 
-  MorphShape.prototype.displayListType = 2;
+  MorphShape.prototype.displayListType = 4;
 
   /**
    * Loads a MorphShape type.
@@ -53,7 +53,7 @@
     tMorphShape.numberOfLineBits = pReader.bp(4);
 
     tMorphShape.endEdges = mStructs.ShapeRecord.loadMultiple(pReader, tMorphShape, true, true);
-    
+
     return tMorphShape;
   };
 
