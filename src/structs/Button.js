@@ -36,10 +36,12 @@
     this.colorTransform = pCx;
     this.filterList = pFl;
     this.blendMode = pBm;
-    this.isHit  = (pStates >> 3) & 0x1;
-    this.isDown = (pStates >> 2) & 0x1;
-    this.isOver = (pStates >> 1) & 0x1;
-    this.isUp   = (pStates >> 0) & 0x1;
+    this.state = {
+        hitTest : (pStates >> 3) & 0x1,
+        down    : (pStates >> 2) & 0x1,
+        over    : (pStates >> 1) & 0x1,
+        up      : (pStates >> 0) & 0x1
+      }; 
   }
 
 
