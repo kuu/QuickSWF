@@ -19,6 +19,17 @@
     this.bottom = pBottom;
   }
 
+  Rect.prototype.move = function (pXOffset, pYOffset) {
+    this.left   += pXOffset;
+    this.right  += pXOffset;
+    this.top    += pYOffset;
+    this.bottom += pYOffset;
+  };
+
+  Rect.prototype.clone  = function () {
+    return new Rect(this.left, this.right, this.top, this.bottom);
+  };
+
   /**
    * Loads a Rect type.
    * @param {quickswf.Reader} pReader The reader to use.

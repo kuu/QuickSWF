@@ -19,6 +19,8 @@
       ;
   }
 
+  Text.prototype.displayListType = 5;
+
   /**
    * Loads a Text type.
    * @param {quickswf.Reader} pReader The reader to use.
