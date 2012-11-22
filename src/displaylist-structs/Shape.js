@@ -23,7 +23,7 @@
     this.records = new Array();
   }
 
-  Shape.prototype.displayListType = 2;
+  Shape.prototype.displayListType = 'DefineShape';
 
   /**
    * Loads a Shape type.
@@ -46,7 +46,7 @@
     tShape.numberOfFillBits = pReader.bp(4);
     tShape.numberOfLineBits = pReader.bp(4);
     tShape.records = mStructs.ShapeRecord.loadMultiple(pReader, tShape, pWithAlpha);
-    
+
     return tShape;
   };
 

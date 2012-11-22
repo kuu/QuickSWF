@@ -20,7 +20,7 @@
     this.frameLabels = new Object();
   }
 
-  Sprite.prototype.displayListType = 1;
+  Sprite.prototype.displayListType = 'DefineSprite';
 
   /**
    * Loads a Sprite.

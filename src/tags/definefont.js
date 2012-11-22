@@ -4,8 +4,8 @@
  * Copyright (C) 2012 Yoshihiro Yamazaki
  * This code is licensed under the zlib license. See LICENSE for details.
  */
-(function(global) {
-  
+ (function(global) {
+
     global.quickswf.Parser.prototype['10'] = defineFont;
     global.quickswf.Parser.prototype['48'] = defineFont2;
 
@@ -36,7 +36,7 @@
         var tFont = Font.load(tReader, tOffsetOfOffsetTable, tOffsetTable);
         tFont.id = tId;
 
-        pParser.swf.fonts[tId] = tFont;        
+        pParser.swf.fonts[tId] = tFont;
     }
 
     function parseFont2(pParser) {
@@ -101,7 +101,7 @@
         var tFontBoundsTable = new Array(tNumGlyphs);
         var tKerningCount = null;
         var tFontKerningTable = null;
-        
+
         if (tFontFlagsHasLayout) {
             tFontAscent = tReader.I16();
             tFontDescent = tReader.I16();
@@ -116,7 +116,7 @@
                 tFontKerningTable = KERNINGRECORD.load(tReader, tFontFlagsWideCodes);
             }
         }
-        
+
         //
         tFont.id = tId;
         tFont.shiftJIS = tFontFlagsShiftJIS;
@@ -133,7 +133,7 @@
         tFont.advanceTable = tFontAdvanceTable;
         tFont.boundsTable = tFontBoundsTable;
         tFont.kerningTable = tFontKerningTable;
-        
+
         pParser.swf.fonts[tId] = tFont;
     }
 

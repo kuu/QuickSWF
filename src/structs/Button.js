@@ -23,7 +23,7 @@
     this.isMenu = pTrackAsMenu;
   }
 
-  Button.prototype.displayListType = 3;
+  Button.prototype.displayListType = 'DefineButton';
 
   /**
    * @constructor
@@ -41,7 +41,7 @@
         down    : (pStates >> 2) & 0x1,
         over    : (pStates >> 1) & 0x1,
         up      : (pStates >> 0) & 0x1
-      }; 
+      };
   }
 
 

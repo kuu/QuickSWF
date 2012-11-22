@@ -19,7 +19,7 @@
       ;
   }
 
-  Text.prototype.displayListType = 5;
+  Text.prototype.displayListType = 'DefineText';
 
   /**
    * Loads a Text type.

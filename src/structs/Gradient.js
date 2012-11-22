@@ -7,6 +7,7 @@
 (function(global) {
 
   global.quickswf.structs.Gradient = Gradient;
+  global.quickswf.structs.Stop = Stop;
 
   /**
    * @constructor

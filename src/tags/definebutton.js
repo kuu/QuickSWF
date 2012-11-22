@@ -5,7 +5,7 @@
  * This code is licensed under the zlib license. See LICENSE for details.
  */
 (function(global) {
-  
+
   global.quickswf.Parser.prototype['7'] = defineButton;
   global.quickswf.Parser.prototype['34'] = defineButton2;
 
@@ -15,7 +15,6 @@
   var ButtonCondAction = global.quickswf.structs.ButtonCondAction;
 
   function defineButton(pLength) {
-console.log('defineButton');
     var tReader = this.r;
     var tBounds = tReader.tell() + pLength;
     var tId = tReader.I16();
@@ -38,7 +37,6 @@ console.log('defineButton');
   }
 
   function defineButton2(pLength) {
-console.log('defineButton2');
     var tReader = this.r;
     var tBounds = tReader.tell() + pLength;
     var tId = tReader.I16();

@@ -5,7 +5,7 @@
  * This code is licensed under the zlib license. See LICENSE for details.
  */
 (function(global) {
-  
+
   global.quickswf.Parser.prototype['4'] = placeObject;
   global.quickswf.Parser.prototype['26'] = placeObject2;
 
@@ -32,12 +32,12 @@
       id: -1,
       matrix: null,
       depth: tDepth,
-      ratio: 0,
       name: null
     };
 
     var tColorTransform = null;
     var tClipDepth = 0;
+    var tRatio = -1;
 
     var tId;
     if (tFlags & (1 << 1)) { // hasCharacter
@@ -53,7 +53,7 @@
     }
 
     if (tFlags & (1 << 4)) { // hasRatio
-      tPackage.ratio = tReader.I16();
+      tRatio = tReader.I16();
     }
 
     if (tFlags & (1 << 5)) { // hasName
@@ -103,6 +103,14 @@
          depth: tDepth,
          colorTransform: tColorTransform
        });
+    }
+
+    if (tRatio !== -1) {
+      this.add({
+        type: 'ratio',
+        depth: tDepth,
+        ratio: tRatio
+      });
     }
   }
 

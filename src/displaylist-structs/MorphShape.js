@@ -25,7 +25,7 @@
     this.endEdges = new Array();
   }
 
-  MorphShape.prototype.displayListType = 4;
+  MorphShape.prototype.displayListType = 'DefineMorphShape';
 
   /**
    * Loads a MorphShape type.
@@ -45,14 +45,22 @@
     tMorphShape.numberOfFillBits = pReader.bp(4);
     tMorphShape.numberOfLineBits = pReader.bp(4);
 
-    tMorphShape.startEdges = mStructs.ShapeRecord.loadMultiple(pReader, tMorphShape, true, true);
+    var tStartEdges = tMorphShape.startEdges = mStructs.ShapeRecord.loadMultiple(pReader, tMorphShape, true, true);
 
     pReader.seekTo(pOffsetOfEndEdges);
 
     tMorphShape.numberOfFillBits = pReader.bp(4);
     tMorphShape.numberOfLineBits = pReader.bp(4);
 
-    tMorphShape.endEdges = mStructs.ShapeRecord.loadMultiple(pReader, tMorphShape, true, true);
+    var tEndEdges = tMorphShape.endEdges = mStructs.ShapeRecord.loadMultiple(pReader, tMorphShape, true, true);
+    var tEndEdge;
+
+    for (var i = 0, il = tStartEdges.length; i < il; i++) {
+      tEndEdge = tEndEdges[i];
+      if (tEndEdge === void 0 || (tEndEdge.type === 1 && tStartEdges[i].type !== tEndEdge.type)) {
+        tEndEdges.splice(i, 0, tStartEdges[i]);
+      }
+    }
 
     return tMorphShape;
   };

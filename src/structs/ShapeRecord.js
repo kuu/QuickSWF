@@ -8,6 +8,8 @@
 
   var mStructs = global.quickswf.structs;
   mStructs.ShapeRecord = ShapeRecord;
+  mStructs.EdgeRecord = EdgeRecord;
+  mStructs.StyleChangeRecord = StyleChangeRecord;
 
   /**
    * @constructor
@@ -65,7 +67,7 @@
     return tRecords;
   };
 
-  function Edge(pType, pDeltaX, pDeltaY, pDeltaControlX, pDeltaControlY) {
+  function EdgeRecord(pType, pDeltaX, pDeltaY, pDeltaControlX, pDeltaControlY) {
     this.type = pType;
     this.deltaX = pDeltaX;
     this.deltaY = pDeltaY;
@@ -73,11 +75,25 @@
     this.deltaControlY = pDeltaControlY;
   }
 
+  function StyleChangeRecord(pNumberOfFillBits, pNumberOfLineBits) {
+    this.type = 1;
+    this.hasMove = false;
+    this.moveDeltaX = 0;
+    this.moveDeltaY = 0;
+    this.fillStyle0 = -1;
+    this.fillStyle1 = -1;
+    this.lineStyle = -1;
+    this.fillBits = pNumberOfFillBits;
+    this.lineBits = pNumberOfLineBits;
+    this.fillStyles = null;
+    this.lineStyles = null;
+  }
+
   function parseStraightEdge(pReader) {
     var tNumberOfBits = pReader.bp(4) + 2;
     var tGeneralLineFlag = pReader.bp(1);
     var tVerticalLineFlag = 0;
-    
+
     if (tGeneralLineFlag === 0) {
       tVerticalLineFlag = pReader.bp(1);
     }
@@ -93,7 +109,7 @@
       tDeltaY = pReader.bsp(tNumberOfBits);
     }
 
-    return new Edge(3, tDeltaX, tDeltaY, 0, 0);
+    return new EdgeRecord(3, tDeltaX, tDeltaY, 0, 0);
   }
 
   function parseCurvedEdge(pReader) {
@@ -102,7 +118,7 @@
     var tDeltaControlY = pReader.bsp(tNumberOfBits);
     var tDeltaX = pReader.bsp(tNumberOfBits);
     var tDeltaY = pReader.bsp(tNumberOfBits);
-    return new Edge(2, tDeltaX, tDeltaY, tDeltaControlX, tDeltaControlY);
+    return new EdgeRecord(2, tDeltaX, tDeltaY, tDeltaControlX, tDeltaControlY);
   }
 
   function parseStyleChanged(pReader, pNumberOfFillBits, pNumberOfLineBits, pWithAlpha, pIsMorph) {
@@ -112,19 +128,7 @@
     var tNewFillStyle0 = pReader.bp(1);
     var tNewMoveTo = pReader.bp(1);
 
-    var tResult = {
-      type: 1,
-      hasMove: false,
-      moveDeltaX: 0,
-      moveDeltaY: 0,
-      fillStyle0: -1,
-      fillStyle1: -1,
-      lineStyle: -1,
-      fillBits: pNumberOfFillBits,
-      lineBits: pNumberOfLineBits,
-      fillStyles: null,
-      lineStyles: null
-    };
+    var tResult = new StyleChangeRecord(pNumberOfFillBits, pNumberOfLineBits);
 
     if (tNewMoveTo === 1) {
       var tMoveBits = pReader.bp(5);
