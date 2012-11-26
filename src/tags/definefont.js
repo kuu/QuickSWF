@@ -103,17 +103,19 @@
         var tFontKerningTable = null;
 
         if (tFontFlagsHasLayout) {
-            tFontAscent = tReader.I16();
-            tFontDescent = tReader.I16();
-            tFontLeading = tReader.I16();
-            tFontAdvanceTable = tReader.I16();
+            tFontAscent = tReader.SI16();
+            tFontDescent = tReader.SI16();
+            tFontLeading = tReader.SI16();
             for (var i = 0 ; i < tNumGlyphs ; i++) {
-                tFontBoundsTable = Rect.load(tReader);
+                tFontAdvanceTable[i] = tReader.SI16();
+            }
+            for (var i = 0 ; i < tNumGlyphs ; i++) {
+                tFontBoundsTable[i] = Rect.load(tReader);
             }
             tKerningCount = tReader.I16();
             tFontKerningTable = new Array(tKerningCount);
-            for (var i = 0 ; i < tNumGlyphs ; i++) {
-                tFontKerningTable = KERNINGRECORD.load(tReader, tFontFlagsWideCodes);
+            for (var i = 0 ; i < tKerningCount; i++) {
+                tFontKerningTable[i] = KERNINGRECORD.load(tReader, tFontFlagsWideCodes);
             }
         }
 
