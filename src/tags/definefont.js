@@ -57,6 +57,12 @@
         var tNumGlyphs = tReader.I16();
         if (tNumGlyphs === 0) { // no Glyphs
             var tFont = Font.load(tReader, null, null);
+            // Need to skip CodeTableOffset...
+            if (tFontFlagsWideOffsets) {
+              tReader.I32();
+            } else {
+              tReader.I16();
+            }
             tFont.id = tId;
             tFont.shiftJIS = tFontFlagsShiftJIS;
             tFont.smalltext =tFontFlagsSmallText;
@@ -136,6 +142,18 @@
         tFont.boundsTable = tFontBoundsTable;
         tFont.kerningTable = tFontKerningTable;
 
+        // Lookup table for search by char code.
+        var tTable = tFont.lookupTable = new Object();
+        var tShapes = tFont.shapes; 
+        for (var i = 0; i < tNumGlyphs; i++) {
+          var tEntry = new Object();
+          tEntry.shape = tShapes[i];
+          if (tFontFlagsHasLayout) {
+            tEntry.advance = tFontAdvanceTable[i];
+            tEntry.bounds = tFontBoundsTable[i];
+          }
+          tTable[tCodeTable[i] + ''] = tEntry;
+        }
         pParser.swf.fonts[tId] = tFont;
     }
 

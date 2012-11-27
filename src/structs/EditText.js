@@ -16,6 +16,8 @@
     ;
   }
 
+  EditText.prototype.displayListType = 'DefineEditText';
+
   /**
    * Loads a EditText type.
    * @param {quickswf.Reader} pReader The reader to use.
