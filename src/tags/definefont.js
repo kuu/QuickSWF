@@ -57,11 +57,9 @@
         var tNumGlyphs = tReader.I16();
         if (tNumGlyphs === 0) { // no Glyphs
             var tFont = Font.load(tReader, null, null);
-            // Need to skip CodeTableOffset...
-            if (tFontFlagsWideOffsets) {
-              tReader.I32();
-            } else {
-              tReader.I16();
+            if (tFontFlagsShiftJIS && !tFontFlagsANSI) {
+              // Need to skip CodeTableOffset...
+              tFontFlagsWideOffsets ? tReader.I32() : tReader.I16();
             }
             tFont.id = tId;
             tFont.shiftJIS = tFontFlagsShiftJIS;

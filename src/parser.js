@@ -159,6 +159,8 @@
             // Let's clean up later.
             var tSounds = tSWF.eventSounds;
             var tSoundsToWaitFor = [];
+            var tConvertedStrings = tSWF.convstr;
+            var tStringsToWaitFor = [];
             var i;
 
             for (i in tImages) {
@@ -175,8 +177,16 @@
                 tSoundsToWaitFor.push(tSounds[i]);
               }
             }
+            for (i in tConvertedStrings) {
+              if (tConvertedStrings[i].complete === true) {
+                self.swf.dictionary[tConvertedStrings[i].id + ''] = tConvertedStrings[i].data;
+                delete tConvertedStrings[tConvertedStrings[i].id + ''];
+              } else {
+                tStringsToWaitFor.push(tConvertedStrings[i]);
+              }
+            }
 
-            if (tImagesToWaitFor.length === 0 && tSoundsToWaitFor.length === 0) {
+            if (tImagesToWaitFor.length === 0 && tSoundsToWaitFor.length === 0 && tStringsToWaitFor.length === 0) {
               pSuccessCallback && pSuccessCallback(tSWF);
             } else {
               setTimeout(function wait() {
@@ -192,8 +202,15 @@
                     tSoundsToWaitFor.splice(i, 1);
                   }
                 }
+                for (i = tStringsToWaitFor.length - 1; i >= 0; i--) {
+                  if (tStringsToWaitFor[i].complete === true) {
+                    self.swf.dictionary[tStringsToWaitFor[i].id + ''] = tStringsToWaitFor[i].data;
+                    delete tConvertedStrings[tStringsToWaitFor[i].id + ''];
+                    tStringsToWaitFor.splice(i, 1);
+                  }
+                }
 
-                if (tImagesToWaitFor.length === 0 && tSoundsToWaitFor.length === 0) {
+                if (tImagesToWaitFor.length === 0 && tSoundsToWaitFor.length === 0 && tStringsToWaitFor.length === 0) {
                   pSuccessCallback && pSuccessCallback(tSWF);
                 } else {
                   setTimeout(wait, 10);
