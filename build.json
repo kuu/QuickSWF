@@ -51,7 +51,8 @@
             "polyfills.js",
             "swf.js",
             "parser.js",
-            "crc32.js"
+            "crc32.js",
+            "charconv.js"
           ],
           "include": "^.+\\.js$"
         },

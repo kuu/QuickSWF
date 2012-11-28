@@ -11,6 +11,7 @@
   var Rect = global.quickswf.structs.Rect;
   var RGBA = global.quickswf.structs.RGBA;
   var EditText = global.quickswf.structs.EditText;
+  var Conv = global.quickswf.utils.Conv;
 
   function defineEditText(pLength) {
     parseEditText(this);
@@ -102,7 +103,23 @@
     tEditText.leading = tLeading;
     tEditText.variablename = tVariableName;
     tEditText.initialtext = tInitialText;
-
+    if (!tUseOutline && tInitialText) {
+      var tFontObj = pParser.swf.fonts[tFont + ''];
+      if (tFontObj && tFontObj.shiftJIS) {
+        // Convert initial text to UCS.
+        var tConvStr = {
+            id: tId,
+            data: tEditText,
+            complete: false
+          };
+        Conv(tInitialText, 'Shift_JIS', function(str){
+            tEditText.initialtext = str;
+            tConvStr.complete = true;
+          });
+        pParser.swf.convstr[tId+''] = tConvStr;
+        return;
+      }
+    }
     pParser.swf.dictionary[tId+ ""] = tEditText;
   }
 

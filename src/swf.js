@@ -29,6 +29,7 @@
     this.images = new Object();
     this.eventSounds = new Object();
     this.streamSoundMetadata = null;
+    this.convstr = new Object();
   }
 
   SWF.prototype.destroy = function() {

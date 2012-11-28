@@ -10,5 +10,8 @@ var quickswf = {
   },
   tags: {
 
-  }
+  },
+  utils: {
+
+  },
 };
