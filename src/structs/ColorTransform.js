@@ -24,6 +24,22 @@
     this.aa = 0;
   }
 
+  ColorTransform.prototype.clone = function() {
+    var tColorTransform = new ColorTransform();
+
+    tColorTransform.rm = this.rm;
+    tColorTransform.gm = this.gm;
+    tColorTransform.bm = this.bm;
+    tColorTransform.am = this.am;
+
+    tColorTransform.ra = this.ra;
+    tColorTransform.ga = this.ga;
+    tColorTransform.ba = this.ba;
+    tColorTransform.aa = this.aa;
+
+    return tColorTransform;
+  }
+
   /**
    * Loads a ColorTransform type.
    * @param {quickswf.Reader} pReader The reader to use.
