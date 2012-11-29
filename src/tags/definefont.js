@@ -57,6 +57,10 @@
         var tNumGlyphs = tReader.I16();
         if (tNumGlyphs === 0) { // no Glyphs
             var tFont = Font.load(tReader, null, null);
+            if (tFontFlagsShiftJIS && !tFontFlagsANSI) {
+              // Need to skip CodeTableOffset...
+              tFontFlagsWideOffsets ? tReader.I32() : tReader.I16();
+            }
             tFont.id = tId;
             tFont.shiftJIS = tFontFlagsShiftJIS;
             tFont.smalltext =tFontFlagsSmallText;
@@ -103,17 +107,19 @@
         var tFontKerningTable = null;
 
         if (tFontFlagsHasLayout) {
-            tFontAscent = tReader.I16();
-            tFontDescent = tReader.I16();
-            tFontLeading = tReader.I16();
-            tFontAdvanceTable = tReader.I16();
+            tFontAscent = tReader.SI16();
+            tFontDescent = tReader.SI16();
+            tFontLeading = tReader.SI16();
             for (var i = 0 ; i < tNumGlyphs ; i++) {
-                tFontBoundsTable = Rect.load(tReader);
+                tFontAdvanceTable[i] = tReader.SI16();
+            }
+            for (var i = 0 ; i < tNumGlyphs ; i++) {
+                tFontBoundsTable[i] = Rect.load(tReader);
             }
             tKerningCount = tReader.I16();
             tFontKerningTable = new Array(tKerningCount);
-            for (var i = 0 ; i < tNumGlyphs ; i++) {
-                tFontKerningTable = KERNINGRECORD.load(tReader, tFontFlagsWideCodes);
+            for (var i = 0 ; i < tKerningCount; i++) {
+                tFontKerningTable[i] = KERNINGRECORD.load(tReader, tFontFlagsWideCodes);
             }
         }
 
@@ -134,6 +140,18 @@
         tFont.boundsTable = tFontBoundsTable;
         tFont.kerningTable = tFontKerningTable;
 
+        // Lookup table for search by char code.
+        var tTable = tFont.lookupTable = new Object();
+        var tShapes = tFont.shapes; 
+        for (var i = 0; i < tNumGlyphs; i++) {
+          var tEntry = new Object();
+          tEntry.shape = tShapes[i];
+          if (tFontFlagsHasLayout) {
+            tEntry.advance = tFontAdvanceTable[i];
+            tEntry.bounds = tFontBoundsTable[i];
+          }
+          tTable[tCodeTable[i] + ''] = tEntry;
+        }
         pParser.swf.fonts[tId] = tFont;
     }
 
