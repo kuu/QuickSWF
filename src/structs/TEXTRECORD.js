@@ -25,33 +25,43 @@
    * @param {bool} pWithAlpha True if parsing alpha is needed.
    * @param {number} pGlyphBits Bits in each glyph Index
    * @param {number} pAdvanceBits Bits in each advance value.
+   * @param {quickswf.structs.Text} pText DefineText object which has this TEXTRECORD.
    * @return {quickswf.structs.TEXTRECORD} The loaded TEXTRECORD.
    */
-  TEXTRECORD.load = function(pReader, p_1stB, pWithAlpha, pGlyphBits, pAdvanceBits) {
+  var mFonts = {};
+  var mFontID = 0;
+  var mFont = null;
+  TEXTRECORD.load = function(pReader, p_1stB, pWithAlpha, pGlyphBits, pAdvanceBits, pText) {
     var RGBA = mStruct.RGBA;
     var GLYPHENTRY = mStruct.GLYPHENTRY;
     var tTextRecordType = p_1stB >>> 7;
     var tStyleFlags = p_1stB;
-    var tFontID = null;
     var tTextColor = null;
-    var tXOffset = null;
-    var tYOffset = null;
-    var tTextHeight = null;
     
     if (tStyleFlags & 0x08) { // StyleFlagsHasFont
-        tFontID = pReader.I16();
+        mFontID = pReader.I16();
+        if (mFonts[mFontID] === void 0) {
+          mFonts[mFontID] = {
+              textColor: new RGBA(255, 255, 255, 1),
+              xOffset: 0,
+              yOffset: 0,
+              textHeight: 0
+            };
+        }
+        mFont = mFonts[mFontID];
     }
     if (tStyleFlags & 0x04) { // StyleFlagsHasColor
-        tTextColor = RGBA.load(pReader, pWithAlpha);
+        mFont.textColor = RGBA.load(pReader, pWithAlpha);
     }
     if (tStyleFlags & 0x01) { // StyleFlagsHasXOffset
-        tXOffset = pReader.I16();
+        mFont.xOffset = pReader.I16();
+        pText.xAdvance = 0;
     }
     if (tStyleFlags & 0x02) { // StyleFlagsHasYOffset
-        tYOffset = pReader.I16();
+        mFont.yOffset = pReader.I16();
     }
     if (tStyleFlags & 0x08) { // StyleFlagsHasFont
-        tTextHeight = pReader.I16();
+        mFont.textHeight = pReader.I16();
     }
 
     var tGlyphCount = pReader.B();
@@ -66,11 +76,11 @@
     
     tTEXTRECORD.type = tTextRecordType;
     tTEXTRECORD.styleflags = tStyleFlags;
-    tTEXTRECORD.id = tFontID;
-    tTEXTRECORD.color = tTextColor;
-    tTEXTRECORD.x = tXOffset;
-    tTEXTRECORD.y = tYOffset;
-    tTEXTRECORD.height = tTextHeight;
+    tTEXTRECORD.id = mFontID;
+    tTEXTRECORD.color = mFont.textColor;
+    tTEXTRECORD.x = mFont.xOffset;
+    tTEXTRECORD.y = mFont.yOffset;
+    tTEXTRECORD.height = mFont.textHeight;
     tTEXTRECORD.glyphs = tGlypyEntries;
 
     return tTEXTRECORD;

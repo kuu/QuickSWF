@@ -34,8 +34,9 @@
     var tText = new Text();
     var tTextRecord_1stB;
     var tTextRecords = new Array(0);
+    tText.xAdvance = 0;
     while ((tTextRecord_1stB = pReader.B()) !== 0) {
-        var tTextRecord = TEXTRECORD.load(pReader, tTextRecord_1stB, pWithAlpha, tGlyphBits, tAdvanceBits);
+        var tTextRecord = TEXTRECORD.load(pReader, tTextRecord_1stB, pWithAlpha, tGlyphBits, tAdvanceBits, tText);
         tTextRecords.push(tTextRecord);
     }
     tText.textrecords = tTextRecords;
