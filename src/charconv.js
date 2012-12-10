@@ -23,15 +23,13 @@ function Conv(sjisCode, charset, opt_callback) {
   /** @type {function(string): Array.<number>} */
   var str2array = Conv.str2array;
   /** @type {Array.<number>} */
-  var escapedSjisCode = new Array(sjisCode.length);
+  var escapedSjisCode = new Array();
   /** @type {number} */
   var i;
   /** @type {number} */
   var il;
-  /** @type {number} */
-  var pos;
 
-  for (i = pos = 0, il = sjisCode.length; i < il; i++) {
+  for (i = 0, il = sjisCode.length; i < il; i++) {
     // escape "\" to "\\"
     if (sjisCode[i] === 0x5c) {
       // 2 Byte code
@@ -40,19 +38,31 @@ function Conv(sjisCode, charset, opt_callback) {
         (sjisCode[i-1] >= 0x81 && sjisCode[i-1] <= 0x9f) ||
         (sjisCode[i-1] >= 0xe0 && sjisCode[i-1] <= 0xef)
       ) {
-        escapedSjisCode[pos++] = sjisCode[i];
+        escapedSjisCode.push(sjisCode[i]);
       } else {
-        escapedSjisCode[pos++] = 0x5c;
-        escapedSjisCode[pos++] = 0x5c;
+        escapedSjisCode.push(0x5c);
+        escapedSjisCode.push(0x5c);
       }
     // escape "'" to "\x27"
     } else if (sjisCode[i] === 0x27) {
-      escapedSjisCode[pos++] = 0x5c;
-      escapedSjisCode[pos++] = 0x78;
-      escapedSjisCode[pos++] = 0x32;
-      escapedSjisCode[pos++] = 0x37;
+      escapedSjisCode.push(0x5c);
+      escapedSjisCode.push(0x78);
+      escapedSjisCode.push(0x32);
+      escapedSjisCode.push(0x37);
+    // escape {LF} to "\x0a"
+    } else if (sjisCode[i] === 0x0a) {
+      escapedSjisCode.push(0x5c);
+      escapedSjisCode.push(0x78);
+      escapedSjisCode.push(0x30);
+      escapedSjisCode.push(0x61);
+    // escape {CR} to "\x0a"
+    } else if (sjisCode[i] === 0x0d) {
+      escapedSjisCode.push(0x5c);
+      escapedSjisCode.push(0x78);
+      escapedSjisCode.push(0x30);
+      escapedSjisCode.push(0x61);
     } else {
-      escapedSjisCode[pos++] = sjisCode[i];
+      escapedSjisCode.push(sjisCode[i]);
     }
   }
   sjisCode = escapedSjisCode;
