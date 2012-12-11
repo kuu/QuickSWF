@@ -76,20 +76,23 @@
     var tVariableName = tReader.s();
     var tInitialText = null;
     if (tHasText) {
-      if (!tUseOutline && tFont && tFont.shiftJIS) {
-        // The string can be conceived as Shit-JIS
-        var tLen = tReader.sl();
-        var tArray = tReader.sub(tReader.tell(), tLen);
-        tReader.seek(tLen + 1);
-        tInitialText = {
-            id: tId,
-            text: tArray,
-            complete: false
-          };
-        // As MS Gothic doesn't work on Chrome, we need to find appropreate font family for Japanese chars.
-        tFont.name = 'Osaka'; 
-      } else {
+      if (tUseOutline) {
         tInitialText = tReader.s();
+      } else {
+        tInitialText = tReader.s(true);
+        if (tInitialText === null) {
+          // The string can be conceived as Shit-JIS
+          var tLen = tReader.sl();
+          var tArray = tReader.sub(tReader.tell(), tLen);
+          tReader.seek(tLen + 1);
+          tInitialText = {
+              id: tId,
+              text: tArray,
+              complete: false
+            };
+          // As MS Gothic doesn't work on Chrome, we need to find appropreate font family for Japanese chars.
+          tFont.name = 'Osaka'; 
+        }
       }
     }
     
