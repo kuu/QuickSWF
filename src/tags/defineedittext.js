@@ -79,9 +79,8 @@
       if (tUseOutline) {
         tInitialText = tReader.s();
       } else {
-        var tParams = new Object();
-        tInitialText = tReader.s(tParams);
-        if (tParams.notUtf8) {
+        tInitialText = tReader.s(true);
+        if (tInitialText === null) {
           // The string can be conceived as Shit-JIS
           var tLen = tReader.sl();
           var tArray = tReader.sub(tReader.tell(), tLen);
