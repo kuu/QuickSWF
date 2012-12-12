@@ -161,6 +161,8 @@
             var tSoundsToWaitFor = [];
             var tConvertedStrings = tSWF.convstr;
             var tStringsToWaitFor = [];
+            var tAsyncDecodedStrings = tSWF.asyncStr;
+            var tAsyncStrToWaitFor = [];
             var i;
 
             for (i in tImages) {
@@ -185,8 +187,18 @@
                 tStringsToWaitFor.push(tConvertedStrings[i]);
               }
             }
+            for (i in tAsyncDecodedStrings) {
+              if (!tAsyncDecodedStrings[i] || typeof tAsyncDecodedStrings[i] === 'string') {
+                continue;
+              }
+              if (tAsyncDecodedStrings[i].complete === true) {
+                tAsyncDecodedStrings[i] = tAsyncDecodedStrings[i].data;
+              } else {
+                tAsyncStrToWaitFor.push(tAsyncDecodedStrings[i]);
+              }
+            }
 
-            if (tImagesToWaitFor.length === 0 && tSoundsToWaitFor.length === 0 && tStringsToWaitFor.length === 0) {
+            if (tImagesToWaitFor.length === 0 && tSoundsToWaitFor.length === 0 && tStringsToWaitFor.length === 0 && tAsyncStrToWaitFor.length === 0) {
               pSuccessCallback && pSuccessCallback(tSWF);
             } else {
               setTimeout(function wait() {
@@ -209,8 +221,14 @@
                     tStringsToWaitFor.splice(i, 1);
                   }
                 }
+                for (i = tAsyncStrToWaitFor.length - 1; i >= 0; i--) {
+                  if (tAsyncStrToWaitFor[i].complete === true) {
+                    tAsyncDecodedStrings[tAsyncStrToWaitFor[i].id + ''] = tAsyncStrToWaitFor[i].data;
+                    tAsyncStrToWaitFor.splice(i, 1);
+                  }
+                }
 
-                if (tImagesToWaitFor.length === 0 && tSoundsToWaitFor.length === 0 && tStringsToWaitFor.length === 0) {
+                if (tImagesToWaitFor.length === 0 && tSoundsToWaitFor.length === 0 && tStringsToWaitFor.length === 0 && tAsyncStrToWaitFor.length === 0) {
                   pSuccessCallback && pSuccessCallback(tSWF);
                 } else {
                   setTimeout(wait, 10);
