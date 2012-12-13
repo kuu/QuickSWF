@@ -30,6 +30,7 @@
     this.eventSounds = new Object();
     this.streamSoundMetadata = null;
     this.convstr = new Object();
+    this.asyncStr = new Object();
   }
 
   SWF.prototype.destroy = function() {
