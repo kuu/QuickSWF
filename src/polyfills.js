@@ -54,8 +54,8 @@
   }
 
   var mAudioContext;
-  if (webkitAudioContext) {
-    mAudioContext = new webkitAudioContext();
+  if (global.webkitAudioContext) {
+    mAudioContext = new global.webkitAudioContext();
   }
 
   mPolyFills.createMedia = function(pId, pData, pType) {
@@ -92,7 +92,7 @@
             tRet.complete = true;
           });
         return tRet;
-        
+
       } else {
         // HTML Audio Element
         tElem = global.document.createElement('audio');
@@ -101,20 +101,31 @@
     } else if (tTopLevelMediaType === 'video') {
       tElem = global.document.createElement('video');
       tLoadEvent = 'loadeddata';
+    } else {
+      tElem = global.document.createElement('embed');
+      tElem.type = pType;
+      tLoadEvent = 'onload';
     }
+
     tRet.data = tElem;
 
-    tElem.addEventListener(tLoadEvent, function() {
-      src = this.src;
+    var tCallback = function() {
+      var src = this.src;
 
       if (src[0] === 'b' && src[1] === 'l' && src[2] === 'o' && src[3] === 'b' && src[4] === ':') {
         global.URL.revokeObjectURL(src);
       }
       tRet.complete = true;
-    }, false);
+    };
+
+    if (tLoadEvent.substr(0, 2) === 'on') {
+      tElem[tLoadEvent] = tCallback;
+    } else {
+      tElem.addEventListener(tLoadEvent, tCallback, false);
+    }
 
     tElem.addEventListener('error', function(e) {
-      src = this.src;
+      var src = this.src;
 
       if (src[0] === 'b' && src[1] === 'l' && src[2] === 'o' && src[3] === 'b' && src[4] === ':') {
         global.URL.revokeObjectURL(src);
@@ -123,7 +134,7 @@
       tRet.complete = true;
     }, false);
 
-    if (pData instanceof ArrayBuffer) {
+    if (pData instanceof Uint8Array) {
       tBlob = mPolyFills.newBlob([pData], {type: tType});
     } else {
       tBlob = pData;
