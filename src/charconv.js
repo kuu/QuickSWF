@@ -55,12 +55,12 @@ function Conv(sjisCode, charset, opt_callback) {
       escapedSjisCode.push(0x78);
       escapedSjisCode.push(0x30);
       escapedSjisCode.push(0x61);
-    // escape {CR} to "\x0a"
+    // escape {CR} to "\x0d"
     } else if (sjisCode[i] === 0x0d) {
       escapedSjisCode.push(0x5c);
       escapedSjisCode.push(0x78);
       escapedSjisCode.push(0x30);
-      escapedSjisCode.push(0x61);
+      escapedSjisCode.push(0x64);
     } else {
       escapedSjisCode.push(sjisCode[i]);
     }
