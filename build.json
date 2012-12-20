@@ -52,7 +52,8 @@
             "swf.js",
             "parser.js",
             "crc32.js",
-            "charconv.js"
+            "charconv.js",
+            "MediaLoader.js"
           ],
           "include": "^.+\\.js$"
         },

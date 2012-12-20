@@ -9,7 +9,6 @@
   global.quickswf.Parser.prototype['36'] = defineBitsLossless2;
 
   var mNewBlob = global.quickswf.polyfills.newBlob;
-  var mCreateImage = global.quickswf.polyfills.createMedia;
   var mHaveTypedArray = global.quickswf.browser.HaveTypedArray;
   var mHaveAndroidAlphaBug = global.quickswf.browser.HavePutImageDataAlphaBug;
   var mHaveCreateObjectURL = global.quickswf.browser.HaveCreateObjectURL;
@@ -30,9 +29,9 @@
     tLossless.parse();
 
     if (tLossless.format === LosslessFormat.COLOR_MAPPED && mHaveCreateObjectURL) {
-      this.swf.images[tId] = tLossless.getImage(tId);
+      tLossless.getImage(tId);
     } else {
-      this.swf.images[tId] = tLossless.getCanvas(tId);
+      tLossless.getCanvas(tId);
     }
   }
 
@@ -48,9 +47,9 @@
     tLossless.parse();
 
     if (tLossless.format === LosslessFormat.COLOR_MAPPED && mHaveCreateObjectURL) {
-      this.swf.images[tId] = tLossless.getImage(tId);
+      tLossless.getImage(tId);
     } else {
-      this.swf.images[tId] = tLossless.getCanvas(tId);
+      tLossless.getCanvas(tId);
     }
   }
 
@@ -82,6 +81,8 @@
    * @constructor
    */
   function Lossless(parser, pLength, withAlpha) {
+    /** @type {SWF} */
+    this.swf = parser.swf;
     /** @type {Breader} */
     this.reader = parser.r;
     /** @type {number} */
@@ -282,7 +283,7 @@
     /** @type {Blob} */
     var tBlob = mNewBlob([tPng], {type: 'image/png'});
 
-    return mCreateImage(pId, tBlob);
+    this.swf.mediaLoader.load(pId, tBlob);
   };
 
   /**
@@ -395,11 +396,7 @@
 
     tContext.putImageData(tImageData, 0, 0);
 
-    return {
-      complete: true,
-      data: tCanvas,
-      id: pId
-    };
+    this.swf.mediaLoader.put(pId, tCanvas, 'image/bitmap');
   };
 
   /**

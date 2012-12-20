@@ -11,7 +11,6 @@
   var Rect = global.quickswf.structs.Rect;
   var RGBA = global.quickswf.structs.RGBA;
   var EditText = global.quickswf.structs.EditText;
-  var Conv = global.quickswf.utils.Conv;
 
   function defineEditText(pLength) {
     parseEditText(this);
@@ -75,6 +74,7 @@
     }
     var tVariableName = tReader.s();
     var tInitialText = null;
+    var tSjis = false;
     if (tHasText) {
       if (tUseOutline) {
         tInitialText = tReader.s();
@@ -82,24 +82,21 @@
         tInitialText = tReader.s(true);
         if (tInitialText === null) {
           // The string can be conceived as Shit-JIS
-          var tLen = tReader.sl();
-          var tArray = tReader.sub(tReader.tell(), tLen);
-          tReader.seek(tLen + 1);
-          tInitialText = {
-              id: tId,
-              text: tArray,
-              complete: false
-            };
+          var tLength = tReader.sl();
+          var tUint8Array = tReader.sub(tReader.tell(), tLength);
+          var tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
+          tReader.seek(tLength + 1);
+          pParser.swf.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
+          tInitialText = tBase64String;
+          tSjis = true;
           // As MS Gothic doesn't work on Chrome, we need to find appropreate font family for Japanese chars.
           tFont.name = 'Osaka'; 
         }
       }
-    }
-    
-    var tEditText = EditText.load(tReader);
-    tEditText.id = tId;
-    tEditText.bounds = tBounds;
-
+    } 
+    var tEditText = EditText.load(tReader); 
+    tEditText.id = tId; 
+    tEditText.bounds = tBounds; 
     tEditText.wordwrap = tWordWrap;
     tEditText.multiline = tMultiline;
     tEditText.password = tPassword;
@@ -121,21 +118,8 @@
     tEditText.indent = tIndent;
     tEditText.leading = tLeading;
     tEditText.variablename = tVariableName;
-
-    if (tInitialText) {
-      if (typeof tInitialText === 'string') {
-        tEditText.initialtext = tInitialText;
-      } else {
-        // Convert Shit-JIS to UCS.
-        Conv(tInitialText.text, 'Shift_JIS', function(str){
-            tEditText.initialtext = str;
-            tInitialText.data = tEditText;
-            tInitialText.complete = true;
-          });
-        pParser.swf.convstr[tId+''] = tInitialText;
-        return;
-      }
-    }
+    tEditText.initialtext = tInitialText;
+    tEditText.sjis = tSjis;
     pParser.swf.dictionary[tId+ ""] = tEditText;
   }
 
