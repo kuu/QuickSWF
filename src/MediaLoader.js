@@ -44,7 +44,7 @@
   // A private method to update the internal state.
   MediaLoader.prototype._update = function (pCommand, pEntry) {
 
-    var tOptions = pEntry.options, 
+    var tOptions = pEntry.options, tDelay,
         i, il, tHash, tNames = [pEntry.id], 
         tListeners, tToNotifyList = [], 
         tMediaType = mGetMediaType(pEntry.type),
@@ -60,6 +60,10 @@
       }
     }
 
+    if (pCommand === 'add') {
+      tDelay = new PersistentCueListener();
+    }
+
     if (tOptions.alias) {
       tNames.concat(tOptions.alias);
     }
@@ -67,6 +71,12 @@
     for (i = 0, il = tNames.length; i < il; i++) {
       if (pCommand === 'add') {
         tHash[tNames[i]] = pEntry;
+        tListeners = this._listeners[tNames[i]];
+        if (tListeners === void 0) {
+          this._listeners[tNames[i]] = {listeners: [tDelay], remove: false};
+        } else {
+          tListeners.listeners.push(tDelay);
+        }
       } else if (pCommand === 'move') {
         delete tHash[tNames[i]];
         tListeners = this._listeners[tNames[i]];
@@ -99,6 +109,7 @@
       }
       this._compListeners = [];
     }
+    return tDelay;
   };
 
   // A static function to extract the type name (e.g. image, text, etc.) from the entire MIME type.
@@ -166,7 +177,7 @@
           complete: false,
           error: false
         },
-        tBlob, tDelay, tSelf = this;
+        tBlob, tSelf = this;
 
     if ((tMediaType = mGetMediaType(tType)) === null) {
       throw new Error('Mime type is not specified.');
@@ -195,8 +206,6 @@
       tLoadEvent = 'onload';
     }
 
-    tDelay = new PersistentCueListener();
-
     var tCallback = function() {
       var src = this.src;
 
@@ -206,7 +215,6 @@
       tEntry.data = tElem;
       tEntry.complete = true;
       tSelf._update('move', tEntry);
-      tDelay.cue('load', tEntry);
     };
 
     if (tLoadEvent.substr(0, 2) === 'on') {
@@ -225,10 +233,8 @@
       tEntry.complete = true;
       tEntry.error = true;
       tSelf._update('move', tEntry);
-      tDelay.cue('error', tEntry);
     }, false);
 
-    this._update('add', tEntry);
 
     if (pData instanceof Uint8Array) {
       tBlob = mPolyFills.newBlob([pData], {type: tType});
@@ -243,14 +249,12 @@
       tElem.src = 'data:' + pBlob.type + ';base64,' + global.btoa(tBlob.data);
     }
 
-    return tDelay;
+    return this._update('add', tEntry);
   };
 
   // A private method to decode the compressed audio data.
   MediaLoader.prototype._loadWebAudio = function (pEntry) {
-
-    var tDelay = new PersistentCueListener(),
-        tSelf = this;
+    var tSelf = this;
 
     mAudioContext.decodeAudioData(
         pEntry.data,
@@ -258,19 +262,16 @@
             pEntry.data = buffer;
             pEntry.complete = true;
             tSelf._update('move', pEntry);
-            tDelay.cue('load', pEntry);
           },
         function (e) {
             console.error('decodeAudioData failed:', e);
             pEntry.complete = true;
             pEntry.error = true;
             tSelf._update('move', pEntry);
-            tDelay.cue('fail', e);
           }
       );
 
-    this._update('add', pEntry);
-    return tDelay;
+    return this._update('add', pEntry);
   };
 
   var DEFAULT_CHARSET = 'Shift_JIS';
@@ -278,8 +279,7 @@
   // A private method to convert the specified text to JavaScript String (UCS.)
   MediaLoader.prototype._loadText = function (pEntry) {
 
-    var tDelay = new PersistentCueListener(),
-        tSelf = this, tParams = pEntry.type.split(';'),
+    var tSelf = this, tParams = pEntry.type.split(';'),
         tIndex, tCharEncoding;
 
     for (var i = 0, il = tParams.length; i < il; i++) {
@@ -298,12 +298,9 @@
         pEntry.data = str;
         pEntry.complete = true;
         tSelf._update('move', pEntry);
-        tDelay.cue('load', pEntry);
       });
 
-    this._update('add', pEntry);
-
-    return tDelay;
+    return this._update('add', pEntry);
   };
 
   /**
