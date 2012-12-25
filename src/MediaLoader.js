@@ -105,7 +105,7 @@
   var mGetMediaType = function (pMimeType) {
     var tIdx;
 
-    if (!pMimeType || (tIdx = pMimeType.indexOf('/')) === -1) {
+    if (!pMimeType) {
       return null;
     }
 
