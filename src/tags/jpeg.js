@@ -50,7 +50,7 @@
 
       tDelay = this.swf.mediaLoader.load(tId, tBlob);
       tDelay.on('load', function (pMessage) {
-        var tImage = pMessage.data.data;
+        var tImage = pMessage.data;
 
         // replace
         tImage.addEventListener('load', function onLoad() {
