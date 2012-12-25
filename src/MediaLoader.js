@@ -41,6 +41,7 @@
     this._compListeners = [];
   }
 
+  // A private method to update the internal state.
   MediaLoader.prototype._update = function (pCommand, pEntry) {
 
     var tOptions = pEntry.options, 
@@ -100,6 +101,7 @@
     }
   };
 
+  // A static function to extract the type name (e.g. image, text, etc.) from the entire MIME type.
   var mGetMediaType = function (pMimeType) {
     var tIdx;
 
@@ -244,6 +246,7 @@
     return tDelay;
   };
 
+  // A private method to decode the compressed audio data.
   MediaLoader.prototype._loadWebAudio = function (pEntry) {
 
     var tDelay = new PersistentCueListener(),
@@ -272,6 +275,7 @@
 
   var DEFAULT_CHARSET = 'Shift_JIS';
 
+  // A private method to convert the specified text to JavaScript String (UCS.)
   MediaLoader.prototype._loadText = function (pEntry) {
 
     var tDelay = new PersistentCueListener(),
@@ -374,6 +378,12 @@
     return tDelay;
   };
 
+  /**
+   * Method to put an externaly loaded data into this._loaded
+   * @param {string} pId The id for retrieving the loaded data.
+   * @param {any} pData The externaly decoded or loaded data.
+   * @param {string} pType MIME type.
+   */
   MediaLoader.prototype.put = function (pId, pData, pType) {
     var tType = (pType || pData.type),
         tEntry = {
