@@ -73,7 +73,7 @@
       delete tHash[tId];
       tListeners = this._listeners[tId];
       if (tListeners) {
-        tToNotifyList.concat(tListeners.listeners);
+        tToNotifyList = tToNotifyList.concat(tListeners.listeners);
         delete this._listeners[tId];
       }
       if (!tListeners || tListeners.remove === false) {
@@ -94,7 +94,8 @@
         tToNotifyList[i].cue('load', pEntry.data);
       }
     }
-    if (Object.getOwnPropertyNames(this._wait).length === 0) {
+    if (pCommand === 'move' 
+        && Object.getOwnPropertyNames(this._wait).length === 0) {
       for (i = 0, il = this._compListeners.length; i < il; i++) {
         this._compListeners[i].cue('complete', null);
       }
@@ -166,10 +167,15 @@
           complete: false,
           error: false
         },
-        tBlob, tSelf = this;
+        tBlob, tSelf = this, tDelay;
 
     if ((tMediaType = mGetMediaType(tType)) === null) {
       throw new Error('Mime type is not specified.');
+    }
+
+    // Return if the data is already loaded or queried.
+    if ((tDelay = this._checkExistence(tMediaType, pId)) !== null) {
+      return tDelay;
     }
 
     if (tMediaType === 'image') {
@@ -292,6 +298,37 @@
     return this._update('add', pEntry);
   };
 
+  MediaLoader.prototype._checkExistence = function (pType, pId, pRemove, pListenIfNotExist) {
+    var tEntry, tDelay = new PersistentCueListener(), tListeners;
+
+    if (this._loaded[pType]) {
+      tEntry = this._loaded[pType][pId];
+    }
+
+    if (tEntry) {
+      // the data is already loaded.
+      if (pRemove) {
+        this._update('del', tEntry);
+      }
+      tDelay.cue('load', tEntry.data);
+      return tDelay;
+    }
+    tListeners = this._listeners[pId];
+    if (tListeners) {
+      // The data is already requested.
+      tListeners.listeners.push(tDelay);
+      if (pRemove) {
+        tListeners.remove = true;
+      }
+      return tDelay;
+    }
+    if (pListenIfNotExist) {
+      this._listeners[pId] = {listeners: [tDelay], remove: !!pRemove};
+      return tDelay;
+    }
+    return null;
+  };
+
   /**
    * Method to retrieve the loaded data.
    * @param {string} pType The data type, e.g. "text", "image", etc.
@@ -315,25 +352,7 @@
     }
 
     if (pAsync) {
-      var tDelay = new PersistentCueListener();
-      if (tEntry) {
-        if (pRemove) {
-          this._update('del', tEntry);
-        }
-        tDelay.cue('load', tEntry.data);
-      } else {
-        // Still loading...
-        tListeners = this._listeners;
-        if (tListeners[pId] === void 0) {
-          tListeners[pId] = {listeners: [tDelay], remove: !!pRemove};
-        } else {
-          tListeners[pId].listeners.push(tDelay);
-          if (pRemove) {
-            tListeners[pId].remove = true;
-          }
-        }
-      }
-      return tDelay;
+      return this._checkExistence(pType, pId, pRemove, true);
     } else {
       // Sync
       if (tEntry) {
