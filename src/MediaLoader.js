@@ -34,7 +34,7 @@
 
     // The list of CueListener objects to be notified when the data is loaded.
     // The data is stored as follows:
-    // {"(id or alias)" : {listeners : [listener1, listener2, ...], remove : (boolean)}, ...}
+    // {"(id)" : {listeners : [listener1, listener2, ...], remove : (boolean)}, ...}
     this._listeners = {};
 
     // The list of CueListener objects to be notified when all the data is loaded.
@@ -45,7 +45,7 @@
   MediaLoader.prototype._update = function (pCommand, pEntry) {
 
     var tOptions = pEntry.options, tDelay,
-        i, il, tHash, tNames = [pEntry.id], 
+        i, il, tHash, tId = pEntry.id, 
         tListeners, tToNotifyList = [], 
         tMediaType = mGetMediaType(pEntry.type),
         tSlot = this._loaded[tMediaType];
@@ -62,38 +62,29 @@
 
     if (pCommand === 'add') {
       tDelay = new PersistentCueListener();
-    }
-
-    if (tOptions.alias) {
-      tNames.concat(tOptions.alias);
-    }
-
-    for (i = 0, il = tNames.length; i < il; i++) {
-      if (pCommand === 'add') {
-        tHash[tNames[i]] = pEntry;
-        tListeners = this._listeners[tNames[i]];
-        if (tListeners === void 0) {
-          this._listeners[tNames[i]] = {listeners: [tDelay], remove: false};
-        } else {
-          tListeners.listeners.push(tDelay);
+      tHash[tId] = pEntry;
+      tListeners = this._listeners[tId];
+      if (tListeners === void 0) {
+        this._listeners[tId] = {listeners: [tDelay], remove: false};
+      } else {
+        tListeners.listeners.push(tDelay);
+      }
+    } else if (pCommand === 'move') {
+      delete tHash[tId];
+      tListeners = this._listeners[tId];
+      if (tListeners) {
+        tToNotifyList.concat(tListeners.listeners);
+        delete this._listeners[tId];
+      }
+      if (!tListeners || tListeners.remove === false) {
+        if (tSlot === void 0) {
+          tSlot = this._loaded[tMediaType] = {};
         }
-      } else if (pCommand === 'move') {
-        delete tHash[tNames[i]];
-        tListeners = this._listeners[tNames[i]];
-        if (tListeners) {
-          tToNotifyList.concat(tListeners.listeners);
-          delete this._listeners[tNames[i]];
-        }
-        if (!tListeners || tListeners.remove === false) {
-          if (tSlot === void 0) {
-            tSlot = this._loaded[tMediaType] = {};
-          }
-          tSlot[tNames[i]] = pEntry;
-        }
-      } else if (pCommand === 'del') {
-        if (tSlot !== void 0) {
-          delete tSlot[tNames[i]];
-        }
+        tSlot[tId] = pEntry;
+      }
+    } else if (pCommand === 'del') {
+      if (tSlot !== void 0) {
+        delete tSlot[tId];
       }
     }
     for (i = 0, il = tToNotifyList.length; i < il; i++) {
@@ -154,8 +145,6 @@
    * @param {boolern} pWait If true, the system cannot go ahead without this data. (default=true)
    * @param {Object} pOptions 
    *        The following options are supported:
-   *        - alias {string or Array of string} : 
-   *              If exists, the loaded data is also retrievable by the alias. Multiple aliases can be set.
    *        - wait {boolean} : If true, the system cannot go ahead without this data. (default=true)
    * @return {theatre.PersistentCueListener} A delay object.
    *    To process the loaded data, the client needs to set a callback function as follows:
