@@ -15,7 +15,15 @@
    * @class {quickswf.structs.TEXTRECORD}
    */
   function TEXTRECORD() {
-      ;
+    this.type = 0;
+    this.styleflags = 0;
+    this.id = -1;
+    this.color = null;
+    this.x = 0;
+    this.y = 0;
+    this.height = 0;
+    this.xAdvance = 0;
+    this.glyphs = null;
   }
 
   /**

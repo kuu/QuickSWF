@@ -38,7 +38,7 @@
     var tWasStatic    = (tFlags2 & 0x04)?true:false;
     var tHTML         = (tFlags2 & 0x02)?true:false;
     var tUseOutline   = (tFlags2 & 0x01)?true:false;
-    var tFontId = null;
+    var tFontId = -1;
     var tFont = null;
     if (tHasFont) {
       tFontId = tReader.I16();
@@ -48,7 +48,7 @@
     if (tHasFontClass) {
       tFontClass = tReader.s();
     }
-    var tFontHeight = null;
+    var tFontHeight = 0;
     if (tHasFont) {
       tFontHeight = tReader.I16();
     }
@@ -56,15 +56,15 @@
     if (tHasTextColor) {
       tTextColor = RGBA.load(tReader, true);
     }
-    var tMaxLength = null;
+    var tMaxLength = 0;
     if (tHasMaxLength) {
       tMaxLength = tReader.I16();
     }
-    var tAlign = null;
-    var tLeftMargin = null;
-    var tRightMargin = null;
-    var tIndent = null;
-    var tLeading = null;
+    var tAlign = 0;
+    var tLeftMargin = 0;
+    var tRightMargin = 0;
+    var tIndent = 0;
+    var tLeading = 0;
     if (tHasLayout) {
       tAlign = tReader.B();
       tLeftMargin = tReader.I16();

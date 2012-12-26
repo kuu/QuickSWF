@@ -98,12 +98,12 @@
                 tCodeTable[i] = tReader.B();
             }
         }
-        var tFontAscent = null;
-        var tFontDescent = null;
-        var tFontLeading = null;
+        var tFontAscent = 0;
+        var tFontDescent = 0;
+        var tFontLeading = 0;
         var tFontAdvanceTable = new Array(tNumGlyphs);
         var tFontBoundsTable = new Array(tNumGlyphs);
-        var tKerningCount = null;
+        var tKerningCount = 0;
         var tFontKerningTable = null;
 
         if (tFontFlagsHasLayout) {
