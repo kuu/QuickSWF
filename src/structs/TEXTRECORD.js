@@ -28,9 +28,6 @@
    * @param {quickswf.structs.Text} pText DefineText object which has this TEXTRECORD.
    * @return {quickswf.structs.TEXTRECORD} The loaded TEXTRECORD.
    */
-  var mFonts = {};
-  var mFontID = 0;
-  var mFont = null;
   TEXTRECORD.load = function(pReader, p_1stB, pWithAlpha, pGlyphBits, pAdvanceBits, pText) {
     var RGBA = mStruct.RGBA;
     var GLYPHENTRY = mStruct.GLYPHENTRY;
@@ -39,49 +36,44 @@
     var tTextColor = null;
     
     if (tStyleFlags & 0x08) { // StyleFlagsHasFont
-        mFontID = pReader.I16();
-        if (mFonts[mFontID] === void 0) {
-          mFonts[mFontID] = {
-              textColor: new RGBA(255, 255, 255, 1),
-              xOffset: 0,
-              yOffset: 0,
-              textHeight: 0
-            };
-        }
-        mFont = mFonts[mFontID];
+        pText.fontID = pReader.I16();        
     }
     if (tStyleFlags & 0x04) { // StyleFlagsHasColor
-        mFont.textColor = RGBA.load(pReader, pWithAlpha);
+        pText.textColor = RGBA.load(pReader, pWithAlpha);
     }
     if (tStyleFlags & 0x01) { // StyleFlagsHasXOffset
-        mFont.xOffset = pReader.I16();
+        pText.xOffset = pReader.I16();
         pText.xAdvance = 0;
     }
     if (tStyleFlags & 0x02) { // StyleFlagsHasYOffset
-        mFont.yOffset = pReader.I16();
+        pText.yOffset = pReader.I16();
     }
     if (tStyleFlags & 0x08) { // StyleFlagsHasFont
-        mFont.textHeight = pReader.I16();
+        pText.textHeight = pReader.I16();
     }
+
+    var tTEXTRECORD = new TEXTRECORD;
+
+    tTEXTRECORD.type = tTextRecordType;
+    tTEXTRECORD.styleflags = tStyleFlags;
+    tTEXTRECORD.id = pText.fontID;
+    tTEXTRECORD.color = pText.textColor;
+    tTEXTRECORD.x = pText.xOffset;
+    tTEXTRECORD.y = pText.yOffset;
+    tTEXTRECORD.height = pText.textHeight;
+    tTEXTRECORD.xAdvance = pText.xAdvance;
 
     var tGlyphCount = pReader.B();
     var tGlypyEntries = new Array(tGlyphCount);
 
     for (var i = 0; i < tGlyphCount; i++) {
-       tGlypyEntries[i] = GLYPHENTRY.load(pReader, pGlyphBits, pAdvanceBits);
+        tGlypyEntries[i] = GLYPHENTRY.load(pReader, pGlyphBits, pAdvanceBits);
+        pText.xAdvance += tGlypyEntries[i].advance;
     }
-    pReader.a();
 
-    var tTEXTRECORD = new TEXTRECORD();
-    
-    tTEXTRECORD.type = tTextRecordType;
-    tTEXTRECORD.styleflags = tStyleFlags;
-    tTEXTRECORD.id = mFontID;
-    tTEXTRECORD.color = mFont.textColor;
-    tTEXTRECORD.x = mFont.xOffset;
-    tTEXTRECORD.y = mFont.yOffset;
-    tTEXTRECORD.height = mFont.textHeight;
     tTEXTRECORD.glyphs = tGlypyEntries;
+
+    pReader.a();
 
     return tTEXTRECORD;
   };
