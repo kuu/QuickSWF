@@ -6,8 +6,7 @@
  */
 (function(global) {
 
-  var theatre = global.theatre;
-  var PersistentCueListener = theatre.PersistentCueListener;
+  var PersistentCueListener = global.jsdump.PersistentCueListener;
   var mPolyFills = global.quickswf.polyfills;
 
   global.quickswf.utils.MediaLoader = MediaLoader;
@@ -147,11 +146,11 @@
    * @param {Object} pOptions 
    *        The following options are supported:
    *        - wait {boolean} : If true, the system cannot go ahead without this data. (default=true)
-   * @return {theatre.PersistentCueListener} A delay object.
+   * @return {jsdump.PersistentCueListener} A delay object.
    *    To process the loaded data, the client needs to set a callback function as follows:
-   *      theatre.PersistentCueListener.on('load', callback);
+   *      jsdump.PersistentCueListener.on('load', callback);
    *    To get notified of the failure, the client needs to set a callback function as follows:
-   *      theatre.PersistentCueListener.on('fail', callback);
+   *      jsdump.PersistentCueListener.on('fail', callback);
    *    These callbacks take the following object as a parameter:
    *      - {id: "(specified pId)", data: "(the loaded data or the error object)", type: "(specified pType)"}
    */
@@ -336,11 +335,11 @@
    * @param {boolean} pRemove (defaulst=false)
    *    If true, the loaded data is removed and no longer is retrievable.
    * @param {boolean} pAsync (defaulst=false)
-   *    If true, this method returns theatre.PersistentCueListener object.
+   *    If true, this method returns jsdump.PersistentCueListener object.
    *    To process the loaded data, the client needs to set a callback function as follows:
-   *      theatre.PersistentCueListener.on('load', callback);
+   *      jsdump.PersistentCueListener.on('load', callback);
    *    To get notified of the failure, the client needs to set a callback function as follows:
-   *      theatre.PersistentCueListener.on('fail', callback);
+   *      jsdump.PersistentCueListener.on('fail', callback);
    *    If pAync is false, this method immediately returns the loaded data or null, if the loading is not completed.
    * @return {Any} The loaded data
    */
@@ -368,9 +367,9 @@
 
   /**
    * Returns a delay object to notify when all the data is loaded. (only the data added with pWait true.)
-   * @return {theatre.PersistentCueListener} A delay object.
+   * @return {jsdump.PersistentCueListener} A delay object.
    *    To get notified when all the data is loaded, the client needs to set a callback function as follows:
-   *      theatre.PersistentCueListener.on('complete', callback);
+   *      jsdump.PersistentCueListener.on('complete', callback);
    *    The callback takes null as a parameter.
    */
   MediaLoader.prototype.checkComplete = function () {

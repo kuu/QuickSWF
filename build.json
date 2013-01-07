@@ -23,6 +23,13 @@
       "location": "git",
       "url": "git://github.com/Moncader/Breader.git",
       "targets": ["all"]
+    },
+
+    "Cues": {
+      "type": "package",
+      "location": "git",
+      "url": "git://github.com/JSDump/Cues.git",
+      "targets": ["all"]
     }
   },
 
@@ -40,6 +47,11 @@
         {
           "type": "reference",
           "name": "Breader"
+        },
+
+        {
+          "type": "reference",
+          "name": "Cues"
         },
 
         {
