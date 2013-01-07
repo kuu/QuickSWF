@@ -6,7 +6,11 @@
  */
 (function(global) {
 
-  global.quickswf.structs.FillStyle = FillStyle;
+  var mStructs = global.quickswf.structs;
+  mStructs.FillStyle = FillStyle;
+  var RGBA = mStructs.RGBA;
+  var Matrix = mStructs.Matrix;
+  var Gradient = mStructs.Gradient;
 
   /**
    * @constructor
@@ -38,10 +42,6 @@
    * @return {quickswf.structs.FillStyle} The loaded FillStyle.
    */
   FillStyle.load = function(pReader, pWithAlpha, pIsMorph) {
-    var RGBA = global.quickswf.structs.RGBA;
-    var Matrix = global.quickswf.structs.Matrix;
-    var Gradient = global.quickswf.structs.Gradient;
-
     var tFillStyle = new FillStyle(pIsMorph);
     var tType = tFillStyle.type = pReader.B();
 

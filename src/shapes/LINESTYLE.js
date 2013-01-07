@@ -7,6 +7,7 @@
 (function(global) {
 
   global.quickswf.structs.LineStyle = LineStyle;
+  var RGBA = global.quickswf.structs.RGBA;
 
   /**
    * @constructor
@@ -32,7 +33,6 @@
    * @return {quickswf.structs.LineStyle} The loaded LineStyle.
    */
   LineStyle.load = function(pReader, pWithAlpha, pIsMorph) {
-    var RGBA = global.quickswf.structs.RGBA;
     var tLineStyle = new LineStyle(pIsMorph);
     if (pIsMorph) {
       tLineStyle.startWidth = pReader.I16();

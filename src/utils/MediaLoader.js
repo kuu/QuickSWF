@@ -123,19 +123,7 @@
     mAudioContext = new global.webkitAudioContext();
   }
 
-  var mHaveCreateObjectURL = false;
-  if (global.URL) {
-    mHaveCreateObjectURL = true;
-  } else if (global.webkitURL) {
-    try {
-      var tURL = global.webkitURL.createObjectURL(mPolyFills.newBlob());
-      global.webkitURL.revokeObjectURL(tURL);
-      global.URL = global.webkitURL;
-      mHaveCreateObjectURL = true;
-    } catch (e) {
-      mHaveCreateObjectURL = false;
-    }
-  }
+  var mHaveCreateObjectURL = global.quickswf.browser.HaveCreateObjectURL;
 
   /**
    * Takes a raw data. Loads/decodes the data asynchronously. Provides methods to access the loaded data.
