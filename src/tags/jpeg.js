@@ -12,76 +12,74 @@
   global.quickswf.Parser.prototype['35'] = defineBitsJpeg3;
 
   var mNewBlob = global.quickswf.polyfills.newBlob;
-  var mCreateImage = global.quickswf.polyfills.createMedia;
 
   function defineBits(pLength) {
     var tId = this.r.I16();
-    var tData = this.swf.images[tId] = getJPEG(this, pLength - 2);
-    tData.id = tId;
+    var tData = getJPEG(this, pLength - 2);
+    this.swf.mediaLoader.load(tId, tData);
   }
 
   function defineBitsJpeg2(pLength) {
-    var tId = this.r.I16();
+    var tId = this.r.I16(), tBlob;
     if (this.r.peekBits(64) === 0x89504E47) { // PNG file
-      var tBlob = mNewBlob([this.r.sub(this.r.tell(), pLength - 2)], {type: 'image/png'});
-      this.swf.images[tId] = mCreateImage(tId, tBlob);
+      tBlob = mNewBlob([this.r.sub(this.r.tell(), pLength - 2)], {type: 'image/png'});
+      this.swf.mediaLoader.load(tId, tBlob);
     } else { // JPEG file
-      var tData = this.swf.images[tId] = getJPEG(this, pLength - 2);
-      tData.id = tId;
+      tBlob = getJPEG(this, pLength - 2);
+      this.swf.mediaLoader.load(tId, tBlob);
     }
   }
 
   function defineBitsJpeg3(pLength) {
     var tId = this.r.I16();
     var tAlphaOffset = this.r.I32();
-    var tJpeg;
+    var tBlob, tDelay, tSelf = this;
     var tAlphaData;
-    var tImages = this.swf.images;
 
     if (this.r.peekBits(64) === 0x89504E47) { // PNG file
-      var tBlob = mNewBlob([this.r.sub(this.r.tell(), tAlphaOffset)], {type: 'image/png'});
-      tImages[tId] = mCreateImage(tId, tBlob);
+      tBlob = mNewBlob([this.r.sub(this.r.tell(), tAlphaOffset)], {type: 'image/png'});
+      this.swf.mediaLoader.load(tId, tBlob);
     } else {
       // JPEG file
-      tJpeg = getJPEG(this, tAlphaOffset).data;
-
-      tImages[tId] = {
-        id: tId,
-        complete: false,
-        data: null
-      };
+      tBlob = getJPEG(this, tAlphaOffset);
       // alpha table
       tAlphaData = new Zlib.Inflate(
         this.r.sub(this.r.tell(), pLength - 6 - tAlphaOffset)
       ).decompress();
       this.r.seek(pLength - 6 - tAlphaOffset);
 
-      // replace
-      tJpeg.addEventListener('load', function onLoad() {
-        var tCanvas = document.createElement('canvas');
-        var tCtx = tCanvas.getContext('2d');
-        var tImageData, tPixelArray;
-        var tWidth = tJpeg.width;
-        var tHeight = tJpeg.height;
-        var tIndex, tLength;
+      tDelay = this.swf.mediaLoader.load(tId, tBlob);
+      tDelay.on('load', function (pMessage) {
+        var tImage = pMessage.data;
 
-        tJpeg.removeEventListener('load', onLoad);
+        // replace
+        tImage.addEventListener('load', function onLoad() {
+          var tCanvas = document.createElement('canvas');
+          var tCtx = tCanvas.getContext('2d');
+          var tImageData, tPixelArray;
+          var tWidth = tImage.width;
+          var tHeight = tImage.height;
+          var tIndex, tLength;
 
-        tCanvas.width = tWidth;
-        tCanvas.height = tHeight;
-        tCtx.drawImage(tJpeg, 0, 0);
+          tImage.removeEventListener('load', onLoad);
 
-        tImageData = tCtx.getImageData(0, 0, tWidth, tHeight);
-        tPixelArray = tImageData.data;
+          tCanvas.width = tWidth;
+          tCanvas.height = tHeight;
+          tCtx.drawImage(tImage, 0, 0);
 
-        for (tIndex = 0, tLength = tAlphaData.length; tIndex < tLength; ++tIndex) {
-          tPixelArray[tIndex * 4 + 3] = tAlphaData[tIndex];
-        }
-        tCtx.putImageData(tImageData, 0, 0);
+          tImageData = tCtx.getImageData(0, 0, tWidth, tHeight);
+          tPixelArray = tImageData.data;
 
-        tImages[tId].data = tCanvas;
-        tImages[tId].complete = true;
-      }, false);
+          for (tIndex = 0, tLength = tAlphaData.length; tIndex < tLength; ++tIndex) {
+            tPixelArray[tIndex * 4 + 3] = tAlphaData[tIndex];
+          }
+          tCtx.putImageData(tImageData, 0, 0);
+
+          // Replace the image data.
+          tSelf.swf.mediaLoader.get('image', tId, true);
+          tSelf.swf.mediaLoader.put(tId, tCanvas, 'image');
+        }, false);
+      });
     }
   }
 
@@ -169,7 +167,7 @@
       }
     );
 
-    return mCreateImage(0, tData);
+    return tData;
   }
 
   function defineJpegTable(pLength) {

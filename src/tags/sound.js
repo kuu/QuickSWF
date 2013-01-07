@@ -17,8 +17,6 @@
   var SoundStreamHead = global.quickswf.structs.SoundStreamHead;
   var SoundData = global.quickswf.structs.SoundData;
 
-  var mCreateMedia = global.quickswf.polyfills.createMedia;
-
   function defineSound(pLength) {
     var tReader = this.r, tBounds = tReader.tell() + pLength;
     var tId = tReader.I16();
@@ -30,8 +28,7 @@
     } else {
       tRaw = tObj.raw.buffer.slice(tObj.offset);
     }
-    var tData = mCreateMedia(tId, tRaw, tObj.mimeType);
-    this.swf.eventSounds[tId + ''] = tData;
+    this.swf.mediaLoader.load(tId, tRaw, tObj.mimeType);
   }
 
   function startSound(pLength) {

@@ -16,6 +16,22 @@
    * @class {quickswf.structs.Font}
    */
   function Font() {
+    this.id = -1;
+    this.shiftJIS = false;
+    this.smalltext = false;
+    this.ansi = false;
+    this.italic = false;
+    this.bold = false;
+    this.langCode = 0;
+    this.name = null;
+    this.codeTable = null;
+    this.ascent = 0;
+    this.descent = 0;
+    this.leading = 0;
+    this.advanceTable = null;
+    this.boundsTable = null;
+    this.kerningTable = null;
+    this.lookupTable = null;
     this.shapes = null;
   }
 

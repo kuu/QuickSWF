@@ -153,88 +153,10 @@
           }
 
           if (tLocalReader.tell() >= tFileSize) {
-            var tImagesToWaitFor = [];
-            var tImages = tSWF.images;
-            // It's ugly to have the same code for each media type.
-            // Let's clean up later.
-            var tSounds = tSWF.eventSounds;
-            var tSoundsToWaitFor = [];
-            var tConvertedStrings = tSWF.convstr;
-            var tStringsToWaitFor = [];
-            var tAsyncDecodedStrings = tSWF.asyncStr;
-            var tAsyncStrToWaitFor = [];
-            var i;
-
-            for (i in tImages) {
-              if (tImages[i].complete === true) {
-                tImages[i] = tImages[i].data;
-              } else {
-                tImagesToWaitFor.push(tImages[i]);
-              }
-            }
-            for (i in tSounds) {
-              if (tSounds[i].complete === true) {
-                tSounds[i] = tSounds[i].data;
-              } else {
-                tSoundsToWaitFor.push(tSounds[i]);
-              }
-            }
-            for (i in tConvertedStrings) {
-              if (tConvertedStrings[i].complete === true) {
-                self.swf.dictionary[tConvertedStrings[i].id + ''] = tConvertedStrings[i].data;
-                delete tConvertedStrings[tConvertedStrings[i].id + ''];
-              } else {
-                tStringsToWaitFor.push(tConvertedStrings[i]);
-              }
-            }
-            for (i in tAsyncDecodedStrings) {
-              if (!tAsyncDecodedStrings[i] || typeof tAsyncDecodedStrings[i] === 'string') {
-                continue;
-              }
-              if (tAsyncDecodedStrings[i].complete === true) {
-                tAsyncDecodedStrings[i] = tAsyncDecodedStrings[i].data;
-              } else {
-                tAsyncStrToWaitFor.push(tAsyncDecodedStrings[i]);
-              }
-            }
-
-            if (tImagesToWaitFor.length === 0 && tSoundsToWaitFor.length === 0 && tStringsToWaitFor.length === 0 && tAsyncStrToWaitFor.length === 0) {
-              pSuccessCallback && pSuccessCallback(tSWF);
-            } else {
-              setTimeout(function wait() {
-                for (i = tImagesToWaitFor.length - 1; i >= 0; i--) {
-                  if (tImagesToWaitFor[i].complete === true) {
-                    tImages[tImagesToWaitFor[i].id] = tImagesToWaitFor[i].data;
-                    tImagesToWaitFor.splice(i, 1);
-                  }
-                }
-                for (i = tSoundsToWaitFor.length - 1; i >= 0; i--) {
-                  if (tSoundsToWaitFor[i].complete === true) {
-                    tSounds[tSoundsToWaitFor[i].id] = tSoundsToWaitFor[i].data;
-                    tSoundsToWaitFor.splice(i, 1);
-                  }
-                }
-                for (i = tStringsToWaitFor.length - 1; i >= 0; i--) {
-                  if (tStringsToWaitFor[i].complete === true) {
-                    self.swf.dictionary[tStringsToWaitFor[i].id + ''] = tStringsToWaitFor[i].data;
-                    delete tConvertedStrings[tStringsToWaitFor[i].id + ''];
-                    tStringsToWaitFor.splice(i, 1);
-                  }
-                }
-                for (i = tAsyncStrToWaitFor.length - 1; i >= 0; i--) {
-                  if (tAsyncStrToWaitFor[i].complete === true) {
-                    tAsyncDecodedStrings[tAsyncStrToWaitFor[i].id + ''] = tAsyncStrToWaitFor[i].data;
-                    tAsyncStrToWaitFor.splice(i, 1);
-                  }
-                }
-
-                if (tImagesToWaitFor.length === 0 && tSoundsToWaitFor.length === 0 && tStringsToWaitFor.length === 0 && tAsyncStrToWaitFor.length === 0) {
-                  pSuccessCallback && pSuccessCallback(tSWF);
-                } else {
-                  setTimeout(wait, 10);
-                }
-              }, 10);
-            }
+            var tDelay = tSWF.mediaLoader.checkComplete();
+            tDelay.on('complete', function () {
+                pSuccessCallback && pSuccessCallback(tSWF);
+              });
             return;
           }
 

@@ -11,7 +11,6 @@
   var Rect = global.quickswf.structs.Rect;
   var RGBA = global.quickswf.structs.RGBA;
   var EditText = global.quickswf.structs.EditText;
-  var Conv = global.quickswf.utils.Conv;
 
   function defineEditText(pLength) {
     parseEditText(this);
@@ -39,7 +38,7 @@
     var tWasStatic    = (tFlags2 & 0x04)?true:false;
     var tHTML         = (tFlags2 & 0x02)?true:false;
     var tUseOutline   = (tFlags2 & 0x01)?true:false;
-    var tFontId = null;
+    var tFontId = -1;
     var tFont = null;
     if (tHasFont) {
       tFontId = tReader.I16();
@@ -49,7 +48,7 @@
     if (tHasFontClass) {
       tFontClass = tReader.s();
     }
-    var tFontHeight = null;
+    var tFontHeight = 0;
     if (tHasFont) {
       tFontHeight = tReader.I16();
     }
@@ -57,15 +56,15 @@
     if (tHasTextColor) {
       tTextColor = RGBA.load(tReader, true);
     }
-    var tMaxLength = null;
+    var tMaxLength = 0;
     if (tHasMaxLength) {
       tMaxLength = tReader.I16();
     }
-    var tAlign = null;
-    var tLeftMargin = null;
-    var tRightMargin = null;
-    var tIndent = null;
-    var tLeading = null;
+    var tAlign = 0;
+    var tLeftMargin = 0;
+    var tRightMargin = 0;
+    var tIndent = 0;
+    var tLeading = 0;
     if (tHasLayout) {
       tAlign = tReader.B();
       tLeftMargin = tReader.I16();
@@ -75,6 +74,7 @@
     }
     var tVariableName = tReader.s();
     var tInitialText = null;
+    var tSjis = false;
     if (tHasText) {
       if (tUseOutline) {
         tInitialText = tReader.s();
@@ -82,24 +82,21 @@
         tInitialText = tReader.s(true);
         if (tInitialText === null) {
           // The string can be conceived as Shit-JIS
-          var tLen = tReader.sl();
-          var tArray = tReader.sub(tReader.tell(), tLen);
-          tReader.seek(tLen + 1);
-          tInitialText = {
-              id: tId,
-              text: tArray,
-              complete: false
-            };
+          var tLength = tReader.sl();
+          var tUint8Array = tReader.sub(tReader.tell(), tLength);
+          var tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
+          tReader.seek(tLength + 1);
+          pParser.swf.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
+          tInitialText = tBase64String;
+          tSjis = true;
           // As MS Gothic doesn't work on Chrome, we need to find appropreate font family for Japanese chars.
           tFont.name = 'Osaka'; 
         }
       }
-    }
-    
-    var tEditText = EditText.load(tReader);
-    tEditText.id = tId;
-    tEditText.bounds = tBounds;
-
+    } 
+    var tEditText = EditText.load(tReader); 
+    tEditText.id = tId; 
+    tEditText.bounds = tBounds; 
     tEditText.wordwrap = tWordWrap;
     tEditText.multiline = tMultiline;
     tEditText.password = tPassword;
@@ -121,21 +118,8 @@
     tEditText.indent = tIndent;
     tEditText.leading = tLeading;
     tEditText.variablename = tVariableName;
-
-    if (tInitialText) {
-      if (typeof tInitialText === 'string') {
-        tEditText.initialtext = tInitialText;
-      } else {
-        // Convert Shit-JIS to UCS.
-        Conv(tInitialText.text, 'Shift_JIS', function(str){
-            tEditText.initialtext = str;
-            tInitialText.data = tEditText;
-            tInitialText.complete = true;
-          });
-        pParser.swf.convstr[tId+''] = tInitialText;
-        return;
-      }
-    }
+    tEditText.initialtext = tInitialText;
+    tEditText.sjis = tSjis;
     pParser.swf.dictionary[tId+ ""] = tEditText;
   }
 

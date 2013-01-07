@@ -26,15 +26,11 @@
     this.fonts = new Object();
     this.jpegTableDQT = null;
     this.jpegTableDHT = null;
-    this.images = new Object();
-    this.eventSounds = new Object();
     this.streamSoundMetadata = null;
-    this.convstr = new Object();
-    this.asyncStr = new Object();
+    this.mediaLoader = new global.quickswf.utils.MediaLoader();
   }
 
   SWF.prototype.destroy = function() {
-    this.images = null;
     this.rootSprite = null;
     this.jpegTableDQT = null;
     this.jpegTableDHT = null;

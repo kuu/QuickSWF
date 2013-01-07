@@ -8,7 +8,6 @@
 
   global.quickswf.Parser.prototype['12'] = doAction;
 
-  var Conv = global.quickswf.utils.Conv;
   var MAX_ASYNC_STRING_NUM = (1 << 16);
 
   function doAction(pLength) {
@@ -34,7 +33,7 @@
   function parseAndMark(pSWF, pBuffer) {
 
     var tReader = new global.Breader(pBuffer),
-        tActionCode, tLength, tAsyncStr = pSWF.asyncStr,
+        tActionCode, tLength,
         tLiteralTypeOffset, tUint8Array, tBase64String;
 
     while ((tActionCode = tReader.B()) !== 0) {
@@ -68,20 +67,8 @@
       tLength = tReader.sl();
       tUint8Array = tReader.sub(tReader.tell(), tLength);
       tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
-      if (tAsyncStr[tBase64String] === void 0) {
-        (function (pHashStr, pByteArray) {
-            tAsyncStr[pHashStr] = {
-                id: pHashStr,
-                data: null,
-                complete: false
-              };
-            Conv(pByteArray, 'Shift_JIS', function(str){
-                tAsyncStr[pHashStr].data = str;
-                tAsyncStr[pHashStr].complete = true;
-              });
-          })(tBase64String, tUint8Array);
-      }
       tReader.seek(tLength + 1);
+      pSWF.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
       // Overwrite the literal type.
       pBuffer[tLiteralTypeOffset] = 255;
     }
