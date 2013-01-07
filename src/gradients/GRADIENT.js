@@ -7,7 +7,8 @@
 (function(global) {
 
   global.quickswf.structs.Gradient = Gradient;
-  global.quickswf.structs.Stop = Stop;
+
+  var RGBA = global.quickswf.structs.RGBA;
 
   /**
    * @constructor
@@ -45,7 +46,6 @@
    * @return {quickswf.structs.Gradient} The loaded Gradient.
    */
   Gradient.load = function(pReader, pWithAlpha, pIsMorph) {
-    var RGBA = global.quickswf.structs.RGBA;
     var tGradient = new Gradient();
 
     tGradient.spreadMode = pReader.bp(2);

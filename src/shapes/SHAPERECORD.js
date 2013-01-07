@@ -8,8 +8,8 @@
 
   var mStructs = global.quickswf.structs;
   mStructs.ShapeRecord = ShapeRecord;
-  mStructs.EdgeRecord = EdgeRecord;
-  mStructs.StyleChangeRecord = StyleChangeRecord;
+  var FillStyle = mStructs.FillStyle;
+  var LineStyle = mStructs.LineStyle;
 
   /**
    * @constructor
@@ -151,8 +151,8 @@
 
     if (tNewStyles === 1) {
       pReader.a();
-      tResult.fillStyles = mStructs.FillStyle.loadMultiple(pReader, pWithAlpha, true, pIsMorph);
-      tResult.lineStyles = mStructs.LineStyle.loadMultiple(pReader, pWithAlpha, true, pIsMorph);
+      tResult.fillStyles = FillStyle.loadMultiple(pReader, pWithAlpha, true, pIsMorph);
+      tResult.lineStyles = LineStyle.loadMultiple(pReader, pWithAlpha, true, pIsMorph);
       pReader.a();
       tResult.fillBits = pReader.bp(4);
       tResult.lineBits = pReader.bp(4);

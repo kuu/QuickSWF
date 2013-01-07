@@ -5,9 +5,14 @@
  * This code is licensed under the zlib license. See LICENSE for details.
  */
 (function(global) {
+  
+  global.quickswf.Parser.prototype['46'] = defineMorphShape;
 
   var mStructs = global.quickswf.structs;
-  mStructs.MorphShape = MorphShape;
+  var Rect = mStructs.Rect;
+  var FillStyle = mStructs.FillStyle;
+  var LineStyle = mStructs.LineStyle;
+  var ShapeRecord = mStructs.ShapeRecord;
 
   /**
    * @constructor
@@ -38,21 +43,21 @@
     var tMorphShape = new MorphShape();
 
     if (pWithStyles) {
-      tMorphShape.fillStyles = mStructs.FillStyle.loadMultiple(pReader, true, true, true);
-      tMorphShape.lineStyles = mStructs.LineStyle.loadMultiple(pReader, true, true, true);
+      tMorphShape.fillStyles = FillStyle.loadMultiple(pReader, true, true, true);
+      tMorphShape.lineStyles = LineStyle.loadMultiple(pReader, true, true, true);
     }
     pReader.a();
     tMorphShape.numberOfFillBits = pReader.bp(4);
     tMorphShape.numberOfLineBits = pReader.bp(4);
 
-    var tStartEdges = tMorphShape.startEdges = mStructs.ShapeRecord.loadMultiple(pReader, tMorphShape, true, true);
+    var tStartEdges = tMorphShape.startEdges = ShapeRecord.loadMultiple(pReader, tMorphShape, true, true);
 
     pReader.seekTo(pOffsetOfEndEdges);
 
     tMorphShape.numberOfFillBits = pReader.bp(4);
     tMorphShape.numberOfLineBits = pReader.bp(4);
 
-    var tEndEdges = tMorphShape.endEdges = mStructs.ShapeRecord.loadMultiple(pReader, tMorphShape, true, true);
+    var tEndEdges = tMorphShape.endEdges = ShapeRecord.loadMultiple(pReader, tMorphShape, true, true);
     var tEndEdge;
 
     for (var i = 0, il = tStartEdges.length; i < il; i++) {
@@ -64,5 +69,26 @@
 
     return tMorphShape;
   };
+
+  function defineMorphShape(pLength) {
+    parseMorphShape(this);
+  }
+
+
+  function parseMorphShape(pParser) {
+    var tReader = pParser.r;
+    var tId = tReader.I16();
+    var tStartBounds = Rect.load(tReader);
+    var tEndBounds = Rect.load(tReader);
+    var tOffset = tReader.I32();
+    var tOffsetOfOffset = tReader.tell();
+
+    var tMorphShape = MorphShape.load(tReader, tOffsetOfOffset + tOffset, true, true);
+    tMorphShape.id = tId;
+    tMorphShape.startBounds = tStartBounds;
+    tMorphShape.endBounds = tEndBounds;
+
+    pParser.swf.dictionary[tId + ''] = tMorphShape;
+  }
 
 }(this));

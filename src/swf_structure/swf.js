@@ -7,7 +7,7 @@
 (function(global) {
 
   global.quickswf.SWF = SWF;
-  var mStructs = global.quickswf.structs;
+  var Sprite = global.quickswf.structs.Sprite;
 
   /**
    * The data structure that holds all data
@@ -21,7 +21,7 @@
     this.height = pHeight;
     this.frameRate = pFrameRate;
     this.frameCount = pFrameCount;
-    this.rootSprite = new mStructs.Sprite();
+    this.rootSprite = new Sprite();
     this.dictionary = new Object();
     this.fonts = new Object();
     this.jpegTableDQT = null;

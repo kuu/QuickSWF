@@ -5,10 +5,14 @@
  * This code is licensed under the zlib license. See LICENSE for details.
  */
 (function(global) {
+  
+  global.quickswf.Parser.prototype['11'] = defineText;
+  global.quickswf.Parser.prototype['33'] = defineText2;
 
-  global.quickswf.structs.Text = Text;
-
-  var mStruct = global.quickswf.structs;
+  var Rect = global.quickswf.structs.Rect;
+  var Matrix = global.quickswf.structs.Matrix;
+  var RGBA = global.quickswf.structs.RGBA;
+  var TEXTRECORD = global.quickswf.structs.TEXTRECORD;
 
   /**
    * @constructor
@@ -16,7 +20,6 @@
    * @class {quickswf.structs.Text}
    */
   function Text() {
-    var RGBA = mStruct.RGBA;
     this.fontID = -1;
     this.textColor = new RGBA(255, 255, 255, 1);
     this.xOffset = 0;
@@ -35,7 +38,6 @@
    * @return {quickswf.structs.Text} The loaded Text.
    */
   Text.load = function(pReader, pWithAlpha) {
-    var TEXTRECORD = mStruct.TEXTRECORD;
     var tGlyphBits = pReader.B();
     var tAdvanceBits = pReader.B();
     var tText = new Text();
@@ -48,5 +50,25 @@
     tText.textrecords = tTextRecords;
     return tText;
   };
+
+  function defineText(pLength) {
+    parseText(this, false);
+  }
+
+  function defineText2(pLength) {
+    parseText(this, true);
+  }
+
+  function parseText(pParser, withAlpha) {
+    var tReader = pParser.r;
+    var tId = tReader.I16();
+    var tBounds = Rect.load(tReader);
+    var tMatrix = Matrix.load(tReader);
+    var tText = Text.load(tReader, withAlpha);
+    tText.id = tId;
+    tText.bounds = tBounds;
+    tText.matrix = tMatrix;
+    pParser.swf.dictionary[tId+ ""] = tText;
+  }
 
 }(this));

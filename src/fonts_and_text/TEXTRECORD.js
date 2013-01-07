@@ -6,9 +6,10 @@
  */
 (function(global) {
 
-  global.quickswf.structs.TEXTRECORD = TEXTRECORD;
-
   var mStruct = global.quickswf.structs;
+  mStructs.TEXTRECORD = TEXTRECORD;
+  var RGBA = mStruct.RGBA;
+  var GLYPHENTRY = mStruct.GLYPHENTRY;
 
   /**
    * @constructor
@@ -37,8 +38,6 @@
    * @return {quickswf.structs.TEXTRECORD} The loaded TEXTRECORD.
    */
   TEXTRECORD.load = function(pReader, p_1stB, pWithAlpha, pGlyphBits, pAdvanceBits, pText) {
-    var RGBA = mStruct.RGBA;
-    var GLYPHENTRY = mStruct.GLYPHENTRY;
     var tTextRecordType = p_1stB >>> 7;
     var tStyleFlags = p_1stB;
     var tTextColor = null;

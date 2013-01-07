@@ -6,11 +6,11 @@
  */
 (function(global) {
 
-  var structs = global.quickswf.structs;
+  global.quickswf.Parser.prototype['7'] = defineButton;
+  global.quickswf.Parser.prototype['34'] = defineButton2;
 
-  structs.Button = Button;
-  structs.ButtonRecord = ButtonRecord;
-  structs.ButtonCondAction = ButtonCondAction;
+  var Matrix = global.quickswf.structs.Matrix;
+  var ColorTransform = global.quickswf.structs.ColorTransform;
 
   /**
    * @constructor
@@ -54,7 +54,7 @@
     var tFlags  = pReader.B();
     var tId     = pReader.I16();
     var tDepth  = pReader.I16();
-    var tMatrix = structs.Matrix.load(pReader);
+    var tMatrix = Matrix.load(pReader);
     var tButtonStates = tFlags & 0xf;
     var tColorTransform = null;
     var tHasBlendMode  = (tFlags >> 5) & 0x1;
@@ -62,7 +62,7 @@
     var i, tFilterNum, tFilterId, tBytesToSkip;
 
     if (pWithinDB2) {
-      tColorTransform = structs.ColorTransform.load(pReader, true);
+      tColorTransform = ColorTransform.load(pReader, true);
       if (tHasFilterList) {
         // Just skipping...
         tBytesToSkip = [23, 9, 15, 27, 25, 19, 80, 25];
@@ -118,5 +118,58 @@
 
     return new ButtonCondAction(tCond, tButtonAction);
   };
+
+  function defineButton(pLength) {
+    var tReader = this.r;
+    var tBounds = tReader.tell() + pLength;
+    var tId = tReader.I16();
+
+    // Parse button records. (n >= 1)
+    var tButtonRecords = new Array();
+    do {
+      tButtonRecords.push(ButtonRecord.load(tReader, false));
+    } while (tReader.peekBits(8));
+    tReader.B(); // Last one byte
+
+    // ActionScript
+    var tStart = tReader.tell();
+    var tButtonAction = tReader.sub(tStart, tBounds - tStart)
+    tReader.seekTo(tBounds);
+
+    // Store the button records to the dictionary.
+    var tCondAction = new ButtonCondAction(null, tButtonAction);
+    this.swf.dictionary[tId + ''] = new Button(tId, tButtonRecords, [tCondAction], false);
+  }
+
+  function defineButton2(pLength) {
+    var tReader = this.r;
+    var tBounds = tReader.tell() + pLength;
+    var tId = tReader.I16();
+    var tFlags  = tReader.B();
+    var tTrackAsMenu = tFlags & 1;
+    var tActionOffset = tReader.I16();
+
+    if (tActionOffset > 3 || tActionOffset === 0) {
+      // Parse button records. (n >= 1)
+      var tButtonRecords = new Array();
+      do {
+        tButtonRecords.push(ButtonRecord.load(tReader, true));
+      } while (tReader.peekBits(8));
+    }
+    tReader.B(); // Last one byte
+
+    // Condition + ActionScript
+    var tButtonActions = new Array();
+    if (tActionOffset > 0) {
+      var tLast, tCondAction;
+      do {
+        tLast = tReader.peekBits(16) === 0;
+        tCondAction = ButtonCondAction.load(tReader, tBounds);
+        tButtonActions.push(tCondAction);
+      } while (!tLast);
+    }
+    // Store the button records to the dictionary.
+    this.swf.dictionary[tId + ''] = new Button(tId, tButtonRecords, tButtonActions, tTrackAsMenu);
+  }
 
 }(this));

@@ -56,36 +56,112 @@
 
         {
           "type": "files",
-          "root": "src",
+          "root": "src/utils",
           "files": [
-            "quickswf.js",
             "browser.js",
             "polyfills.js",
-            "swf.js",
-            "parser.js",
-            "crc32.js",
             "charconv.js",
+            "crc32.js",
             "MediaLoader.js"
-          ],
+          ]
+        },
+
+        {
+          "type": "files",
+          "root": "src/basic_data_types",
           "include": "^.+\\.js$"
         },
 
         {
           "type": "files",
-          "root": "src/structs",
+          "root": "src/display_list",
           "include": "^.+\\.js$"
         },
 
         {
           "type": "files",
-          "root": "src/displaylist-structs",
+          "root": "src/control_tags",
           "include": "^.+\\.js$"
         },
 
         {
           "type": "files",
-          "root": "src/tags",
+          "root": "src/actions",
           "include": "^.+\\.js$"
+        },
+
+        {
+          "type": "files",
+          "root": "src/gradients",
+          "include": "^.+\\.js$"
+        },
+
+        {
+          "type": "files",
+          "root": "src/shapes",
+          "files": [
+            "FILLSTYLE.js",
+            "LINESTYLE.js",
+            "SHAPERECORD.js",
+            "DefineShape.js"
+          ]
+        },
+
+        {
+          "type": "files",
+          "root": "src/bitmaps",
+          "include": "^.+\\.js$"
+        },
+
+        {
+          "type": "files",
+          "root": "src/shape_morphing",
+          "include": "^.+\\.js$"
+        },
+
+        {
+          "type": "files",
+          "root": "src/fonts_and_text",
+          "files": [
+            "KERNINGRECORD.js",
+            "GLYPHENTRY.js",
+            "TEXTRECORD.js",
+            "DefineFont.js",
+            "DefineText.js",
+            "DefineEditText.js"
+          ]
+        },
+
+        {
+          "type": "files",
+          "root": "src/sounds",
+          "include": "^.+\\.js$"
+        },
+
+        {
+          "type": "files",
+          "root": "src/buttons",
+          "include": "^.+\\.js$"
+        },
+
+        {
+          "type": "files",
+          "root": "src/sprites_and_movie_clips",
+          "include": "^.+\\.js$"
+        },
+
+        {
+          "type": "files",
+          "root": "src/swf_structure",
+          "include": "^.+\\.js$"
+        },
+
+        {
+          "type": "files",
+          "root": "src",
+          "files": [
+            "quickswf.js"
+          ]
         }
       ]
     }

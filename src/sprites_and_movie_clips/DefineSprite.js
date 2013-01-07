@@ -6,8 +6,8 @@
  */
 (function(global) {
 
-  var mStructs = global.quickswf.structs;
-  mStructs.Sprite = Sprite;
+  global.quickswf.Parser.prototype['39'] = defineSprite;
+  global.quickswf.structs.Sprite = Sprite;
 
   /**
    * @constructor
@@ -33,5 +33,15 @@
     tSprite.frameCount = tSprite.frames.length = pReader.I16();
     return tSprite;
   };
+
+  function defineSprite(pLength) {
+    var tSprite = Sprite.load(this.r);
+    this.spriteStack.push(this.currentSprite);
+    this.currentSprite = tSprite;
+    this.frameStack.push(this.currentFrame);
+    this.currentFrame = 0;
+
+    this.swf.dictionary[tSprite.id + ''] = tSprite;
+  }
 
 }(this));
