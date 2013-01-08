@@ -224,7 +224,7 @@
       tBlob = pData;
     }
 
-    if (mHaveCreateObjectURL === true) {
+    if (mHaveCreateObjectURL) {
       tElem.src = global.URL.createObjectURL(tBlob);
     } else {
       // Hopefully this is the special object we made in newBlob()
