@@ -7,38 +7,38 @@
 (function(global) {
 
   var mStructs = global.quickswf.structs;
-  mStructs.ShapeRecord = ShapeRecord;
-  var FillStyle = mStructs.FillStyle;
-  var LineStyle = mStructs.LineStyle;
+  mStructs.SHAPERECORD = SHAPERECORD;
+  var FILLSTYLE = mStructs.FILLSTYLE;
+  var LINESTYLE = mStructs.LINESTYLE;
 
   /**
    * @constructor
-   * @class {quickswf.structs.ShapeRecord}
+   * @class {quickswf.structs.SHAPERECORD}
    */
-  function ShapeRecord() {
+  function SHAPERECORD() {
 
   }
 
   /**
-   * Loads a ShapeRecord type.
+   * Loads a SHAPERECORD type.
    * @param {quickswf.Reader} pReader The reader to use.
-   * @return {quickswf.structs.ShapeRecord} The loaded ShapeRecord.
+   * @return {quickswf.structs.SHAPERECORD} The loaded SHAPERECORD.
    */
-  ShapeRecord.load = function(pReader) {
-    var tShapeRecord = new ShapeRecord();
+  SHAPERECORD.load = function(pReader) {
+    var tShapeRecord = new SHAPERECORD();
 
     return tShapeRecord;
   };
 
   /**
-   * Loads multple ShapeRecords.
+   * Loads multple SHAPERECORDs.
    * @param {quickswf.Reader} pReader The reader to use.
-   * @param {quickswf.Shape} pShape The Shape these ShapeRecords belong to.
+   * @param {quickswf.Shape} pShape The Shape these SHAPERECORDs belong to.
    * @param {bool} pWithAlpha True if parsing alpha is needed.
    * @param {bool} pIsMorph True if morph shape.
-   * @return {Array.<quickswf.structs.ShapeRecord>} The loaded ShapeRecords.
+   * @return {Array.<quickswf.structs.SHAPERECORD>} The loaded SHAPERECORDs.
    */
-  ShapeRecord.loadMultiple = function(pReader, pShape, pWithAlpha, pIsMorph) {
+  SHAPERECORD.loadMultiple = function(pReader, pShape, pWithAlpha, pIsMorph) {
     var tRecords = new Array();
     var i = 0;
     var tStyleChanged;
@@ -67,7 +67,7 @@
     return tRecords;
   };
 
-  function EdgeRecord(pType, pDeltaX, pDeltaY, pDeltaControlX, pDeltaControlY) {
+  function EDGERECORD(pType, pDeltaX, pDeltaY, pDeltaControlX, pDeltaControlY) {
     this.type = pType;
     this.deltaX = pDeltaX;
     this.deltaY = pDeltaY;
@@ -75,7 +75,7 @@
     this.deltaControlY = pDeltaControlY;
   }
 
-  function StyleChangeRecord(pNumberOfFillBits, pNumberOfLineBits) {
+  function STYLECHANGERECORD(pNumberOfFillBits, pNumberOfLineBits) {
     this.type = 1;
     this.hasMove = false;
     this.moveDeltaX = 0;
@@ -109,7 +109,7 @@
       tDeltaY = pReader.bsp(tNumberOfBits);
     }
 
-    return new EdgeRecord(3, tDeltaX, tDeltaY, 0, 0);
+    return new EDGERECORD(3, tDeltaX, tDeltaY, 0, 0);
   }
 
   function parseCurvedEdge(pReader) {
@@ -118,7 +118,7 @@
     var tDeltaControlY = pReader.bsp(tNumberOfBits);
     var tDeltaX = pReader.bsp(tNumberOfBits);
     var tDeltaY = pReader.bsp(tNumberOfBits);
-    return new EdgeRecord(2, tDeltaX, tDeltaY, tDeltaControlX, tDeltaControlY);
+    return new EDGERECORD(2, tDeltaX, tDeltaY, tDeltaControlX, tDeltaControlY);
   }
 
   function parseStyleChanged(pReader, pNumberOfFillBits, pNumberOfLineBits, pWithAlpha, pIsMorph) {
@@ -128,7 +128,7 @@
     var tNewFillStyle0 = pReader.bp(1);
     var tNewMoveTo = pReader.bp(1);
 
-    var tResult = new StyleChangeRecord(pNumberOfFillBits, pNumberOfLineBits);
+    var tResult = new STYLECHANGERECORD(pNumberOfFillBits, pNumberOfLineBits);
 
     if (tNewMoveTo === 1) {
       var tMoveBits = pReader.bp(5);
@@ -151,8 +151,8 @@
 
     if (tNewStyles === 1) {
       pReader.a();
-      tResult.fillStyles = FillStyle.loadMultiple(pReader, pWithAlpha, true, pIsMorph);
-      tResult.lineStyles = LineStyle.loadMultiple(pReader, pWithAlpha, true, pIsMorph);
+      tResult.fillStyles = FILLSTYLE.loadMultiple(pReader, pWithAlpha, true, pIsMorph);
+      tResult.lineStyles = LINESTYLE.loadMultiple(pReader, pWithAlpha, true, pIsMorph);
       pReader.a();
       tResult.fillBits = pReader.bp(4);
       tResult.lineBits = pReader.bp(4);

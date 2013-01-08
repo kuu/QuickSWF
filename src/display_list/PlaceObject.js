@@ -9,15 +9,15 @@
   global.quickswf.Parser.prototype['4'] = placeObject;
   global.quickswf.Parser.prototype['26'] = placeObject2;
 
-  var Matrix = global.quickswf.structs.Matrix;
-  var ColorTransform = global.quickswf.structs.ColorTransform;
-  var ClipActions = global.quickswf.structs.ClipActions;
+  var MATRIX = global.quickswf.structs.MATRIX;
+  var CXFORM = global.quickswf.structs.CXFORM;
+  var CLIPACTIONS = global.quickswf.structs.CLIPACTIONS;
 
   function placeObject(pLength) {
     var tReader = this.r;
     var tId = tReader.I16();
     var tDepth = tReader.I16();
-    var tMatrix = Matrix.load(tReader);
+    var tMatrix = MATRIX.load(tReader);
     console.error('PlaceObject1 Encountered!');
   }
 
@@ -45,11 +45,11 @@
     }
 
     if (tFlags & (1 << 2)) { // hasMatrix
-      tPackage.matrix = Matrix.load(tReader);
+      tPackage.matrix = MATRIX.load(tReader);
     }
 
     if (tFlags & (1 << 3)) { // hasColorTransform
-      tColorTransform = ColorTransform.load(tReader, true);
+      tColorTransform = CXFORM.load(tReader, true);
     }
 
     if (tFlags & (1 << 4)) { // hasRatio
@@ -67,7 +67,7 @@
 
     var tClipActions = null;
     if (tFlags & 1) {
-      //tClipActions = ClipActions.load(tReader, this.swf.version);
+      //tClipActions = CLIPACTIONS.load(tReader, this.swf.version);
       // It's not following the spec....
     }
 

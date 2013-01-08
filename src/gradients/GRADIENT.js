@@ -6,15 +6,16 @@
  */
 (function(global) {
 
-  global.quickswf.structs.Gradient = Gradient;
+  global.quickswf.structs.GRADIENT = GRADIENT;
+  global.quickswf.structs.Stop = Stop;
 
   var RGBA = global.quickswf.structs.RGBA;
 
   /**
    * @constructor
-   * @class {quickswf.structs.Gradient}
+   * @class {quickswf.structs.GRADIENT}
    */
-  function Gradient() {
+  function GRADIENT() {
     this.spreadMode = 0;
     this.interpolationMode = 0;
     this.stops = new Array();
@@ -39,14 +40,14 @@
   }
 
   /**
-   * Loads a Gradient type.
+   * Loads a GRADIENT type.
    * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithAlpha True if we need to parse colour.
    * @param {bool} pIsMorph True if morph shape.
-   * @return {quickswf.structs.Gradient} The loaded Gradient.
+   * @return {quickswf.structs.GRADIENT} The loaded GRADIENT.
    */
-  Gradient.load = function(pReader, pWithAlpha, pIsMorph) {
-    var tGradient = new Gradient();
+  GRADIENT.load = function(pReader, pWithAlpha, pIsMorph) {
+    var tGradient = new GRADIENT();
 
     tGradient.spreadMode = pReader.bp(2);
     tGradient.interpolationMode = pReader.bp(2);

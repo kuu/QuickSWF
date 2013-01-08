@@ -6,14 +6,14 @@
  */
 (function(global) {
 
-  global.quickswf.structs.LineStyle = LineStyle;
+  global.quickswf.structs.LINESTYLE = LINESTYLE;
   var RGBA = global.quickswf.structs.RGBA;
 
   /**
    * @constructor
-   * @class {quickswf.structs.LineStyle}
+   * @class {quickswf.structs.LINESTYLE}
    */
-  function LineStyle(pIsMorph) {
+  function LINESTYLE(pIsMorph) {
     if (pIsMorph) {
       this.startWidth = 0;
       this.endWidth = 0;
@@ -26,14 +26,14 @@
   }
 
   /**
-   * Loads a LineStyle type.
+   * Loads a LINESTYLE type.
    * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithAlpha True if alpha needs to be parsed.
    * @param {bool} pIsMorph True if morph shape.
-   * @return {quickswf.structs.LineStyle} The loaded LineStyle.
+   * @return {quickswf.structs.LINESTYLE} The loaded LINESTYLE.
    */
-  LineStyle.load = function(pReader, pWithAlpha, pIsMorph) {
-    var tLineStyle = new LineStyle(pIsMorph);
+  LINESTYLE.load = function(pReader, pWithAlpha, pIsMorph) {
+    var tLineStyle = new LINESTYLE(pIsMorph);
     if (pIsMorph) {
       tLineStyle.startWidth = pReader.I16();
       tLineStyle.endWidth = pReader.I16();
@@ -47,14 +47,14 @@
   };
 
   /**
-   * Loads an array of LineStyle types.
+   * Loads an array of LINESTYLE types.
    * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithAlpha True if alpha needs to be parsed.
    * @param {bool} pHasLargeFillCount True if this struct can have more than 256 styles.
    * @param {bool} pIsMorph True if morph shape.
-   * @return {Array.<quickswf.structs.LineStyle>} The loaded LineStyle array.
+   * @return {Array.<quickswf.structs.LINESTYLE>} The loaded LINESTYLE array.
    */
-  LineStyle.loadMultiple = function(pReader, pWithAlpha, pHasLargeFillCount, pIsMorph) {
+  LINESTYLE.loadMultiple = function(pReader, pWithAlpha, pHasLargeFillCount, pIsMorph) {
     var tCount = pReader.B();
 
     if (pHasLargeFillCount && tCount === 0xFF) {
@@ -64,7 +64,7 @@
     var tArray = new Array(tCount);
 
     for (var i = 0; i < tCount; i++) {
-      tArray[i] = LineStyle.load(pReader, pWithAlpha, pIsMorph);
+      tArray[i] = LINESTYLE.load(pReader, pWithAlpha, pIsMorph);
     }
 
     return tArray;

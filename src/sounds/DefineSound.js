@@ -179,9 +179,9 @@ console.log('+++ MP3');
 
   /**
    * @constructor
-   * @class {quickswf.structs.SoundInfo}
+   * @class {quickswf.structs.SOUNDINFO}
    */
-  function SoundInfo(pStop, pNoMul, pEnv, pLoop, pOut, pIn) {
+  function SOUNDINFO(pStop, pNoMul, pEnv, pLoop, pOut, pIn) {
     this.syncStop = pStop; // Stop the sound now.
     this.syncNoMultiple = pNoMul; // Don't start the sound if already playing.
     this.hasEnvelope = pEnv; // Has envelope info.
@@ -191,11 +191,11 @@ console.log('+++ MP3');
   }
 
   /**
-   * Loads a SoundInfo type.
+   * Loads a SOUNDINFO type.
    * @param {quickswf.Reader} pReader The reader to use.
-   * @return {quickswf.structs.SoundInfo} The loaded SoundInfo.
+   * @return {quickswf.structs.SOUNDINFO} The loaded SOUNDINFO.
    */
-  SoundInfo.load = function(pReader) {
+  SOUNDINFO.load = function(pReader) {
     pReader.bp(2); // Skip reserved bits
     var tStop = (pReader.bp(1) === 1);
     var tNoMul = (pReader.bp(1) === 1);
@@ -203,7 +203,7 @@ console.log('+++ MP3');
     var tLoop = (pReader.bp(1) === 1);
     var tOut = (pReader.bp(1) === 1);
     var tIn = (pReader.bp(1) === 1);
-    var soundInfo = new SoundInfo(tStop, tNoMul, tEnv, tLoop, tOut, tIn);
+    var soundInfo = new SOUNDINFO(tStop, tNoMul, tEnv, tLoop, tOut, tIn);
     // Number of samples to skip at beginning of sound.
     tIn && (soundInfo.inPoint = pReader.I32());
     // Position in samples of last sample to play.
@@ -272,7 +272,7 @@ console.log('+++ MP3');
   function startSound(pLength) {
     var tReader = this.r;
     var tId = tReader.I16();
-    var tSoundInfo = SoundInfo.load(tReader);
+    var tSoundInfo = SOUNDINFO.load(tReader);
 
     this.add({
       type: 'startSound',

@@ -6,13 +6,13 @@
  */
 (function(global) {
 
-  global.quickswf.structs.ColorTransform = ColorTransform;
+  global.quickswf.structs.CXFORM = CXFORM;
 
   /**
    * @constructor
-   * @class {quickswf.structs.ColorTransform}
+   * @class {quickswf.structs.CXFORM}
    */
-  function ColorTransform() {
+  function CXFORM() {
     this.rm = 1;
     this.gm = 1;
     this.bm = 1;
@@ -24,8 +24,8 @@
     this.aa = 0;
   }
 
-  ColorTransform.prototype.clone = function() {
-    var tColorTransform = new ColorTransform();
+  CXFORM.prototype.clone = function() {
+    var tColorTransform = new CXFORM();
 
     tColorTransform.rm = this.rm;
     tColorTransform.gm = this.gm;
@@ -41,17 +41,17 @@
   }
 
   /**
-   * Loads a ColorTransform type.
+   * Loads a CXFORM type.
    * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithAlpha If this struct has alpha to load.
-   * @return {quickswf.structs.ColorTransform} The loaded ColorTransform.
+   * @return {quickswf.structs.CXFORM} The loaded CXFORM.
    */
-  ColorTransform.load = function(pReader, pWithAlpha) {
+  CXFORM.load = function(pReader, pWithAlpha) {
     var tHasAdditive = pReader.bp(1);
     var tHasMultiplitive = pReader.bp(1);
     var tNumberOfBits = pReader.bp(4);
 
-    var tTransform = new ColorTransform();
+    var tTransform = new CXFORM();
 
     if (tHasMultiplitive === 1) {
       tTransform.rm = pReader.bsp(tNumberOfBits) / 256;

@@ -9,8 +9,8 @@
   global.quickswf.Parser.prototype['11'] = defineText;
   global.quickswf.Parser.prototype['33'] = defineText2;
 
-  var Rect = global.quickswf.structs.Rect;
-  var Matrix = global.quickswf.structs.Matrix;
+  var RECT = global.quickswf.structs.RECT;
+  var MATRIX = global.quickswf.structs.MATRIX;
   var RGBA = global.quickswf.structs.RGBA;
   var TEXTRECORD = global.quickswf.structs.TEXTRECORD;
 
@@ -62,8 +62,8 @@
   function parseText(pParser, withAlpha) {
     var tReader = pParser.r;
     var tId = tReader.I16();
-    var tBounds = Rect.load(tReader);
-    var tMatrix = Matrix.load(tReader);
+    var tBounds = RECT.load(tReader);
+    var tMatrix = MATRIX.load(tReader);
     var tText = Text.load(tReader, withAlpha);
     tText.id = tId;
     tText.bounds = tBounds;

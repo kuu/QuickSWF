@@ -8,7 +8,7 @@
   
   global.quickswf.Parser.prototype['37'] = defineEditText;
 
-  var Rect = global.quickswf.structs.Rect;
+  var RECT = global.quickswf.structs.RECT;
   var RGBA = global.quickswf.structs.RGBA;
 
   /**
@@ -62,7 +62,7 @@
   function parseEditText(pParser) {
     var tReader = pParser.r;
     var tId = tReader.I16();
-    var tBounds = Rect.load(tReader);
+    var tBounds = RECT.load(tReader);
     var tFlags1 = tReader.B();
     var tFlags2 = tReader.B();
     var tHasText      = (tFlags1 & 0x80)?true:false;
