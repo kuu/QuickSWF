@@ -6,36 +6,36 @@
  */
 (function(global) {
 
-  global.quickswf.structs.Rect = Rect;
+  global.quickswf.structs.RECT = RECT;
 
   /**
    * @constructor
-   * @class {quickswf.structs.Rect}
+   * @class {quickswf.structs.RECT}
    */
-  function Rect(pLeft, pRight, pTop, pBottom) {
+  function RECT(pLeft, pRight, pTop, pBottom) {
     this.left = pLeft;
     this.right = pRight;
     this.top = pTop;
     this.bottom = pBottom;
   }
 
-  Rect.prototype.move = function (pXOffset, pYOffset) {
+  RECT.prototype.move = function (pXOffset, pYOffset) {
     this.left   += pXOffset;
     this.right  += pXOffset;
     this.top    += pYOffset;
     this.bottom += pYOffset;
   };
 
-  Rect.prototype.clone  = function () {
-    return new Rect(this.left, this.right, this.top, this.bottom);
+  RECT.prototype.clone  = function () {
+    return new RECT(this.left, this.right, this.top, this.bottom);
   };
 
   /**
-   * Loads a Rect type.
+   * Loads a RECT type.
    * @param {quickswf.Reader} pReader The reader to use.
-   * @return {quickswf.structs.Rect} The loaded Rect.
+   * @return {quickswf.structs.RECT} The loaded RECT.
    */
-  Rect.load = function(pReader) {
+  RECT.load = function(pReader) {
     var tNumberOfBits = pReader.bp(5);
     var tLeft = pReader.bsp(tNumberOfBits);
     var tRight = pReader.bsp(tNumberOfBits);
@@ -44,7 +44,7 @@
 
     pReader.a();
 
-    return new Rect(tLeft, tRight, tTop, tBottom);
+    return new RECT(tLeft, tRight, tTop, tBottom);
   };
 
 }(this));

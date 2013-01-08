@@ -9,7 +9,7 @@
     global.quickswf.Parser.prototype['10'] = defineFont;
     global.quickswf.Parser.prototype['48'] = defineFont2;
 
-    var Rect = global.quickswf.structs.Rect;
+    var RECT = global.quickswf.structs.RECT;
     var Shape = global.quickswf.structs.Shape;
     var KERNINGRECORD = global.quickswf.structs.KERNINGRECORD;;
 
@@ -159,7 +159,7 @@
                 tFontAdvanceTable[i] = tReader.SI16();
             }
             for (var i = 0 ; i < tNumGlyphs ; i++) {
-                tFontBoundsTable[i] = Rect.load(tReader);
+                tFontBoundsTable[i] = RECT.load(tReader);
             }
             tKerningCount = tReader.I16();
             tFontKerningTable = new Array(tKerningCount);

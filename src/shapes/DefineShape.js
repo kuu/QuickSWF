@@ -13,10 +13,10 @@
   var mStructs = global.quickswf.structs;
   mStructs.Shape = Shape;
 
-  var Rect = mStructs.Rect;
-  var FillStyle = mStructs.FillStyle;
-  var LineStyle = mStructs.LineStyle;
-  var ShapeRecord = mStructs.ShapeRecord;
+  var RECT = mStructs.RECT;
+  var FILLSTYLE = mStructs.FILLSTYLE;
+  var LINESTYLE = mStructs.LINESTYLE;
+  var SHAPERECORD = mStructs.SHAPERECORD;
 
   /**
    * @constructor
@@ -46,15 +46,15 @@
     var tShape = new Shape();
 
     if (pWithStyles) {
-      tShape.fillStyles = FillStyle.loadMultiple(pReader, pWithAlpha, pHasLargeFillCount, false);
-      tShape.lineStyles = LineStyle.loadMultiple(pReader, pWithAlpha, pHasLargeFillCount, false);
+      tShape.fillStyles = FILLSTYLE.loadMultiple(pReader, pWithAlpha, pHasLargeFillCount, false);
+      tShape.lineStyles = LINESTYLE.loadMultiple(pReader, pWithAlpha, pHasLargeFillCount, false);
     } else {
-      tShape.fillStyles = [new FillStyle(false)];
-      tShape.lineStyles = [new LineStyle(false)];
+      tShape.fillStyles = [new FILLSTYLE(false)];
+      tShape.lineStyles = [new LINESTYLE(false)];
     }
     tShape.numberOfFillBits = pReader.bp(4);
     tShape.numberOfLineBits = pReader.bp(4);
-    tShape.records = ShapeRecord.loadMultiple(pReader, tShape, pWithAlpha);
+    tShape.records = SHAPERECORD.loadMultiple(pReader, tShape, pWithAlpha);
 
     return tShape;
   };
@@ -75,7 +75,7 @@
   function parseShape(pParser, pWithAlpha, pHasLargeFillCount) {
     var tReader = pParser.r;
     var tId = tReader.I16();
-    var tBounds = Rect.load(tReader);
+    var tBounds = RECT.load(tReader);
     var tShape = Shape.load(tReader, true, pWithAlpha, pHasLargeFillCount);
 
     tShape.id = tId;

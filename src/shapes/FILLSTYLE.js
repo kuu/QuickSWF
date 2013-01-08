@@ -7,16 +7,16 @@
 (function(global) {
 
   var mStructs = global.quickswf.structs;
-  mStructs.FillStyle = FillStyle;
+  mStructs.FILLSTYLE = FILLSTYLE;
   var RGBA = mStructs.RGBA;
-  var Matrix = mStructs.Matrix;
-  var Gradient = mStructs.Gradient;
+  var MATRIX = mStructs.MATRIX;
+  var GRADIENT = mStructs.GRADIENT;
 
   /**
    * @constructor
-   * @class {quickswf.structs.FillStyle}
+   * @class {quickswf.structs.FILLSTYLE}
    */
-  function FillStyle(pIsMorph) {
+  function FILLSTYLE(pIsMorph) {
     if (pIsMorph) {
       this.type = 0;
       this.startColor = null;
@@ -35,14 +35,14 @@
   }
 
   /**
-   * Loads a FillStyle type.
+   * Loads a FILLSTYLE type.
    * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithAlpha True if alpha needs to be parsed.
    * @param {bool} pIsMorph True if morph shape.
-   * @return {quickswf.structs.FillStyle} The loaded FillStyle.
+   * @return {quickswf.structs.FILLSTYLE} The loaded FILLSTYLE.
    */
-  FillStyle.load = function(pReader, pWithAlpha, pIsMorph) {
-    var tFillStyle = new FillStyle(pIsMorph);
+  FILLSTYLE.load = function(pReader, pWithAlpha, pIsMorph) {
+    var tFillStyle = new FILLSTYLE(pIsMorph);
     var tType = tFillStyle.type = pReader.B();
 
     switch (tType) {
@@ -58,12 +58,12 @@
       case 0x12: // Radial gradient fill
       case 0x13: // Focal radial gradient fill
         if (pIsMorph) {
-          tFillStyle.startMatrix = Matrix.load(pReader);
-          tFillStyle.endMatrix = Matrix.load(pReader);
+          tFillStyle.startMatrix = MATRIX.load(pReader);
+          tFillStyle.endMatrix = MATRIX.load(pReader);
         } else {
-          tFillStyle.matrix = Matrix.load(pReader);
+          tFillStyle.matrix = MATRIX.load(pReader);
         }
-        tFillStyle.gradient = Gradient.load(pReader, pWithAlpha, pIsMorph);
+        tFillStyle.gradient = GRADIENT.load(pReader, pWithAlpha, pIsMorph);
         if (tType === 0x13) {
           tFillStyle.gradient.focalPoint = pReader.fpb8p(16);
         }
@@ -72,10 +72,10 @@
       case 0x41: // Clipped bitmap fill
         tFillStyle.bitmapId = pReader.I16();
         if (pIsMorph) {
-            tFillStyle.startMatrix = Matrix.load(pReader);
-            tFillStyle.endMatrix = Matrix.load(pReader);
+            tFillStyle.startMatrix = MATRIX.load(pReader);
+            tFillStyle.endMatrix = MATRIX.load(pReader);
         } else {
-            tFillStyle.matrix = Matrix.load(pReader);
+            tFillStyle.matrix = MATRIX.load(pReader);
         }
         if (tFillStyle.bitmapId === 0xFFFF) {
           tFillStyle.color = 'rgba(255, 0, 0, 1)';
@@ -103,14 +103,14 @@
   };
 
   /**
-   * Loads an array of FillStyle types.
+   * Loads an array of FILLSTYLE types.
    * @param {quickswf.Reader} pReader The reader to use.
    * @param {bool} pWithAlpha True if alpha needs to be parsed.
    * @param {bool} pHasLargeFillCount True if this struct can have more than 256 styles.
    * @param {bool} pIsMorph True if morph shape.
-   * @return {Array.<quickswf.structs.FillStyle>} The loaded FillStyle array.
+   * @return {Array.<quickswf.structs.FILLSTYLE>} The loaded FILLSTYLE array.
    */
-  FillStyle.loadMultiple = function(pReader, pWithAlpha, pHasLargeFillCount, pIsMorph) {
+  FILLSTYLE.loadMultiple = function(pReader, pWithAlpha, pHasLargeFillCount, pIsMorph) {
     var tCount = pReader.B();
 
     if (pHasLargeFillCount && tCount === 0xFF) {
@@ -120,7 +120,7 @@
     var tArray = new Array(tCount);
 
     for (var i = 0; i < tCount; i++) {
-        tArray[i] = FillStyle.load(pReader, pWithAlpha, pIsMorph);
+        tArray[i] = FILLSTYLE.load(pReader, pWithAlpha, pIsMorph);
     }
 
     return tArray;

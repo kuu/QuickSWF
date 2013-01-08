@@ -9,10 +9,10 @@
   global.quickswf.Parser.prototype['46'] = defineMorphShape;
 
   var mStructs = global.quickswf.structs;
-  var Rect = mStructs.Rect;
-  var FillStyle = mStructs.FillStyle;
-  var LineStyle = mStructs.LineStyle;
-  var ShapeRecord = mStructs.ShapeRecord;
+  var RECT = mStructs.RECT;
+  var FILLSTYLE = mStructs.FILLSTYLE;
+  var LINESTYLE = mStructs.LINESTYLE;
+  var SHAPERECORD = mStructs.SHAPERECORD;
 
   /**
    * @constructor
@@ -43,21 +43,21 @@
     var tMorphShape = new MorphShape();
 
     if (pWithStyles) {
-      tMorphShape.fillStyles = FillStyle.loadMultiple(pReader, true, true, true);
-      tMorphShape.lineStyles = LineStyle.loadMultiple(pReader, true, true, true);
+      tMorphShape.fillStyles = FILLSTYLE.loadMultiple(pReader, true, true, true);
+      tMorphShape.lineStyles = LINESTYLE.loadMultiple(pReader, true, true, true);
     }
     pReader.a();
     tMorphShape.numberOfFillBits = pReader.bp(4);
     tMorphShape.numberOfLineBits = pReader.bp(4);
 
-    var tStartEdges = tMorphShape.startEdges = ShapeRecord.loadMultiple(pReader, tMorphShape, true, true);
+    var tStartEdges = tMorphShape.startEdges = SHAPERECORD.loadMultiple(pReader, tMorphShape, true, true);
 
     pReader.seekTo(pOffsetOfEndEdges);
 
     tMorphShape.numberOfFillBits = pReader.bp(4);
     tMorphShape.numberOfLineBits = pReader.bp(4);
 
-    var tEndEdges = tMorphShape.endEdges = ShapeRecord.loadMultiple(pReader, tMorphShape, true, true);
+    var tEndEdges = tMorphShape.endEdges = SHAPERECORD.loadMultiple(pReader, tMorphShape, true, true);
     var tEndEdge;
 
     for (var i = 0, il = tStartEdges.length; i < il; i++) {
@@ -78,8 +78,8 @@
   function parseMorphShape(pParser) {
     var tReader = pParser.r;
     var tId = tReader.I16();
-    var tStartBounds = Rect.load(tReader);
-    var tEndBounds = Rect.load(tReader);
+    var tStartBounds = RECT.load(tReader);
+    var tEndBounds = RECT.load(tReader);
     var tOffset = tReader.I32();
     var tOffsetOfOffset = tReader.tell();
 

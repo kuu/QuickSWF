@@ -9,8 +9,8 @@
   global.quickswf.Parser.prototype['7'] = defineButton;
   global.quickswf.Parser.prototype['34'] = defineButton2;
 
-  var Matrix = global.quickswf.structs.Matrix;
-  var ColorTransform = global.quickswf.structs.ColorTransform;
+  var MATRIX = global.quickswf.structs.MATRIX;
+  var CXFORM = global.quickswf.structs.CXFORM;
 
   /**
    * @constructor
@@ -27,9 +27,9 @@
 
   /**
    * @constructor
-   * @class {quickswf.structs.ButtonRecord}
+   * @class {quickswf.structs.BUTTONRECORD}
    */
-  function ButtonRecord(pId, pDepth, pMatrix, pStates, pCx, pFl, pBm) {
+  function BUTTONRECORD(pId, pDepth, pMatrix, pStates, pCx, pFl, pBm) {
     this.id = pId;
     this.depth = pDepth;
     this.matrix = pMatrix;
@@ -46,15 +46,15 @@
 
 
   /**
-   * Loads a ButtonRecord type.
+   * Loads a BUTTONRECORD type.
    * @param {quickswf.Reader} pReader The reader to use.
-   * @return {quickswf.structs.ButtonRecord} The loaded ButtonRecord.
+   * @return {quickswf.structs.BUTTONRECORD} The loaded BUTTONRECORD.
    */
-  ButtonRecord.load = function(pReader, pWithinDB2) {
+  BUTTONRECORD.load = function(pReader, pWithinDB2) {
     var tFlags  = pReader.B();
     var tId     = pReader.I16();
     var tDepth  = pReader.I16();
-    var tMatrix = Matrix.load(pReader);
+    var tMatrix = MATRIX.load(pReader);
     var tButtonStates = tFlags & 0xf;
     var tColorTransform = null;
     var tHasBlendMode  = (tFlags >> 5) & 0x1;
@@ -62,7 +62,7 @@
     var i, tFilterNum, tFilterId, tBytesToSkip;
 
     if (pWithinDB2) {
-      tColorTransform = ColorTransform.load(pReader, true);
+      tColorTransform = CXFORM.load(pReader, true);
       if (tHasFilterList) {
         // Just skipping...
         tBytesToSkip = [23, 9, 15, 27, 25, 19, 80, 25];
@@ -77,26 +77,26 @@
         pReader.seek(1);
       }
     }
-    return new ButtonRecord(tId, tDepth, tMatrix, tButtonStates,
+    return new BUTTONRECORD(tId, tDepth, tMatrix, tButtonStates,
                 tColorTransform, null, null);
   };
 
   /**
    * @constructor
-   * @class {quickswf.structs.ButtonCondAction}
+   * @class {quickswf.structs.BUTTONCONDACTION}
    */
-  function ButtonCondAction(pCond, pAction) {
+  function BUTTONCONDACTION(pCond, pAction) {
     this.cond = pCond;
     this.action = pAction;
   }
 
 
   /**
-   * Loads a ButtonCondAction type.
+   * Loads a BUTTONCONDACTION type.
    * @param {quickswf.Reader} pReader The reader to use.
-   * @return {quickswf.structs.ButtonCondAction} The loaded ButtonCondAction.
+   * @return {quickswf.structs.BUTTONCONDACTION} The loaded BUTTONCONDACTION.
    */
-  ButtonCondAction.load = function(pReader, pBounds) {
+  BUTTONCONDACTION.load = function(pReader, pBounds) {
     var tSize = pReader.I16();
     var tFlags = pReader.I16();
     var tLength = tSize ? tSize - 4 : pBounds - pReader.tell();
@@ -116,7 +116,7 @@
         overDownToIdle    : (tFlags >>  8) & 0x1
       };
 
-    return new ButtonCondAction(tCond, tButtonAction);
+    return new BUTTONCONDACTION(tCond, tButtonAction);
   };
 
   function defineButton(pLength) {
@@ -127,7 +127,7 @@
     // Parse button records. (n >= 1)
     var tButtonRecords = new Array();
     do {
-      tButtonRecords.push(ButtonRecord.load(tReader, false));
+      tButtonRecords.push(BUTTONRECORD.load(tReader, false));
     } while (tReader.peekBits(8));
     tReader.B(); // Last one byte
 
@@ -137,7 +137,7 @@
     tReader.seekTo(tBounds);
 
     // Store the button records to the dictionary.
-    var tCondAction = new ButtonCondAction(null, tButtonAction);
+    var tCondAction = new BUTTONCONDACTION(null, tButtonAction);
     this.swf.dictionary[tId + ''] = new Button(tId, tButtonRecords, [tCondAction], false);
   }
 
@@ -153,7 +153,7 @@
       // Parse button records. (n >= 1)
       var tButtonRecords = new Array();
       do {
-        tButtonRecords.push(ButtonRecord.load(tReader, true));
+        tButtonRecords.push(BUTTONRECORD.load(tReader, true));
       } while (tReader.peekBits(8));
     }
     tReader.B(); // Last one byte
@@ -164,7 +164,7 @@
       var tLast, tCondAction;
       do {
         tLast = tReader.peekBits(16) === 0;
-        tCondAction = ButtonCondAction.load(tReader, tBounds);
+        tCondAction = BUTTONCONDACTION.load(tReader, tBounds);
         tButtonActions.push(tCondAction);
       } while (!tLast);
     }

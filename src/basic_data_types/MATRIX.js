@@ -6,26 +6,26 @@
  */
 (function(global) {
 
-  global.quickswf.structs.Matrix = Matrix;
+  global.quickswf.structs.MATRIX = MATRIX;
 
   /**
    * @constructor
    * @extends {Array}
-   * @class {quickswf.structs.Matrix}
+   * @class {quickswf.structs.MATRIX}
    */
-  function Matrix() {
+  function MATRIX() {
 
   }
 
-  Matrix.prototype = [1, 0, 0, 1, 0, 0];
+  MATRIX.prototype = [1, 0, 0, 1, 0, 0];
 
   /**
-   * Loads a Rect type.
+   * Loads a MATRIX type.
    * @param {quickswf.Reader} pReader The reader to use.
-   * @return {quickswf.structs.Matrix} The loaded Matrix.
+   * @return {quickswf.structs.MATRIX} The loaded MATRIX.
    */
-  Matrix.load = function(pReader) {
-    var tMatrix = new Matrix();
+  MATRIX.load = function(pReader) {
+    var tMatrix = new MATRIX();
     var tNumberOfBits;
 
     // Check to see if we have scale.

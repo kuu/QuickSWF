@@ -6,25 +6,25 @@
  */
 (function(global) {
 
-  global.quickswf.structs.ClipActions = ClipActions;
+  global.quickswf.structs.CLIPACTIONS = CLIPACTIONS;
 
   /**
    * @constructor
-   * @class {quickswf.structs.ClipActions}
+   * @class {quickswf.structs.CLIPACTIONS}
    */
-  function ClipActions() {
+  function CLIPACTIONS() {
     this.allEventFlags = 0;
     this.clipActionRecords = new Array();
   }
 
   /**
-   * Loads a ClipActions type.
+   * Loads a CLIPACTIONS type.
    * @param {quickswf.Reader} pReader The reader to use.
    * @param {number} pVersion The version of this SWF.
-   * @return {quickswf.structs.ClipActions} The loaded ClipActions.
+   * @return {quickswf.structs.CLIPACTIONS} The loaded CLIPACTIONS.
    */
-  ClipActions.load = function(pReader, pVersion) {
-    var tActions = new ClipActions();
+  CLIPACTIONS.load = function(pReader, pVersion) {
+    var tActions = new CLIPACTIONS();
 
     pReader.I16(); // Reserved for nothing.
 

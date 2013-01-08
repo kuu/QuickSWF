@@ -8,7 +8,7 @@
 
   global.quickswf.Parser = Parser;
 
-  var Rect = global.quickswf.structs.Rect;
+  var RECT = global.quickswf.structs.RECT;
   var SWF = global.quickswf.SWF;
 
   /**
@@ -104,7 +104,7 @@
       }
       tReader.fileSize = tFileSize;
 
-      var tFrameSize = Rect.load(tReader);
+      var tFrameSize = RECT.load(tReader);
       tFrameSize.left /= 20;
       tFrameSize.right /= 20;
       tFrameSize.top /= 20;
