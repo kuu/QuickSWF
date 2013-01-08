@@ -56,6 +56,14 @@
 
         {
           "type": "files",
+          "root": "src",
+          "files": [
+            "quickswf.js"
+          ]
+        },
+
+        {
+          "type": "files",
           "root": "src/utils",
           "files": [
             "browser.js",
@@ -70,6 +78,15 @@
           "type": "files",
           "root": "src/basic_data_types",
           "include": "^.+\\.js$"
+        },
+
+        {
+          "type": "files",
+          "root": "src/swf_structure",
+          "files": [
+            "swf.js",
+            "parser.js"
+          ]
         },
 
         {
@@ -148,20 +165,6 @@
           "type": "files",
           "root": "src/sprites_and_movie_clips",
           "include": "^.+\\.js$"
-        },
-
-        {
-          "type": "files",
-          "root": "src/swf_structure",
-          "include": "^.+\\.js$"
-        },
-
-        {
-          "type": "files",
-          "root": "src",
-          "files": [
-            "quickswf.js"
-          ]
         }
       ]
     }

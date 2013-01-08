@@ -228,7 +228,7 @@
       tElem.src = global.URL.createObjectURL(tBlob);
     } else {
       // Hopefully this is the special object we made in newBlob()
-      tElem.src = 'data:' + pBlob.type + ';base64,' + global.btoa(tBlob.data);
+      tElem.src = 'data:' + tBlob.type + ';base64,' + global.btoa(tBlob.data);
     }
 
     return this._update('add', tEntry);

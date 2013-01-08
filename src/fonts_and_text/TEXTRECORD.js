@@ -7,7 +7,7 @@
 (function(global) {
 
   var mStruct = global.quickswf.structs;
-  mStructs.TEXTRECORD = TEXTRECORD;
+  mStruct.TEXTRECORD = TEXTRECORD;
   var RGBA = mStruct.RGBA;
   var GLYPHENTRY = mStruct.GLYPHENTRY;
 
