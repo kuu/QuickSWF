@@ -135,7 +135,6 @@
    *        The following options are supported:
    *        - wait {boolean} : If true, the system cannot go ahead without this data. (default=true)
    * @return {jsdump.PersistentCueListener} A delay object.
-   *         Synchronously returns an <embed> element if pType is application/x-shockwave-flash.
    *
    *    To process the loaded data, the client needs to set a callback function as follows:
    *      jsdump.PersistentCueListener.on('load', callback);
@@ -186,7 +185,7 @@
       return this._loadText(tEntry);
     } else {
       if (pType === 'application/x-shockwave-flash') {
-        return this._loadFlash(tEntry);
+        return this._loadEmbed(tEntry);
       }
       throw new Error('Mime type is not supported.');
     }
@@ -288,11 +287,11 @@
     return this._update('add', pEntry);
   };
 
-  // A private method to return an <embed> element synchronously.
-  MediaLoader.prototype._loadFlash = function (pEntry) {
+  // A private method to return an <embed> element.
+  MediaLoader.prototype._loadEmbed = function (pEntry) {
 
     var tElem = global.document.createElement('embed'),
-        tData = pEntry.data, tBlob,
+        tData = pEntry.data, tBlob, tDelay,
         tType = 'application/x-shockwave-flash';
 
     if (tData instanceof Uint8Array) {
@@ -309,8 +308,12 @@
     }
 
     tElem.type = tType;
+    pEntry.data = tElem;
+    pEntry.complete = true;
+    tDelay = this._update('add', pEntry);
+    this._update('move', pEntry);
 
-    return tElem;
+    return tDelay;
   };
 
   MediaLoader.prototype._checkExistence = function (pType, pId, pRemove, pListenIfNotExist) {
