@@ -135,6 +135,8 @@
    *        The following options are supported:
    *        - wait {boolean} : If true, the system cannot go ahead without this data. (default=true)
    * @return {jsdump.PersistentCueListener} A delay object.
+   *         Synchronously returns an <embed> element if pType is application/x-shockwave-flash.
+   *
    *    To process the loaded data, the client needs to set a callback function as follows:
    *      jsdump.PersistentCueListener.on('load', callback);
    *    To get notified of the failure, the client needs to set a callback function as follows:
@@ -183,9 +185,10 @@
     } else if (tMediaType === 'text') {
       return this._loadText(tEntry);
     } else {
-      tElem = global.document.createElement('embed');
-      tElem.type = pType;
-      tLoadEvent = 'onload';
+      if (pType === 'application/x-shockwave-flash') {
+        return this._loadFlash(tEntry);
+      }
+      throw new Error('Mime type is not supported.');
     }
 
     var tCallback = function() {
@@ -283,6 +286,31 @@
       });
 
     return this._update('add', pEntry);
+  };
+
+  // A private method to return an <embed> element synchronously.
+  MediaLoader.prototype._loadFlash = function (pEntry) {
+
+    var tElem = global.document.createElement('embed'),
+        tData = pEntry.data, tBlob,
+        tType = 'application/x-shockwave-flash';
+
+    if (tData instanceof Uint8Array) {
+      tBlob = mPolyFills.newBlob([tData], {type: tType});
+    } else {
+      tBlob = tData;
+    }
+
+    if (mHaveCreateObjectURL) {
+      tElem.src = global.URL.createObjectURL(tBlob);
+    } else {
+      // Hopefully this is the special object we made in newBlob()
+      tElem.src = 'data:' + tBlob.type + ';base64,' + global.btoa(tBlob.data);
+    }
+
+    tElem.type = tType;
+
+    return tElem;
   };
 
   MediaLoader.prototype._checkExistence = function (pType, pId, pRemove, pListenIfNotExist) {
