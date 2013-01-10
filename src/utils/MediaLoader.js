@@ -135,6 +135,7 @@
    *        The following options are supported:
    *        - wait {boolean} : If true, the system cannot go ahead without this data. (default=true)
    * @return {jsdump.PersistentCueListener} A delay object.
+   *
    *    To process the loaded data, the client needs to set a callback function as follows:
    *      jsdump.PersistentCueListener.on('load', callback);
    *    To get notified of the failure, the client needs to set a callback function as follows:
@@ -154,7 +155,7 @@
           complete: false,
           error: false
         },
-        tBlob, tSelf = this, tDelay;
+        tSelf = this, tDelay;
 
     if ((tMediaType = mGetMediaType(tType)) === null) {
       throw new Error('Mime type is not specified.');
@@ -183,9 +184,8 @@
     } else if (tMediaType === 'text') {
       return this._loadText(tEntry);
     } else {
-      tElem = global.document.createElement('embed');
-      tElem.type = pType;
-      tLoadEvent = 'onload';
+      // We create an <embed> element for other types.
+      return this._loadEmbed(tEntry);
     }
 
     var tCallback = function() {
@@ -217,21 +217,28 @@
       tSelf._update('move', tEntry);
     }, false);
 
+    tElem.src = mGetMediaURL(pData, tType);
+
+    return this._update('add', tEntry);
+  };
+
+  // A private static function to get a Blob or Data URL.
+  var mGetMediaURL = function (pData, pType) {
+    var tBlob, tSrc;
 
     if (pData instanceof Uint8Array) {
-      tBlob = mPolyFills.newBlob([pData], {type: tType});
+      tBlob = mPolyFills.newBlob([pData], {type: pType});
     } else {
       tBlob = pData;
     }
 
     if (mHaveCreateObjectURL) {
-      tElem.src = global.URL.createObjectURL(tBlob);
+      tSrc = global.URL.createObjectURL(tBlob);
     } else {
       // Hopefully this is the special object we made in newBlob()
-      tElem.src = 'data:' + tBlob.type + ';base64,' + global.btoa(tBlob.data);
+      tSrc = 'data:' + tBlob.type + ';base64,' + global.btoa(tBlob.data);
     }
-
-    return this._update('add', tEntry);
+    return tSrc;
   };
 
   // A private method to decode the compressed audio data.
@@ -283,6 +290,23 @@
       });
 
     return this._update('add', pEntry);
+  };
+
+  // A private method to return an <embed> element.
+  MediaLoader.prototype._loadEmbed = function (pEntry) {
+
+    var tElem = global.document.createElement('embed'),
+        tData = pEntry.data, tDelay,
+        tType = pEntry.type;
+
+    tElem.src = mGetMediaURL(tData, tType);
+    tElem.type = tType;
+    pEntry.data = tElem;
+    pEntry.complete = true;
+    tDelay = this._update('add', pEntry);
+    this._update('move', pEntry);
+
+    return tDelay;
   };
 
   MediaLoader.prototype._checkExistence = function (pType, pId, pRemove, pListenIfNotExist) {
