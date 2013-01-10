@@ -50,6 +50,12 @@
      * @type {quickswf.structs.Sprite}
      */
     this.currentSprite = null;
+
+    /**
+     * The flag to track whether non-UTF8 character is parsed.
+     * @type {boolearn}
+     */
+    this.nonUtf8CharDetected = false;
   }
 
   Parser.prototype = /** @lends {quickswf.Parser#} */ {
