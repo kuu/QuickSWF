@@ -40,9 +40,6 @@
       // We are only interested in ActionPush (type=0, string literal)
       // So, just skip the others.
       if (tActionCode < 0x80) {
-        if (tActionCode === 0x12) { // Not
-          tReader.seek(1); // boolean
-        }
         continue;
       }
       tLength = tReader.I16();
