@@ -155,7 +155,7 @@
           complete: false,
           error: false
         },
-        tBlob, tSelf = this, tDelay;
+        tSelf = this, tDelay;
 
     if ((tMediaType = mGetMediaType(tType)) === null) {
       throw new Error('Mime type is not specified.');
@@ -184,10 +184,8 @@
     } else if (tMediaType === 'text') {
       return this._loadText(tEntry);
     } else {
-      if (pType === 'application/x-shockwave-flash') {
-        return this._loadEmbed(tEntry);
-      }
-      throw new Error('Mime type is not supported.');
+      // We create an <embed> element for other types.
+      return this._loadEmbed(tEntry);
     }
 
     var tCallback = function() {
@@ -219,21 +217,28 @@
       tSelf._update('move', tEntry);
     }, false);
 
+    tElem.src = mGetMediaURL(pData, tType);
+
+    return this._update('add', tEntry);
+  };
+
+  // A private static function to get a Blob or Data URL.
+  var mGetMediaURL = function (pData, pType) {
+    var tBlob, tSrc;
 
     if (pData instanceof Uint8Array) {
-      tBlob = mPolyFills.newBlob([pData], {type: tType});
+      tBlob = mPolyFills.newBlob([pData], {type: pType});
     } else {
       tBlob = pData;
     }
 
     if (mHaveCreateObjectURL) {
-      tElem.src = global.URL.createObjectURL(tBlob);
+      tSrc = global.URL.createObjectURL(tBlob);
     } else {
       // Hopefully this is the special object we made in newBlob()
-      tElem.src = 'data:' + tBlob.type + ';base64,' + global.btoa(tBlob.data);
+      tSrc = 'data:' + tBlob.type + ';base64,' + global.btoa(tBlob.data);
     }
-
-    return this._update('add', tEntry);
+    return tSrc;
   };
 
   // A private method to decode the compressed audio data.
@@ -291,22 +296,10 @@
   MediaLoader.prototype._loadEmbed = function (pEntry) {
 
     var tElem = global.document.createElement('embed'),
-        tData = pEntry.data, tBlob, tDelay,
-        tType = 'application/x-shockwave-flash';
+        tData = pEntry.data, tDelay,
+        tType = pEntry.type;
 
-    if (tData instanceof Uint8Array) {
-      tBlob = mPolyFills.newBlob([tData], {type: tType});
-    } else {
-      tBlob = tData;
-    }
-
-    if (mHaveCreateObjectURL) {
-      tElem.src = global.URL.createObjectURL(tBlob);
-    } else {
-      // Hopefully this is the special object we made in newBlob()
-      tElem.src = 'data:' + tBlob.type + ';base64,' + global.btoa(tBlob.data);
-    }
-
+    tElem.src = mGetMediaURL(tData, tType);
     tElem.type = tType;
     pEntry.data = tElem;
     pEntry.complete = true;
