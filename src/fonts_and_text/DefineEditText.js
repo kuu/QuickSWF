@@ -133,7 +133,7 @@
           tInitialText = tBase64String;
           tSjis = true;
           pParser.nonUtf8CharDetected = true;
-          // As MS Gothic doesn't work on Chrome, we need to find appropreate font family for Japanese chars.
+          // TODO: As MS Gothic doesn't work on Chrome, we need to find appropreate font family for Japanese chars.
           tFont.name = 'Osaka'; 
         }
       }
