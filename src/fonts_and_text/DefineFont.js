@@ -99,6 +99,11 @@
         var tLangCode = tReader.B();
         var tFontNameLen = tReader.B();
         var tFontName = (tFontNameLen > 0)?tReader.sp(tFontNameLen):null;
+        if (tFontName.charCodeAt(0) > 0x7F) {
+          // Font name with multibyte-string tends not to be supported.:
+          // TODO: We need to find appropreate font family for Japanese chars.
+          tFontName = 'Osaka';
+        }
         var tNumGlyphs = tReader.I16();
         if (tNumGlyphs === 0) { // no Glyphs
             var tFont = Font.load(tReader, null, null);
