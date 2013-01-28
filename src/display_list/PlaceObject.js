@@ -84,8 +84,10 @@
       tPackage.type = 'add';
       this.add(tPackage);
     } else if (tMove && tId === void 0) {
-      tPackage.type = 'move';
-      this.add(tPackage);
+      if (tPackage.matrix) {
+        tPackage.type = 'move';
+        this.add(tPackage);
+      }
     }
 
     if (tClipDepth > 0) {
