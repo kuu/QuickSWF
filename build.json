@@ -1,9 +1,10 @@
 {
+  "defaultTarget": "quickswf",
+
   "properties": {
     "docsDir": "docs",
     "vendorDir": "vendor",
-    "binDir": "bin",
-    "closure-compiler-jar": "${vendorDir}/google-closure-compiler/compiler.jar"
+    "binDir": "bin"
   },
 
   "resources": {
@@ -28,14 +29,14 @@
     "Cues": {
       "type": "package",
       "location": "git",
-      "url": "git://github.com/JSDump/Cues.git",
+      "url": "git://github.com/BenriJS/Cues.git",
       "targets": ["all"]
     }
   },
 
   "targets": {
     "quickswf": {
-      "builder": "closure-compiler",
+      "builder": "js",
       "compilationLevel": "WHITESPACE_ONLY",
       "outputs": "${binDir}/quickswf.js",
       "resources": [
@@ -57,114 +58,7 @@
         {
           "type": "files",
           "root": "src",
-          "files": [
-            "quickswf.js"
-          ]
-        },
-
-        {
-          "type": "files",
-          "root": "src/utils",
-          "files": [
-            "browser.js",
-            "polyfills.js",
-            "charconv.js",
-            "crc32.js",
-            "MediaLoader.js"
-          ]
-        },
-
-        {
-          "type": "files",
-          "root": "src/basic_data_types",
-          "include": "^.+\\.js$"
-        },
-
-        {
-          "type": "files",
-          "root": "src/swf_structure",
-          "files": [
-            "swf.js",
-            "parser.js"
-          ]
-        },
-
-        {
-          "type": "files",
-          "root": "src/display_list",
-          "include": "^.+\\.js$"
-        },
-
-        {
-          "type": "files",
-          "root": "src/control_tags",
-          "include": "^.+\\.js$"
-        },
-
-        {
-          "type": "files",
-          "root": "src/actions",
-          "include": "^.+\\.js$"
-        },
-
-        {
-          "type": "files",
-          "root": "src/gradients",
-          "include": "^.+\\.js$"
-        },
-
-        {
-          "type": "files",
-          "root": "src/shapes",
-          "files": [
-            "FILLSTYLE.js",
-            "LINESTYLE.js",
-            "SHAPERECORD.js",
-            "DefineShape.js"
-          ]
-        },
-
-        {
-          "type": "files",
-          "root": "src/bitmaps",
-          "include": "^.+\\.js$"
-        },
-
-        {
-          "type": "files",
-          "root": "src/shape_morphing",
-          "include": "^.+\\.js$"
-        },
-
-        {
-          "type": "files",
-          "root": "src/fonts_and_text",
-          "files": [
-            "KERNINGRECORD.js",
-            "GLYPHENTRY.js",
-            "TEXTRECORD.js",
-            "DefineFont.js",
-            "DefineText.js",
-            "DefineEditText.js"
-          ]
-        },
-
-        {
-          "type": "files",
-          "root": "src/sounds",
-          "include": "^.+\\.js$"
-        },
-
-        {
-          "type": "files",
-          "root": "src/buttons",
-          "include": "^.+\\.js$"
-        },
-
-        {
-          "type": "files",
-          "root": "src/sprites_and_movie_clips",
-          "include": "^.+\\.js$"
+          "include": ".+\\.js"
         }
       ]
     }

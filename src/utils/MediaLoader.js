@@ -6,12 +6,12 @@
  */
 (function(global) {
 
-  var PersistentCueListener = global.jsdump.PersistentCueListener;
+  var PersistentCueListener = global.benri.cues.PersistentCueListener;
   var mPolyFills = global.quickswf.polyfills;
 
   global.quickswf.utils.MediaLoader = MediaLoader;
 
-  /** 
+  /**
    * A class for loading media data asynchronously.
    * @constructor
    */
@@ -44,8 +44,8 @@
   MediaLoader.prototype._update = function (pCommand, pEntry) {
 
     var tOptions = pEntry.options, tDelay,
-        i, il, tHash, tId = pEntry.id, 
-        tListeners, tToNotifyList = [], 
+        i, il, tHash, tId = pEntry.id,
+        tListeners, tToNotifyList = [],
         tMediaType = mGetMediaType(pEntry.type),
         tSlot = this._loaded[tMediaType];
 
@@ -93,7 +93,7 @@
         tToNotifyList[i].cue('load', pEntry.data);
       }
     }
-    if (pCommand === 'move' 
+    if (pCommand === 'move'
         && Object.getOwnPropertyNames(this._wait).length === 0) {
       for (i = 0, il = this._compListeners.length; i < il; i++) {
         this._compListeners[i].cue('complete', null);
@@ -131,15 +131,15 @@
    * @param {Uint8Array or Blob} pData The raw data.
    * @param {string} pType MIME type.
    * @param {boolern} pWait If true, the system cannot go ahead without this data. (default=true)
-   * @param {Object} pOptions 
+   * @param {Object} pOptions
    *        The following options are supported:
    *        - wait {boolean} : If true, the system cannot go ahead without this data. (default=true)
-   * @return {jsdump.PersistentCueListener} A delay object.
+   * @return {benri.cues.PersistentCueListener} A delay object.
    *
    *    To process the loaded data, the client needs to set a callback function as follows:
-   *      jsdump.PersistentCueListener.on('load', callback);
+   *      benri.cues.PersistentCueListener.on('load', callback);
    *    To get notified of the failure, the client needs to set a callback function as follows:
-   *      jsdump.PersistentCueListener.on('fail', callback);
+   *      benri.cues.PersistentCueListener.on('fail', callback);
    *    These callbacks take the following object as a parameter:
    *      - {id: "(specified pId)", data: "(the loaded data or the error object)", type: "(specified pType)"}
    */
@@ -282,7 +282,7 @@
     if (!tCharEncoding) {
       tCharEncoding = DEFAULT_CHARSET;
     }
-      
+
     global.quickswf.utils.Conv(pEntry.data, tCharEncoding, function(str){
         pEntry.data = str;
         pEntry.complete = true;
@@ -347,11 +347,11 @@
    * @param {boolean} pRemove (defaulst=false)
    *    If true, the loaded data is removed and no longer is retrievable.
    * @param {boolean} pAsync (defaulst=false)
-   *    If true, this method returns jsdump.PersistentCueListener object.
+   *    If true, this method returns benri.cues.PersistentCueListener object.
    *    To process the loaded data, the client needs to set a callback function as follows:
-   *      jsdump.PersistentCueListener.on('load', callback);
+   *      benri.cues.PersistentCueListener.on('load', callback);
    *    To get notified of the failure, the client needs to set a callback function as follows:
-   *      jsdump.PersistentCueListener.on('fail', callback);
+   *      benri.cues.PersistentCueListener.on('fail', callback);
    *    If pAync is false, this method immediately returns the loaded data or null, if the loading is not completed.
    * @return {Any} The loaded data
    */
@@ -379,9 +379,9 @@
 
   /**
    * Returns a delay object to notify when all the data is loaded. (only the data added with pWait true.)
-   * @return {jsdump.PersistentCueListener} A delay object.
+   * @return {benri.cues.PersistentCueListener} A delay object.
    *    To get notified when all the data is loaded, the client needs to set a callback function as follows:
-   *      jsdump.PersistentCueListener.on('complete', callback);
+   *      benri.cues.PersistentCueListener.on('complete', callback);
    *    The callback takes null as a parameter.
    */
   MediaLoader.prototype.checkComplete = function () {
