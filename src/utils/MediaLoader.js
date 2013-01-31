@@ -125,6 +125,8 @@
 
   var mHaveCreateObjectURL = global.quickswf.browser.HaveCreateObjectURL;
 
+  var mURL = global.URL || global.webkitURL;
+
   /**
    * Takes a raw data. Loads/decodes the data asynchronously. Provides methods to access the loaded data.
    * @param {string} pId The id for retrieving the loaded data.
@@ -192,7 +194,7 @@
       var src = this.src;
 
       if (src[0] === 'b' && src[1] === 'l' && src[2] === 'o' && src[3] === 'b' && src[4] === ':') {
-        global.URL.revokeObjectURL(src);
+        mURL.revokeObjectURL(src);
       }
       tEntry.data = tElem;
       tEntry.complete = true;
@@ -209,7 +211,7 @@
       var src = this.src;
 
       if (src[0] === 'b' && src[1] === 'l' && src[2] === 'o' && src[3] === 'b' && src[4] === ':') {
-        global.URL.revokeObjectURL(src);
+        mURL.revokeObjectURL(src);
       }
       console.error(e);
       tEntry.complete = true;
@@ -233,7 +235,7 @@
     }
 
     if (mHaveCreateObjectURL) {
-      tSrc = global.URL.createObjectURL(tBlob);
+      tSrc = mURL.createObjectURL(tBlob);
     } else {
       // Hopefully this is the special object we made in newBlob()
       tSrc = 'data:' + tBlob.type + ';base64,' + global.btoa(tBlob.data);

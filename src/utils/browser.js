@@ -13,7 +13,7 @@
 
   /** @const @type {boolean} */
   mBrowser.HaveCreateObjectURL =
-    (global.URL || global.webkitURL && global.webkitURL.createObjectURL);
+    ((global.URL && global.URL.createObjectURL) || (global.webkitURL && global.webkitURL.createObjectURL));
 
   /** @const @type {boolean} */
   mBrowser.HavePutImageDataAlphaBug = detectAndroidPutImageDataBug();
