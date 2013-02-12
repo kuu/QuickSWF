@@ -21,10 +21,13 @@
 
   function defineBitsJpeg2(pLength) {
     var tId = this.r.I16(), tBlob;
-    if (this.r.peekBits(64) === 0x89504E47) { // PNG file
+    if (this.r.sp(4) === '\x89PNG') { // PNG file
+      this.r.seek(-4);
       tBlob = mNewBlob([this.r.sub(this.r.tell(), pLength - 2)], {type: 'image/png'});
+      this.r.seek(pLength - 2);
       this.swf.mediaLoader.load(tId, tBlob);
     } else { // JPEG file
+      this.r.seek(-4);
       tBlob = getJPEG(this, pLength - 2);
       this.swf.mediaLoader.load(tId, tBlob);
     }
@@ -36,10 +39,13 @@
     var tBlob, tDelay, tSelf = this;
     var tAlphaData;
 
-    if (this.r.peekBits(64) === 0x89504E47) { // PNG file
+    if (this.r.sp(4) === '\x89PNG') { // PNG file
+      this.r.seek(-4);
       tBlob = mNewBlob([this.r.sub(this.r.tell(), tAlphaOffset)], {type: 'image/png'});
+      this.r.seek(pLength - 2);
       this.swf.mediaLoader.load(tId, tBlob);
     } else {
+      this.r.seek(-4);
       // JPEG file
       tBlob = getJPEG(this, tAlphaOffset);
       // alpha table
