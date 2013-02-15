@@ -110,19 +110,11 @@
       }
       tReader.fileSize = tFileSize;
 
-      var tFrameSize = RECT.load(tReader);
-      tFrameSize.left /= 20;
-      tFrameSize.right /= 20;
-      tFrameSize.top /= 20;
-      tFrameSize.bottom /= 20;
-
-      var tWidth = tFrameSize.right - tFrameSize.left;
-      var tHeight = tFrameSize.bottom - tFrameSize.top;
-
+      var tBounds = RECT.load(tReader);
       var tFrameRate = tReader.I16() / 256;
       var tFrameCount = tReader.I16();
 
-      var tSWF = this.swf = new SWF(tVersion, tWidth, tHeight, tFrameRate, tFrameCount);
+      var tSWF = this.swf = new SWF(tVersion, tBounds, tFrameRate, tFrameCount);
 
       this.currentSprite = tSWF.rootSprite;
       this.currentSprite.id = 0;

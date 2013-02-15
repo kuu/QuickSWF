@@ -14,10 +14,11 @@
    * @constructor
    * @class {quickswf.SWF}
    */
-  function SWF(pVersion, pWidth, pHeight, pFrameRate, pFrameCount) {
+  function SWF(pVersion, pBounds, pFrameRate, pFrameCount) {
     this.version = pVersion;
-    this.width = pWidth;
-    this.height = pHeight;
+    this.bounds = pBounds;
+    this.width = (pBounds.right - pBounds.left) / 20;
+    this.height = (pBounds.bottom - pBounds.top) / 20;
     this.frameRate = pFrameRate;
     this.frameCount = pFrameCount;
     this.rootSprite = new global.quickswf.structs.Sprite();
