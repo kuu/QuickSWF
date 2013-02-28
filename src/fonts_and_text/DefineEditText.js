@@ -119,23 +119,19 @@
     var tInitialText = null;
     var tSjis = false;
     if (tHasText) {
-      if (tUseOutline) {
-        tInitialText = tReader.s();
-      } else {
-        tInitialText = tReader.s(true, pParser.nonUtf8CharDetected);
-        if (tInitialText === null) {
-          // The string can be conceived as Shit-JIS
-          var tLength = tReader.sl();
-          var tUint8Array = tReader.sub(tReader.tell(), tLength);
-          var tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
-          tReader.seek(tLength + 1);
-          pParser.swf.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
-          tInitialText = tBase64String;
-          tSjis = true;
-          pParser.nonUtf8CharDetected = true;
-          // TODO: As MS Gothic doesn't work on Chrome, we need to find appropreate font family for Japanese chars.
-          tFont.name = 'Osaka'; 
-        }
+      tInitialText = tReader.s(true, pParser.nonUtf8CharDetected);
+      if (tInitialText === null) {
+        // The string can be conceived as Shit-JIS
+        var tLength = tReader.sl();
+        var tUint8Array = tReader.sub(tReader.tell(), tLength);
+        var tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
+        tReader.seek(tLength + 1);
+        pParser.swf.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
+        tInitialText = tBase64String;
+        tSjis = true;
+        pParser.nonUtf8CharDetected = true;
+        // TODO: As MS Gothic doesn't work on Chrome, we need to find appropreate font family for Japanese chars.
+        tFont.name = 'Osaka';
       }
     } 
     var tEditText = EditText.load(tReader); 

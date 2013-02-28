@@ -191,7 +191,6 @@
         tFont.bold = tFontFlagsBold;
         tFont.langCode = tLangCode;
         tFont.name = tFontName;
-        tFont.codeTable = tCodeTable;
         tFont.ascent = tFontAscent;
         tFont.descent = tFontDescent;
         tFont.leading = tFontLeading;
@@ -199,17 +198,56 @@
         tFont.boundsTable = tFontBoundsTable;
         tFont.kerningTable = tFontKerningTable;
 
-        // Lookup table for search by char code.
-        var tTable = tFont.lookupTable = new Object();
-        var tShapes = tFont.shapes; 
-        for (var i = 0; i < tNumGlyphs; i++) {
-          var tEntry = new Object();
-          tEntry.shape = tShapes[i];
-          if (tFontFlagsHasLayout) {
-            tEntry.advance = tFontAdvanceTable[i];
-            tEntry.bounds = tFontBoundsTable[i];
+        var buildLookupTable = function (pCodeTable) {
+          // Create a lookup table for searching glyphs by char code.
+          var tTable = new Object();
+          var tShapes = tFont.shapes;
+          for (var i = 0; i < tNumGlyphs; i++) {
+            var tEntry = new Object();
+            tEntry.shape = tShapes[i];
+            if (tFontFlagsHasLayout) {
+              tEntry.advance = tFontAdvanceTable[i];
+              tEntry.bounds = tFontBoundsTable[i];
+            }
+            tTable[pCodeTable[i] + ''] = tEntry;
           }
-          tTable[tCodeTable[i] + ''] = tEntry;
+          return tTable;
+        };
+
+        if (tFontFlagsShiftJIS && tCodeTable) {
+          // Asynchronously converts the code table into UCS characters.
+          var tLength = tCodeTable.length, tCharCode;
+          var tBuffer = new ArrayBuffer(tLength * 2);
+          var tUint8Array = new Uint8Array(tBuffer);
+          for (var i = 0, j = 0, il = tLength; i < il; i++) {
+            tCharCode = tCodeTable[i];
+            if (tCharCode < 256) {
+              tUint8Array[j++] = tCharCode;
+            } else if (tCharCode < 65536) {
+              tUint8Array[j++] = (tCharCode >> 8) & 0xff;
+              tUint8Array[j++] = tCharCode & 0xff;
+            }
+          }
+          var tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
+          var tDelay = pParser.swf.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
+          tDelay.on('load', function (pResult) {
+              var tString = pResult.data, tLength = tString.length;
+              var tCharCode, tCharCodeArray = new Array();
+              for (var i = 0; i < tLength; i++) {
+                if (tCharCode = tString.charCodeAt(i)) {
+                  tCharCodeArray.push(tString.charCodeAt(i));
+                }
+              }
+              pParser.swf.fonts[tId].codeTable = tCharCodeArray;
+              pParser.swf.fonts[tId].lookupTable = buildLookupTable(tCharCodeArray);
+            });
+          tDelay.on('fail', function () {
+              pParser.swf.fonts[tId].codeTable = tCodeTable;
+              pParser.swf.fonts[tId].lookupTable = buildLookupTable(tCodeTable);
+            });
+        } else {
+          tFont.codeTable = tCodeTable;
+          tFont.lookupTable = buildLookupTable(tCodeTable);
         }
         pParser.swf.fonts[tId] = tFont;
     }
