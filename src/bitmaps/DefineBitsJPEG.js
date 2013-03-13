@@ -59,32 +59,28 @@
         var tImage = pMessage.data;
 
         // replace
-        tImage.addEventListener('load', function onLoad() {
-          var tCanvas = document.createElement('canvas');
-          var tCtx = tCanvas.getContext('2d');
-          var tImageData, tPixelArray;
-          var tWidth = tImage.width;
-          var tHeight = tImage.height;
-          var tIndex, tLength;
+        var tCanvas = document.createElement('canvas');
+        var tCtx = tCanvas.getContext('2d');
+        var tImageData, tPixelArray;
+        var tWidth = tImage.width;
+        var tHeight = tImage.height;
+        var tIndex, tLength;
 
-          tImage.removeEventListener('load', onLoad);
+        tCanvas.width = tWidth;
+        tCanvas.height = tHeight;
+        tCtx.drawImage(tImage, 0, 0);
 
-          tCanvas.width = tWidth;
-          tCanvas.height = tHeight;
-          tCtx.drawImage(tImage, 0, 0);
+        tImageData = tCtx.getImageData(0, 0, tWidth, tHeight);
+        tPixelArray = tImageData.data;
 
-          tImageData = tCtx.getImageData(0, 0, tWidth, tHeight);
-          tPixelArray = tImageData.data;
+        for (tIndex = 0, tLength = tAlphaData.length; tIndex < tLength; ++tIndex) {
+          tPixelArray[tIndex * 4 + 3] = tAlphaData[tIndex];
+        }
+        tCtx.putImageData(tImageData, 0, 0);
 
-          for (tIndex = 0, tLength = tAlphaData.length; tIndex < tLength; ++tIndex) {
-            tPixelArray[tIndex * 4 + 3] = tAlphaData[tIndex];
-          }
-          tCtx.putImageData(tImageData, 0, 0);
-
-          // Replace the image data.
-          tSelf.swf.mediaLoader.get('image', tId, true);
-          tSelf.swf.mediaLoader.put(tId, tCanvas, 'image');
-        }, false);
+        // Replace the image data.
+        tSelf.swf.mediaLoader.get('image', tId, true);
+        tSelf.swf.mediaLoader.put(tId, tCanvas, 'image');
       });
     }
   }

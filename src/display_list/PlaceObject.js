@@ -18,7 +18,17 @@
     var tId = tReader.I16();
     var tDepth = tReader.I16();
     var tMatrix = MATRIX.load(tReader);
-    console.error('PlaceObject1 Encountered!');
+    console.warn('PlaceObject1 Encountered!');
+
+    var tPackage = {
+      type: 'add',
+      id: tId,
+      matrix: tMatrix,
+      depth: tDepth,
+      name: null
+    };
+
+    this.add(tPackage);
   }
 
   function placeObject2(pLength) {
