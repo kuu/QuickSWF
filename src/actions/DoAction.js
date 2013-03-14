@@ -34,7 +34,8 @@
 
     var tReader = new global.Breader(pBuffer),
         tActionCode, tLength, tSWF = pParser.swf,
-        tLiteralTypeOffset, tUint8Array, tBase64String;
+        tLiteralTypeOffset, tUint8Array, tBase64String,
+        tString, tStringLength, tReadLength;
 
     while ((tActionCode = tReader.B()) !== 0) {
       // We are only interested in ActionPush (type=0, string literal)
@@ -47,27 +48,36 @@
         tReader.seek(tLength);
         continue;
       }
+      tLength--; // Minus 1 byte for the action code.
       if (tReader.B() !== 0) { // Type (0 : String)
-        tReader.seek(tLength - 1);
+        tReader.seek(tLength);
         continue;
       }
-      // Also skip the string literals other than Shift-JIS.
-      if (tReader.s(true, pParser.nonUtf8CharDetected) !== null) {
-        // The string is not used and later the same string is going to be parsed again.
-        // This sounds inefficient, but we want to avoid storing and searching a lot of strings.
-        continue;
-      }
-      pParser.nonUtf8CharDetected = true;
-      tLiteralTypeOffset = tReader.tell() - 1;
 
-      // Make a request to convert Shift-JIS to UCS.
-      tLength = tReader.sl();
-      tUint8Array = tReader.sub(tReader.tell(), tLength);
-      tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
-      tReader.seek(tLength + 1);
-      tSWF.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
-      // Overwrite the literal type.
-      pBuffer[tLiteralTypeOffset] = 255;
+      // Looping here because the string can be null-terminated in the middle.
+      tReadLength = 0;
+      while (tReadLength < tLength) {
+        // Skip the string literals other than Shift-JIS.
+        //if (tReader.s(true, pParser.nonUtf8CharDetected) !== null) {
+        tStringLength = tReader.sl();
+        tString = tReader.s(true, pParser.nonUtf8CharDetected);
+        if (tString !== null) {
+          // Utf8 char:
+          // The string is not used and later the same string is going to be parsed again.
+          // This sounds inefficient, but we want to avoid storing and searching a lot of strings.
+        } else {
+          // Non-Utf8 char:
+          // Make a request to convert Shift-JIS to UCS.
+          pParser.nonUtf8CharDetected = true;
+          tLiteralTypeOffset = tReader.tell() - 1;
+          tUint8Array = tReader.sub(tReader.tell(), tStringLength);
+          tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
+          tReader.seek(tStringLength + 1);
+          tSWF.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
+          pBuffer[tLiteralTypeOffset] = 255; // Overwrite the literal type.
+        }
+        tReadLength += (tStringLength + 1);
+      }
     }
   }
 
