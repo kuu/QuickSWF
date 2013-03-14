@@ -58,6 +58,25 @@
       while (tReader.tell() - tStartIndex < tLength) {
         tType = tReader.B();
         switch (tType) {
+        case 0: // String literal
+          // Shift-JIS -> UCS conversion.
+          if (tReader.s(true, pParser.nonUtf8CharDetected) !== null) {
+            // Utf8 char:
+            // The string is not used and later the same string is going to be parsed again.
+            // This sounds inefficient, but we want to avoid storing and searching a lot of strings.
+          } else {
+            // Non-Utf8 char:
+            // Make a request to convert Shift-JIS to UCS.
+            pParser.nonUtf8CharDetected = true;
+            tLiteralTypeOffset = tReader.tell() - 1;
+            tStringLength = tReader.sl();
+            tUint8Array = tReader.sub(tReader.tell(), tStringLength);
+            tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
+            tReader.seek(tStringLength + 1);
+            tSWF.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
+            pBuffer[tLiteralTypeOffset] = 255; // Overwrite the literal type.
+          }
+          break;
         case 1: // Floating Point literal
           tReader.F32();
           break;
@@ -78,25 +97,6 @@
           break;
         case 9: // Constant16: For constant pool index >= 256
           tReader.I16();
-          break;
-        case 0: // String literal
-          // Shift-JIS -> UCS conversion.
-          if (tReader.s(true, pParser.nonUtf8CharDetected) !== null) {
-            // Utf8 char:
-            // The string is not used and later the same string is going to be parsed again.
-            // This sounds inefficient, but we want to avoid storing and searching a lot of strings.
-          } else {
-            // Non-Utf8 char:
-            // Make a request to convert Shift-JIS to UCS.
-            pParser.nonUtf8CharDetected = true;
-            tLiteralTypeOffset = tReader.tell() - 1;
-            tStringLength = tReader.sl();
-            tUint8Array = tReader.sub(tReader.tell(), tStringLength);
-            tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
-            tReader.seek(tStringLength + 1);
-            tSWF.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
-            pBuffer[tLiteralTypeOffset] = 255; // Overwrite the literal type.
-          }
           break;
         default:
           console.warn('[ActionPush] ---- Unknown data type. ----');
