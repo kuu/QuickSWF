@@ -67,7 +67,7 @@
     }
 
     if (tFlags & (1 << 5)) { // hasName
-      tPackage.name = tReader.s().toLowerCase();
+      tPackage.name = tReader.s();
     }
     // TODO: Might need to make fake names here like '_unnamedNUMBER' on else
 
