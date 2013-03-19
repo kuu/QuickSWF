@@ -2,7 +2,7 @@
 
   var mPolyFills = global.quickswf.polyfills = {};
 
-  var mHaveBlob = global.Blob !== void 0;
+  var mHaveBlob = ('Blob' in global);
   var mHaveBlobConstructor = false;
 
   if (mHaveBlob) {
@@ -20,6 +20,24 @@
     if (mHaveBlobConstructor) {
       return new Blob(pData, pOptions);
     } else {
+      var BlobBuilder = window.BlobBuilder 
+          || window.WebKitBlobBuilder 
+          || window.MozBlobBuilder 
+          || window.MSBlobBuilder;
+
+      if (BlobBuilder){
+        var tBuilder = new BlobBuilder();
+        for (var i = 0, il = pData.length; i < il; i++) {
+          var tData = pData[i];
+          if (tData.buffer) {
+            tBuilder.append(tData.buffer);
+          } else {
+            tBuilder.append(tData);
+          }
+        }
+        return tBuilder.getBlob(pOptions.type);
+      }
+
       var tNewData = new Array(65536);
       var tIndex = 0;
       for (var i = 0, il = pData.length; i < il; i++) {

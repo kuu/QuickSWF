@@ -228,7 +228,7 @@
               tUint8Array[j++] = tCharCode & 0xff;
             }
           }
-          var tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
+          var tBase64String = global.btoa(global.String.fromCharCode.apply(null, global.Array.prototype.slice.call(tUint8Array, 0)));
           var tDelay = pParser.swf.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
           tDelay.on('load', function (pResult) {
               var tString = pResult.data, tLength = tString.length;
