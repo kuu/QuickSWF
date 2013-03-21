@@ -213,7 +213,8 @@
       if (src[0] === 'b' && src[1] === 'l' && src[2] === 'o' && src[3] === 'b' && src[4] === ':') {
         mURL.revokeObjectURL(src);
       }
-      console.error(e);
+      console.error('Failure in loading media data: id=' + tEntry.id + ', type=' + tEntry.type);
+      tEntry.data = null;
       tEntry.complete = true;
       tEntry.error = true;
       tSelf._update('move', tEntry);
