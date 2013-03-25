@@ -124,7 +124,7 @@
         // The string can be conceived as Shit-JIS
         var tLength = tReader.sl();
         var tUint8Array = tReader.sub(tReader.tell(), tLength);
-        var tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
+        var tBase64String = global.btoa(global.String.fromCharCode.apply(null, global.Array.prototype.slice.call(tUint8Array, 0)));
         tReader.seek(tLength + 1);
         pParser.swf.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
         tInitialText = tBase64String;

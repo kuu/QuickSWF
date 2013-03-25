@@ -71,7 +71,7 @@
             tLiteralTypeOffset = tReader.tell() - 1;
             tStringLength = tReader.sl();
             tUint8Array = tReader.sub(tReader.tell(), tStringLength);
-            tBase64String = global.btoa(global.String.fromCharCode.apply(null, tUint8Array));
+            tBase64String = global.btoa(global.String.fromCharCode.apply(null, global.Array.prototype.slice.call(tUint8Array, 0)));
             tReader.seek(tStringLength + 1);
             tSWF.mediaLoader.load(tBase64String, tUint8Array, 'text/plain; charset=Shift_JIS');
             pBuffer[tLiteralTypeOffset] = 255; // Overwrite the literal type.
