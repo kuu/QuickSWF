@@ -70,6 +70,8 @@
         break;
       case 0x40: // Repeating bitmap fill
       case 0x41: // Clipped bitmap fill
+      case 0x42: // Non-smoothed repeating bitmap
+      case 0x43: // Non-smoothed clipped bitmap
         tFillStyle.bitmapId = pReader.I16();
         if (pIsMorph) {
             tFillStyle.startMatrix = MATRIX.load(pReader);
@@ -89,11 +91,12 @@
           tFillStyle.bitmapId = null;
           break;
         }
+
+        if (tType === 0x42 || tType === 0x43) {
+          console.warn('Non-smoothed bitmaps are not supported');
+        }
+
         break;
-      case 0x42: // Non-smoothed repeating bitmap
-      case 0x43: // Non-smoothed clipped bitmap
-        console.error('Non-smooted bitmaps are not supported');
-        return;
       default:
         console.error('Unknown fill style type: ' + tType);
         return;
