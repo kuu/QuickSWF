@@ -59,10 +59,14 @@
       }
       var tActionRecordSize = pReader.bp(32);
       pReader.a();
-      // skip the actions for now.
-      pReader.seek(tActionRecordSize);
 
-      tActions.clipActionRecords.push({eventFlags: tEventFlags});
+      var tData = pReader.sub(pReader.tell(), tActionRecordSize);
+      global.quickswf.Parser.parseAndMark(this, tData);
+
+      tActions.clipActionRecords.push({
+        eventFlags: tEventFlags,
+        action: tData
+      });
     }
 
     pReader.a();

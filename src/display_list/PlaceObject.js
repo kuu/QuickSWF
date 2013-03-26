@@ -33,6 +33,7 @@
 
   function placeObject2(pLength) {
     var tReader = this.r;
+    var tStartIndex = tReader.tell();
 
     var tFlags = tReader.B();
     var tDepth = tReader.I16();
@@ -69,16 +70,18 @@
     if (tFlags & (1 << 5)) { // hasName
       tPackage.name = tReader.s();
     }
-    // TODO: Might need to make fake names here like '_unnamedNUMBER' on else
 
     if (tFlags & (1 << 6)) {
       tClipDepth = tReader.I16();
     }
 
     var tClipActions = null;
-    if (tFlags & 1) {
-      //tClipActions = CLIPACTIONS.load(tReader, this.swf.version);
-      // It's not following the spec....
+    if (tFlags & (1 << 7)) {
+      tClipActions = CLIPACTIONS.load(tReader, this.swf.version);
+      this.add({
+        type: 'clipActions',
+        clipActions: tClipActions
+      });
     }
 
     var tMove = tFlags & 1;
@@ -86,7 +89,7 @@
     if (tMove && tId !== void 0) {
       tPackage.type = 'replace';
       this.add(tPackage);
-      if (tFlags & (1 << 5)) { // hasMatrix
+      if (tFlags & (1 << 2)) { // hasMatrix
         tPackage.type = 'move';
         this.add(tPackage);
       }
@@ -123,6 +126,15 @@
         depth: tDepth,
         ratio: tRatio
       });
+    }
+
+    if (tReader.tell() < tStartIndex + pLength) {
+      tClipActions = CLIPACTIONS.load(tReader, this.swf.version);
+      this.add({
+        type: 'clipActions',
+        clipActions: tClipActions
+      });
+      // It's not following the spec....
     }
   }
 

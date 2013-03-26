@@ -7,6 +7,7 @@
 (function(global) {
 
   global.quickswf.Parser.prototype['12'] = doAction;
+  global.quickswf.Parser.parseAndMark = parseAndMark;
 
   var MAX_ASYNC_STRING_NUM = (1 << 16);
 

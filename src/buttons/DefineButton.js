@@ -101,6 +101,7 @@
     var tFlags = pReader.I16();
     var tLength = tSize ? tSize - 4 : pBounds - pReader.tell();
     var tButtonAction = pReader.sub(pReader.tell(), tLength);
+    global.quickswf.Parser.parseAndMark(this, tButtonAction);
     pReader.seek(tLength);
 
     var tCond = {
