@@ -26,10 +26,10 @@
       "targets": ["all"]
     },
 
-    "Cues": {
+    "BenriJS": {
       "type": "package",
       "location": "git",
-      "url": "git://github.com/BenriJS/Cues.git",
+      "url": "git://github.com/BenriJS/BenriJS.git",
       "targets": ["all"]
     }
   },
@@ -52,7 +52,7 @@
 
         {
           "type": "reference",
-          "name": "Cues"
+          "name": "BenriJS"
         },
 
         {
