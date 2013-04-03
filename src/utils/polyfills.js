@@ -30,7 +30,9 @@
         for (var i = 0, il = pData.length; i < il; i++) {
           var tData = pData[i];
           if (tData.buffer) {
-            tBuilder.append(tData.buffer);
+            var tNewArray = new Uint8Array(tData.length);
+            tNewArray.set(tData);
+            tBuilder.append(tNewArray.buffer);
           } else {
             tBuilder.append(tData);
           }
